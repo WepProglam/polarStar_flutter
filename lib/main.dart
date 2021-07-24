@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:polarstar_flutter/login.dart';
+import 'package:polarstar_flutter/main_page.dart';
 import 'package:polarstar_flutter/sign_up.dart';
 
 void main() {
