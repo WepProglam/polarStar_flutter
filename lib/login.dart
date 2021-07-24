@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'session.dart';
 
 // void main() {
 //   runApp(Login());
@@ -44,9 +45,23 @@ class _LoginInputsState extends State<LoginInputs> {
     var response = await http.post(Uri.parse(url), body: data);
     // var response = await http.get(Uri.parse(url2));
 
-    // print(response.body);
+    // var statusCode = response.statusCode;
+    // var responseHeaders = response.headers;
+    // var responseBody = utf8.decode(response.bodyBytes);
 
-    return response;
+    // print('status code: $statusCode');
+    // print('body: $responseBody');
+    // print('header: $responseHeaders');
+    // print('cookie: ${responseHeaders['set-cookie']}');
+
+    Session().updateCookie(response);
+
+    print(Session.accessToken);
+    if (Session.accessToken != '') {
+      Navigator.popAndPushNamed(context, '/mainPage');
+    }
+
+    // return response;
   }
 
   @override

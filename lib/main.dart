@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:polarstar_flutter/login.dart';
 import 'package:polarstar_flutter/main_page.dart';
 import 'package:polarstar_flutter/sign_up.dart';
+import 'session.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,9 +25,10 @@ class MyApp extends StatelessWidget {
 
       initialRoute: '/',
       routes: {
-        '/': (context) => Login(),
+        '/': (context) => Session.accessToken == '' ? Login() : MainPage(),
         '/login': (context) => Login(),
         '/signUp': (context) => SignUp(),
+        '/mainPage': (context) => MainPage(),
       },
       // home: MyHomePage(title: 'Main'),
     );
