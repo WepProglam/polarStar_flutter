@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
 
       initialRoute: '/',
       routes: {
-        '/': (context) => Session.accessToken == '' ? Login() : MainPage(),
+        '/': (context) => Login(),
         '/login': (context) => Login(),
         '/signUp': (context) => SignUp(),
         '/mainPage': (context) => MainPage(),
@@ -34,48 +34,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// class MyHomePage extends StatefulWidget {
-//   MyHomePage({Key key, this.title}) : super(key: key);
-
-//   final String title;
-
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//           children: <Widget>[
-//             //검색 바
-//             Row(
-//               children: [
-//                 Spacer(),
-//                 Expanded(
-//                   flex: 6,
-//                   child: TextFormField(
-//                     decoration: InputDecoration(
-//                         border: OutlineInputBorder(), hintText: 'Search'),
-//                   ),
-//                 ),
-//                 Spacer(),
-//                 Expanded(
-//                     flex: 2,
-//                     child: OutlinedButton(onPressed: null, child: Text('검색'))),
-//                 Spacer(),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
