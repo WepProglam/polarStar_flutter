@@ -46,19 +46,19 @@ class _LoginInputsState extends State<LoginInputs> {
     // var response = await http.get(Uri.parse(url2));
 
     // var statusCode = response.statusCode;
-    // var responseHeaders = response.headers;
-    // var responseBody = utf8.decode(response.bodyBytes);
+    var responseHeaders = response.headers;
+    var responseBody = utf8.decode(response.bodyBytes);
 
     // print('status code: $statusCode');
-    // print('body: $responseBody');
-    // print('header: $responseHeaders');
-    // print('cookie: ${responseHeaders['set-cookie']}');
+    print('body: $responseBody');
+    print('header: $responseHeaders');
 
     Session().updateCookie(response);
 
     print(Session.accessToken);
     if (Session.accessToken != '') {
-      Navigator.popAndPushNamed(context, '/mainPage');
+      // Navigator.popAndPushNamed(context, '/mainPage');
+      Navigator.pushNamed(context, '/mainPage');
     }
 
     // return response;
