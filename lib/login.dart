@@ -33,12 +33,12 @@ class _LoginInputsState extends State<LoginInputs> {
   final loginPwContoller = TextEditingController();
 
   Future userLogin() async {
-    var url_login =
-        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/login';
+    //var url_login =    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/login';
+
+    var url_login = 'http://10.0.2.2:52324/login'; //자기 포트 번호 직접 입력
 
     String user_id = loginIdContoller.text;
     String user_pw = loginPwContoller.text;
-
     Map<String, String> data = {
       'id': user_id,
       'pw': user_pw,
@@ -61,6 +61,8 @@ class _LoginInputsState extends State<LoginInputs> {
     // var statusCode = response.statusCode;
     var postHeaders = response_post.headers;
     var postBody = utf8.decode(response_post.bodyBytes);
+
+    print(response_post.headers);
     // var responseBody = response.bodyBytes;
 
     // print('status code: $statusCode');

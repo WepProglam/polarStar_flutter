@@ -21,8 +21,8 @@ class Session {
   }
 
   Future<dynamic> post(String url, dynamic data) async {
-    http.Response response = await http.post(Uri.parse(url),
-        body: json.encode(data), headers: headers);
+    http.Response response =
+        await http.post(Uri.parse(url), body: data, headers: headers);
 
     final int statusCode = response.statusCode;
     if (statusCode < 200 || statusCode > 400 || json == null) {
