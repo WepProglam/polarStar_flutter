@@ -2,9 +2,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Session {
-  Map<String, String> headers = {'User-Agent': 'Mobi'};
+  static Map<String, String> headers = {'User-Agent': 'Mobi', 'Cookie': ''};
 
-  Map<String, String> cookies = {};
+  static Map<String, String> cookies = {};
 
   static String session = '';
   static String salt = '';
@@ -40,6 +40,16 @@ class Session {
       cookies[str] =
           (index == -1) ? rawCookie : rawCookie.substring(index2, index);
       // print(accessToken);
+      String strCookies = cookies.toString();
+      int len = strCookies.length - 1;
+      headers['Cookie'] = cookies
+          .toString()
+          .substring(1, len)
+          .replaceAll(RegExp(r': '), '=')
+          .replaceAll(RegExp(r','), ';');
+
+      print(headers['Cookie']);
+
       return cookies[str];
     }
   }

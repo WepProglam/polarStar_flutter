@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'session.dart';
 import 'dart:io';
+import 'crypt.dart';
 
 // void main() {
 //   runApp(Login());
@@ -33,17 +34,20 @@ class _LoginInputsState extends State<LoginInputs> {
   final loginPwContoller = TextEditingController();
 
   Future userLogin() async {
-    //var url_login =    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/login';
-
-    var url_login = 'http://10.0.2.2:52324/login'; //자기 포트 번호 직접 입력
+    Session.cookies = {};
+    Session.headers['Cookie'] = '';
 
     String user_id = loginIdContoller.text;
     String user_pw = loginPwContoller.text;
+
     Map<String, String> data = {
       'id': user_id,
       'pw': user_pw,
     };
 
+    //var url_login =    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/login';
+
+    var url_login = 'http://10.0.2.2:3000/login'; //자기 포트 번호 직접 입력
     // get
     var response_get = await Session().get(url_login);
 
@@ -52,60 +56,28 @@ class _LoginInputsState extends State<LoginInputs> {
 
     Session.salt = Session().updateCookie(response_get, 'salt');
 
-    print('salt: ${Session.salt}');
+    print('salt: ${Session.cookies['salt']}');
 
-    crypto();
+    loginPwContoller.text = crypto(user_id, user_pw);
+
+    data['pw'] = loginPwContoller.text;
 
     //post
     var response_post = await Session().post(url_login, data);
+
     // var statusCode = response.statusCode;
     var postHeaders = response_post.headers;
     var postBody = utf8.decode(response_post.bodyBytes);
 
-    print(response_post.headers);
-    // var responseBody = response.bodyBytes;
-
     // print('status code: $statusCode');
     print('body: $postBody');
-    // print('postHeader: $postHeaders');
+    print('postHeader: $postHeaders');
 
     Session.session = Session().updateCookie(response_post, 'connect.sid');
 
-    // print(Session.accessToken);
-    if (Session.session != '') {
-      // Navigator.popAndPushNamed(context, '/mainPage');
-      // Navigator.pushNamed(context, '/mainPage');
+    if (postHeaders['location'] == '../') {
+      Navigator.popAndPushNamed(context, '/mainPage');
     }
-
-    // return response;
-  }
-
-  String pwCrypto(String id, String pw) {
-    var pwSalt = pw + id;
-    var cryptedPw = sha512.convert(utf8.encode(pwSalt)).toString();
-
-    for (int i = 0; i < 1000; i++) {
-      cryptedPw = sha512.convert(utf8.encode(cryptedPw + id)).toString();
-    }
-
-    return cryptedPw;
-  }
-
-  bool crypto() {
-    var salt = Session.salt;
-    salt = Uri.decodeFull(salt);
-
-    var pwSalt = pwCrypto(loginIdContoller.text, loginPwContoller.text) + salt;
-
-    var cryptedPw = sha512.convert(utf8.encode(pwSalt)).toString();
-
-    for (int i = 0; i < 1000; i++) {
-      cryptedPw = sha512.convert(utf8.encode(cryptedPw + salt)).toString();
-    }
-
-    loginPwContoller.text = cryptedPw;
-
-    return true;
   }
 
   @override
@@ -154,6 +126,11 @@ class _LoginInputsState extends State<LoginInputs> {
                     userLogin();
                   },
                   child: Text('LOGIN')),
+              OutlinedButton(
+                  onPressed: () {
+                    Session().get('http://10.0.2.2:3000/logout');
+                  },
+                  child: Text('LOGOUT')),
               OutlinedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/signUp');

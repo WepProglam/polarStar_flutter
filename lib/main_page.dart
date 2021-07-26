@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-void main() {
-  runApp(MainPage());
-}
+import 'session.dart';
 
 class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('polarStar'),
-          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
-        ),
-        body: MainBoards(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('polarStar'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Session().get('http://10.0.2.2:3000/logout');
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/login', (Route<dynamic> route) => false);
+              },
+              icon: Text('LOGOUT')),
+          IconButton(onPressed: () {}, icon: Icon(Icons.person)),
+        ],
       ),
+      body: MainBoards(),
     );
   }
 }
@@ -74,7 +78,14 @@ class _MainBoardsState extends State<MainBoards> {
               OutlinedButton(onPressed: () {}, child: Text('board4')),
               Spacer(),
             ],
-          )
+          ),
+          OutlinedButton(
+              onPressed: () {
+                Session().get('http://10.0.2.2:3000/logout');
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/login', (Route<dynamic> route) => false);
+              },
+              child: Text('LOGOUT')),
         ],
       ),
     );
