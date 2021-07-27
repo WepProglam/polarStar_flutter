@@ -34,15 +34,14 @@ class _SignUpInputState extends State<SignUpInput> {
   final studentIDController = TextEditingController();
 
   Future userSignUp() async {
-    var url =
-        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/admin';
+    var url = 'http://10.0.2.2:3000/admin';
 
     String sign_id = idController.text;
     String sign_pw = pwController.text;
     String sign_nickname = nicknameController.text;
     String sign_studentID = studentIDController.text;
 
-    var data = {
+    Map<String, String> data = {
       'id': sign_id,
       'pw': sign_pw,
       'nickname': sign_nickname,
@@ -53,7 +52,14 @@ class _SignUpInputState extends State<SignUpInput> {
 
     var response = await http.post(Uri.parse(url), body: data);
 
-    print(response);
+    print(response.headers);
+
+    if (response.headers['location'] == '/login') {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('동일한 ID가 있습니다')));
+    }
   }
 
   @override
@@ -86,6 +92,7 @@ class _SignUpInputState extends State<SignUpInput> {
               ),
               TextFormField(
                 controller: pwController,
+                obscureText: true,
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(), hintText: 'PW'),
