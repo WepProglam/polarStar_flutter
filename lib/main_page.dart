@@ -3,7 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'session.dart';
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,25 +27,48 @@ class MainPage extends StatelessWidget {
           IconButton(onPressed: () {}, icon: Icon(Icons.person)),
         ],
       ),
-      body: MainBoards(),
+      body: MainPageScroll(),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'home',
+              backgroundColor: Colors.black),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'boards',
+              backgroundColor: Colors.black),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.map_outlined),
+              label: 'unity',
+              backgroundColor: Colors.black),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.work_outlined),
+              label: 'work',
+              backgroundColor: Colors.black),
+        ],
+        // currentIndex: ,
+        selectedItemColor: Colors.amber[800],
+        onTap: null,
+      ),
     );
   }
 }
 
-class MainBoards extends StatefulWidget {
-  MainBoards({Key key}) : super(key: key);
+class MainPageScroll extends StatefulWidget {
+  MainPageScroll({Key key}) : super(key: key);
 
   @override
-  _MainBoardsState createState() => _MainBoardsState();
+  _MainPageScrollState createState() => _MainPageScrollState();
 }
 
-class _MainBoardsState extends State<MainBoards> {
+class _MainPageScrollState extends State<MainPageScroll> {
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          // 검색창
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -67,6 +95,12 @@ class _MainBoardsState extends State<MainBoards> {
               ),
             ],
           ),
+
+          // 광고
+
+          // 빌보드(핫게)
+
+          // 게시판들
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -81,15 +115,10 @@ class _MainBoardsState extends State<MainBoards> {
               Spacer(),
             ],
           ),
-          OutlinedButton(
-              onPressed: () {
-                Session().get('http://10.0.2.2:3000/logout');
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/login', (Route<dynamic> route) => false);
-                Session.cookies = {};
-                Session.headers['Cookie'] = '';
-              },
-              child: Text('LOGOUT')),
+
+          //시간표 & 강의평가
+
+          // 유니티
         ],
       ),
     );
