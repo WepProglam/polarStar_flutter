@@ -15,6 +15,8 @@ class MainPage extends StatelessWidget {
                 Session().get('http://10.0.2.2:3000/logout');
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/login', (Route<dynamic> route) => false);
+                Session.cookies = {};
+                Session.headers['Cookie'] = '';
               },
               icon: Text('LOGOUT')),
           IconButton(onPressed: () {}, icon: Icon(Icons.person)),
@@ -84,6 +86,8 @@ class _MainBoardsState extends State<MainBoards> {
                 Session().get('http://10.0.2.2:3000/logout');
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/login', (Route<dynamic> route) => false);
+                Session.cookies = {};
+                Session.headers['Cookie'] = '';
               },
               child: Text('LOGOUT')),
         ],

@@ -33,6 +33,7 @@ class _LoginInputsState extends State<LoginInputs> {
   final loginIdContoller = TextEditingController();
   final loginPwContoller = TextEditingController();
 
+  // login 함수
   Future userLogin() async {
     Session.cookies = {};
     Session.headers['Cookie'] = '';
@@ -54,13 +55,12 @@ class _LoginInputsState extends State<LoginInputs> {
     var getHeaders = response_get.headers;
     var getBody = utf8.decode(response_get.bodyBytes);
 
+    // 사실 Session.salt는 필요없는데 값 확인하려고 만듦
     Session.salt = Session().updateCookie(response_get, 'salt');
 
-    print('salt: ${Session.cookies['salt']}');
+    // print('salt: ${Session.cookies['salt']}');
 
-    loginPwContoller.text = crypto(user_id, user_pw);
-
-    data['pw'] = loginPwContoller.text;
+    data['pw'] = crypto(user_id, user_pw);
 
     //post
     var response_post = await Session().post(url_login, data);
@@ -70,13 +70,15 @@ class _LoginInputsState extends State<LoginInputs> {
     var postBody = utf8.decode(response_post.bodyBytes);
 
     // print('status code: $statusCode');
-    print('body: $postBody');
-    print('postHeader: $postHeaders');
+    // print('body: $postBody');
+    // print('postHeader: $postHeaders');
 
-    Session.session = Session().updateCookie(response_post, 'connect.sid');
+    Session.session = Session().updateCookie(response_post, 'session_cookie');
 
     if (postHeaders['location'] == '../') {
       Navigator.popAndPushNamed(context, '/mainPage');
+    } else {
+      Session.cookies['session_cookie'] = '';
     }
   }
 
@@ -109,6 +111,7 @@ class _LoginInputsState extends State<LoginInputs> {
                 height: 10,
               ),
               TextFormField(
+                obscureText: true,
                 controller: loginPwContoller,
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(

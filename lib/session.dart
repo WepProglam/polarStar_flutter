@@ -48,7 +48,7 @@ class Session {
           .replaceAll(RegExp(r': '), '=')
           .replaceAll(RegExp(r','), ';');
 
-      print(headers['Cookie']);
+      // print(headers['Cookie']);
 
       return cookies[str];
     }
