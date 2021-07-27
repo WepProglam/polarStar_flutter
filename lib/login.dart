@@ -60,7 +60,7 @@ class _LoginInputsState extends State<LoginInputs> {
 
     // print('salt: ${Session.cookies['salt']}');
 
-    data['pw'] = crypto(user_id, user_pw);
+    data['pw'] = crypto_login(user_id, user_pw);
 
     //post
     var response_post = await Session().post(url_login, data);
@@ -73,12 +73,12 @@ class _LoginInputsState extends State<LoginInputs> {
     // print('body: $postBody');
     // print('postHeader: $postHeaders');
 
-    Session.session = Session().updateCookie(response_post, 'session_cookie');
+    Session.session = Session().updateCookie(response_post, 'connect.sid');
 
     if (postHeaders['location'] == '../') {
       Navigator.popAndPushNamed(context, '/mainPage');
     } else {
-      Session.cookies['session_cookie'] = '';
+      Session.cookies['connect.sid'] = '';
     }
   }
 
@@ -129,11 +129,6 @@ class _LoginInputsState extends State<LoginInputs> {
                     userLogin();
                   },
                   child: Text('LOGIN')),
-              OutlinedButton(
-                  onPressed: () {
-                    Session().get('http://10.0.2.2:3000/logout');
-                  },
-                  child: Text('LOGOUT')),
               OutlinedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/signUp');

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'crypt.dart';
 
 // void main() {
 //   runApp(SignUp());
@@ -48,6 +48,8 @@ class _SignUpInputState extends State<SignUpInput> {
       'nickname': sign_nickname,
       'studentID': sign_studentID
     };
+
+    data['pw'] = crypto_sign_up(sign_id, sign_pw);
 
     var response = await http.post(Uri.parse(url), body: data);
 

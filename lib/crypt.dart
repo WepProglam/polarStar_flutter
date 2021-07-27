@@ -13,7 +13,7 @@ String pwCrypto(String id, String pw) {
   return cryptedPw;
 }
 
-String crypto(String id, String pw) {
+String crypto_login(String id, String pw) {
   var salt = Session.cookies['salt'];
   salt = Uri.decodeComponent(salt);
 
@@ -23,6 +23,18 @@ String crypto(String id, String pw) {
 
   for (int i = 0; i < 1000; i++) {
     cryptedPw = sha512.convert(utf8.encode(cryptedPw + salt)).toString();
+  }
+
+  return cryptedPw;
+}
+
+String crypto_sign_up(String id, String pw) {
+  var pwSalt = pw + id;
+
+  var cryptedPw = sha512.convert(utf8.encode(pwSalt)).toString();
+
+  for (int i = 0; i < 1000; i++) {
+    cryptedPw = sha512.convert(utf8.encode(cryptedPw + id)).toString();
   }
 
   return cryptedPw;
