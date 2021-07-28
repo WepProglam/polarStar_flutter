@@ -80,13 +80,15 @@ class _MainPageScrollState extends State<MainPageScroll> {
     Future<String> getBoardInfo() async {
       // var response = await Session().getN('http://10.0.2.2:3000/');
       var response = await Session().getN('http://10.0.2.2:3000/');
-      var data = utf8.decode(response.bodyBytes);
-      var header = response.headers;
+      var body = utf8.decode(response.bodyBytes);
 
-      // print(data);
-      print(data);
+      print(body);
 
-      return data;
+      print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
+
+      // billboardContent(jsonDecode(jsonDecode(body)['hotboard'])[0]);
+
+      return body;
     }
 
     return Center(
@@ -207,7 +209,8 @@ class _MainPageScrollState extends State<MainPageScroll> {
                         Padding(
                           padding: const EdgeInsets.all(2.0),
                           child: Container(
-                            child: Center(child: Text('빌보드1')),
+                            child: billboardContent(jsonDecode(
+                                jsonDecode(snapshot.data)['hotboard'])[0]),
                             width: deviceWidth,
                             height: 50,
                             decoration: BoxDecoration(color: Colors.red),
@@ -216,9 +219,8 @@ class _MainPageScrollState extends State<MainPageScroll> {
                         Padding(
                           padding: const EdgeInsets.all(2.0),
                           child: Container(
-                            child: Center(
-                              child: Text('빌보드2'),
-                            ),
+                            child: billboardContent(jsonDecode(
+                                jsonDecode(snapshot.data)['hotboard'])[1]),
                             width: deviceWidth,
                             height: 50,
                             decoration: BoxDecoration(color: Colors.orange),
@@ -240,21 +242,6 @@ class _MainPageScrollState extends State<MainPageScroll> {
             ),
           ),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Spacer(),
-              OutlinedButton(onPressed: () {}, child: Text('board1')),
-              Spacer(),
-              OutlinedButton(onPressed: () {}, child: Text('board2')),
-              Spacer(),
-              OutlinedButton(onPressed: () {}, child: Text('board3')),
-              Spacer(),
-              OutlinedButton(onPressed: () {}, child: Text('board4')),
-              Spacer(),
-            ],
-          ),
-
           //시간표 & 강의평가
 
           // 유니티
@@ -262,4 +249,32 @@ class _MainPageScrollState extends State<MainPageScroll> {
       ),
     );
   }
+}
+
+Widget billboardContent(Map<String, dynamic> data) {
+  return OutlinedButton(
+    style: OutlinedButton.styleFrom(
+      primary: Colors.black,
+    ),
+    onPressed: () {
+      print('url: ${data['url']}');
+    },
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Text('게시판 ${data['type']}'),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              data['title'],
+            ),
+            Text(
+              data['content'],
+            )
+          ],
+        )
+      ],
+    ),
+  );
 }
