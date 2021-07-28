@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Session {
-  static Map<String, String> headers = {'User-Agent': 'Mobi', 'Cookie': ''};
+  static Map<String, String> headers = {'User-Agent': 'PolarStar', 'Cookie': ''};   //다른 핸드폰으로 보면 정상적으로 화면 띄우려고 바꿈
 
   static Map<String, String> cookies = {};
 
