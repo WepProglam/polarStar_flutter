@@ -82,9 +82,9 @@ class _MainPageScrollState extends State<MainPageScroll> {
       var response = await Session().getN('http://10.0.2.2:3000/');
       var body = utf8.decode(response.bodyBytes);
 
-      print(body);
+      print(jsonDecode(body)['board']);
 
-      print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
+      // print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
 
       // billboardContent(jsonDecode(jsonDecode(body)['hotboard'])[0]);
 
@@ -213,7 +213,7 @@ class _MainPageScrollState extends State<MainPageScroll> {
                                 jsonDecode(snapshot.data)['hotboard'])[0]),
                             width: deviceWidth,
                             height: 50,
-                            decoration: BoxDecoration(color: Colors.red),
+                            decoration: BoxDecoration(color: Colors.orange),
                           ),
                         ),
                         Padding(
@@ -235,10 +235,36 @@ class _MainPageScrollState extends State<MainPageScroll> {
           ),
 
           // 게시판
-          Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '게시판',
+                      ),
+                    ),
+                  ),
+                  FutureBuilder(
+                      future: getBoardInfo(),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (snapshot.hasData == false) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return boards(
+                              jsonDecode(snapshot.data)['board'], context);
+                        } else {
+                          return Container(
+                              child: boards(
+                                  jsonDecode(snapshot.data)['board'], context));
+                        }
+                      }),
+                ],
+              ),
             ),
           ),
 
@@ -260,21 +286,69 @@ Widget billboardContent(Map<String, dynamic> data) {
       print('url: ${data['url']}');
     },
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text('게시판 ${data['type']}'),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              data['title'],
-            ),
-            Text(
-              data['content'],
-            )
-          ],
-        )
+        Spacer(),
+        Container(
+          width: 200,
+          alignment: Alignment.centerLeft,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  data['title'],
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  data['content'],
+                  textAlign: TextAlign.left,
+                ),
+              )
+            ],
+          ),
+        ),
+        Spacer(),
       ],
+    ),
+  );
+}
+
+Widget boards(Map<String, dynamic> data, BuildContext context) {
+  List<Widget> boardList = [];
+
+  data.forEach((key, value) {
+    boardList.add(board(key, value, context));
+  });
+
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: boardList,
+  );
+}
+
+Widget board(String boardKey, dynamic boardName, BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(1),
+    child: Container(
+      decoration: BoxDecoration(color: Colors.lightGreen),
+      width: MediaQuery.of(context).size.width - 18,
+      height: 25,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          primary: Colors.black,
+        ),
+        onPressed: () {},
+        child: Text(
+          boardName.toString(),
+          textAlign: TextAlign.center,
+        ),
+      ),
     ),
   );
 }
