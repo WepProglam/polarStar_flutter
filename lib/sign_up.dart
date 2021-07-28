@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'crypt.dart';
+import 'package:get/get.dart';
 
 // void main() {
 //   runApp(SignUp());
@@ -55,7 +56,8 @@ class _SignUpInputState extends State<SignUpInput> {
     print(response.headers);
 
     if (response.headers['location'] == '/login') {
-      Navigator.pop(context);
+      // Navigator.pop(context);
+      Get.back();
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('동일한 ID가 있습니다')));
