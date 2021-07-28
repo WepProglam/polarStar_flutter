@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'session.dart';
+import 'package:get/get.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -18,10 +21,11 @@ class _MainPageState extends State<MainPage> {
           IconButton(
               onPressed: () {
                 Session().get('http://10.0.2.2:3000/logout');
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/login', (Route<dynamic> route) => false);
                 Session.cookies = {};
                 Session.headers['Cookie'] = '';
+                // Navigator.pushNamedAndRemoveUntil(
+                //     context, '/login', (Route<dynamic> route) => false);
+                Get.offAllNamed('/login');
               },
               icon: Text('LOGOUT')),
           IconButton(onPressed: () {}, icon: Icon(Icons.person)),
@@ -72,6 +76,18 @@ class _MainPageScrollState extends State<MainPageScroll> {
   Widget build(BuildContext context) {
     var deviceWidth = MediaQuery.of(context).size.width;
     var deviceheight = MediaQuery.of(context).size.height;
+
+    Future<String> getBoardInfo() async {
+      // var response = await Session().getN('http://10.0.2.2:3000/');
+      var response = await Session().getN('http://10.0.2.2:3000/');
+      var data = utf8.decode(response.bodyBytes);
+      var header = response.headers;
+
+      // print(data);
+      print(data);
+
+      return data;
+    }
 
     return Center(
       child: Column(
@@ -133,43 +149,97 @@ class _MainPageScrollState extends State<MainPageScroll> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '빌보드',
-                        )),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Container(
-                      child: Center(child: Text('빌보드1')),
-                      width: deviceWidth,
-                      height: 50,
-                      decoration: BoxDecoration(color: Colors.red),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Container(
-                      child: Center(
-                        child: Text('빌보드2'),
-                      ),
-                      width: deviceWidth,
-                      height: 50,
-                      decoration: BoxDecoration(color: Colors.orange),
-                    ),
-                  )
-                ],
+              child: FutureBuilder(
+                future: getBoardInfo(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData == false) {
+                    return CircularProgressIndicator();
+                  }
+                  //error가 발생하게 될 경우 반환하게 되는 부분
+                  else if (snapshot.hasError) {
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '빌보드',
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Container(
+                            // child: Center(child: Text('빌보드1')),
+                            width: deviceWidth,
+                            height: 50,
+                            decoration: BoxDecoration(color: Colors.red),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Container(
+                            // child: Center(
+                            //   child: Text('빌보드2'),
+                            // ),
+                            width: deviceWidth,
+                            height: 50,
+                            decoration: BoxDecoration(color: Colors.orange),
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                  // 데이터를 정상적으로 받아오게 되면 다음 부분을 실행하게 되는 것이다.
+                  else {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '빌보드',
+                              )),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Container(
+                            child: Center(child: Text('빌보드1')),
+                            width: deviceWidth,
+                            height: 50,
+                            decoration: BoxDecoration(color: Colors.red),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Container(
+                            child: Center(
+                              child: Text('빌보드2'),
+                            ),
+                            width: deviceWidth,
+                            height: 50,
+                            decoration: BoxDecoration(color: Colors.orange),
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                },
               ),
             ),
           ),
 
-          // 게시판들
+          // 게시판
+          Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [],
+            ),
+          ),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

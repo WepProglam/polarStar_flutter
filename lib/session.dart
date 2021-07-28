@@ -1,7 +1,8 @@
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class Session {
+class Session extends GetConnect {
   static Map<String, String> headers = {'User-Agent': 'Mobi', 'Cookie': ''};
 
   static Map<String, String> cookies = {};
@@ -9,7 +10,14 @@ class Session {
   static String session = '';
   static String salt = '';
 
-  Future<dynamic> get(String url) async {
+  Future<http.Response> getX(String url) => http.get(Uri.parse(url));
+  Future<http.Response> postX(String url, Map data) =>
+      http.post(Uri.parse(url), body: data);
+  GetSocket socketX(String url) {
+    return socket(url);
+  }
+
+  Future<dynamic> getN(String url) async {
     http.Response response = await http.get(Uri.parse(url), headers: headers);
 
     final int statusCode = response.statusCode;
@@ -20,7 +28,7 @@ class Session {
     return response;
   }
 
-  Future<dynamic> post(String url, dynamic data) async {
+  Future<dynamic> postN(String url, dynamic data) async {
     http.Response response =
         await http.post(Uri.parse(url), body: data, headers: headers);
 

@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'session.dart';
 import 'dart:io';
 import 'crypt.dart';
+import 'package:get/get.dart';
 
 // void main() {
 //   runApp(Login());
@@ -50,7 +51,7 @@ class _LoginInputsState extends State<LoginInputs> {
 
     var url_login = 'http://10.0.2.2:3000/login'; //자기 포트 번호 직접 입력
     // get
-    var response_get = await Session().get(url_login);
+    var response_get = await Session().getN(url_login);
 
     var getHeaders = response_get.headers;
     var getBody = utf8.decode(response_get.bodyBytes);
@@ -63,7 +64,7 @@ class _LoginInputsState extends State<LoginInputs> {
     data['pw'] = crypto_login(user_id, user_pw);
 
     //post
-    var response_post = await Session().post(url_login, data);
+    var response_post = await Session().postN(url_login, data);
 
     // var statusCode = response.statusCode;
     var postHeaders = response_post.headers;
@@ -76,7 +77,8 @@ class _LoginInputsState extends State<LoginInputs> {
     Session.session = Session().updateCookie(response_post, 'connect.sid');
 
     if (postHeaders['location'] == '../') {
-      Navigator.popAndPushNamed(context, '/mainPage');
+      // Navigator.popAndPushNamed(context, '/mainPage');
+      Get.offNamed('/mainPage');
     } else {
       Session.cookies['connect.sid'] = '';
     }
@@ -131,7 +133,8 @@ class _LoginInputsState extends State<LoginInputs> {
                   child: Text('LOGIN')),
               OutlinedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/signUp');
+                    // Navigator.pushNamed(context, '/signUp');
+                    Get.toNamed('/signUp');
                   },
                   child: Text('SIGN UP'))
             ],
