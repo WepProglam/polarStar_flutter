@@ -28,7 +28,11 @@ class _MainPageState extends State<MainPage> {
                 Get.offAllNamed('/login');
               },
               icon: Text('LOGOUT')),
-          IconButton(onPressed: () {}, icon: Icon(Icons.person)),
+          IconButton(
+              onPressed: () {
+                Get.toNamed('/profile');
+              },
+              icon: Icon(Icons.person)),
         ],
       ),
       body: SingleChildScrollView(child: MainPageScroll()),

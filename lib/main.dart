@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:polarstar_flutter/login.dart';
 import 'package:polarstar_flutter/mainPage.dart';
 import 'package:polarstar_flutter/sign_up.dart';
+import 'package:polarstar_flutter/profile.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,14 +31,15 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/login', page: () => Login()),
         GetPage(name: '/signUp', page: () => SignUp()),
         GetPage(name: '/mainPage', page: () => MainPage()),
+        GetPage(name: '/profile', page: () => Profile()),
       ],
 
-      routes: {
-        '/': (context) => Login(),
-        '/login': (context) => Login(),
-        '/signUp': (context) => SignUp(),
-        '/mainPage': (context) => MainPage(),
-      },
+      // routes: {
+      //   '/': (context) => Login(),
+      //   '/login': (context) => Login(),
+      //   '/signUp': (context) => SignUp(),
+      //   '/mainPage': (context) => MainPage(),
+      // },
       // home: MyHomePage(title: 'Main'),
     );
   }
