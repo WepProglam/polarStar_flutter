@@ -338,7 +338,7 @@ Widget billboardContent(Map<String, dynamic> data) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text('게시판 ${data['type']}'),
+        Text(data['boardName'].toString()),
         Spacer(),
         Container(
           width: 200,

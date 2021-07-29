@@ -5,17 +5,17 @@ import 'dart:convert';
 class Session extends GetConnect {
   static Map<String, String> headers = {
     'User-Agent': 'PolarStar',
-    'Cookie': ''
+    'Cookie': '',
   }; //다른 핸드폰으로 보면 정상적으로 화면 띄우려고 바꿈
   static Map<String, String> cookies = {};
 
-  static String session = '';
-  static String salt = '';
+  static String session;
+  static String salt;
 
   Future<http.Response> getX(String url) =>
       http.get(Uri.parse(url), headers: headers);
   Future<http.Response> postX(String url, Map data) =>
-      http.post(Uri.parse(url), body: data);
+      http.post(Uri.parse(url), body: data, headers: headers);
   GetSocket socketX(String url) {
     return socket(url);
   }
