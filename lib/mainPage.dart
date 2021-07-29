@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'session.dart';
-import 'package:get/get.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -333,7 +332,8 @@ Widget billboardContent(Map<String, dynamic> data) {
       primary: Colors.black,
     ),
     onPressed: () {
-      print('url: ${data['url']}');
+      // print('url: ${data['url']}');
+      Get.toNamed('/post', arguments: data['url'].toString());
     },
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,

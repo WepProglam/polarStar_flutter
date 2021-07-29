@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'session.dart';
 import 'package:get/get.dart';
 
 import 'package:polarstar_flutter/login.dart';
 import 'package:polarstar_flutter/mainPage.dart';
 import 'package:polarstar_flutter/sign_up.dart';
 import 'package:polarstar_flutter/profile.dart';
+import 'package:polarstar_flutter/board.dart';
+import 'package:polarstar_flutter/post.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,6 +31,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/signUp', page: () => SignUp()),
         GetPage(name: '/mainPage', page: () => MainPage()),
         GetPage(name: '/profile', page: () => Profile()),
+        GetPage(name: '/board', page: () => Board()),
+        GetPage(name: '/post', page: () => Post()),
       ],
 
       // routes: {
