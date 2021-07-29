@@ -12,7 +12,8 @@ class Session extends GetConnect {
   static String session = '';
   static String salt = '';
 
-  Future<http.Response> getX(String url) => http.get(Uri.parse(url));
+  Future<http.Response> getX(String url) =>
+      http.get(Uri.parse(url), headers: headers);
   Future<http.Response> postX(String url, Map data) =>
       http.post(Uri.parse(url), body: data);
   GetSocket socketX(String url) {

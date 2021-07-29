@@ -86,9 +86,9 @@ class _MainPageScrollState extends State<MainPageScroll> {
       var response = await Session().getN('http://10.0.2.2:3000/');
       var body = utf8.decode(response.bodyBytes);
 
-      print(jsonDecode(body)['board']);
+      // print(jsonDecode(body)['board']);
 
-      // print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
+      print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
 
       // billboardContent(jsonDecode(jsonDecode(body)['hotboard'])[0]);
 
@@ -273,8 +273,54 @@ class _MainPageScrollState extends State<MainPageScroll> {
           ),
 
           //시간표 & 강의평가
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '시간표/강의평가',
+                    ),
+                  ),
+                ),
+                Container(
+                  width: deviceWidth - 16,
+                  height: 200,
+                  margin: EdgeInsets.only(top: 2, bottom: 2),
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: null,
+                ),
+              ],
+            ),
+          ),
 
           // 유니티
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '유니티',
+                    ),
+                  ),
+                ),
+                Container(
+                  width: deviceWidth - 16,
+                  height: 200,
+                  margin: EdgeInsets.only(top: 2, bottom: 2),
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: null,
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
