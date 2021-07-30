@@ -5,12 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'session.dart';
 
-class MainPage extends StatefulWidget {
-  @override
-  _MainPageState createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,8 +63,6 @@ class _MainPageState extends State<MainPage> {
 }
 
 class MainPageScroll extends StatefulWidget {
-  MainPageScroll({Key key}) : super(key: key);
-
   @override
   _MainPageScrollState createState() => _MainPageScrollState();
 }
@@ -341,6 +334,7 @@ class _MainPageScrollState extends State<MainPageScroll> {
   }
 }
 
+// 핫게 위젯
 Widget billboardContent(Map<String, dynamic> data) {
   return OutlinedButton(
     style: OutlinedButton.styleFrom(
@@ -353,7 +347,7 @@ Widget billboardContent(Map<String, dynamic> data) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(data['boardName'].toString()),
+        Expanded(flex: 2, child: Text(data['boardName'].toString())),
         Spacer(),
         Container(
           width: 200,
@@ -384,6 +378,7 @@ Widget billboardContent(Map<String, dynamic> data) {
   );
 }
 
+// 게시판 목록 위젯
 Widget boards(Map<String, dynamic> data, BuildContext context) {
   List<Widget> boardList = [];
 
@@ -397,6 +392,7 @@ Widget boards(Map<String, dynamic> data, BuildContext context) {
   );
 }
 
+// 게시판 위젯
 Widget board(String boardKey, dynamic boardName, BuildContext context) {
   return Padding(
     padding: const EdgeInsets.all(1),

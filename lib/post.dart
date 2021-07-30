@@ -14,23 +14,23 @@ class Post extends StatelessWidget {
       appBar: AppBar(
         title: Text('polarStar'),
       ),
-      body: PostState(arg: arg),
+      body: PostScroll(arg: arg),
     );
   }
 }
 
-class PostState extends StatefulWidget {
+class PostScroll extends StatefulWidget {
+  PostScroll({Key key, this.arg}) : super(key: key);
+
   final String arg;
-  PostState({Key key, this.arg}) : super(key: key);
 
   @override
-  _PostStateState createState() => _PostStateState();
+  _PostScrollState createState() => _PostScrollState();
 }
 
-class _PostStateState extends State<PostState> {
-  String getUrl;
-
+class _PostScrollState extends State<PostScroll> {
   Future getPostData(String url) async {
+    String getUrl;
     // print(url);
     if (url != '') {
       getUrl = url;
@@ -38,9 +38,9 @@ class _PostStateState extends State<PostState> {
 
     var response = await Session().getX(getUrl);
 
-    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments']['47']);
+    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments'].toString());
 
-    print(response.headers['content-type']);
+    // print(response.headers['content-type']);
 
     if (response.headers['content-type'] == 'text/html; charset=utf-8') {
       Session().getX('/logout');
@@ -49,6 +49,12 @@ class _PostStateState extends State<PostState> {
     } else {
       return response;
     }
+  }
+
+  @override
+  void initState() {
+    // http.get 여기서 하면 될 듯
+    super.initState();
   }
 
   @override
@@ -75,10 +81,11 @@ Widget postWidget(dynamic response) {
   var nickname = item['nickname'];
   var time = item['time'].substring(2, 16).replaceAll(RegExp(r'-'), '/');
 
-  List<Widget> commentList = [];
+  List<Widget> commentWidgetList = [];
 
   Widget commentWidget(Map<String, dynamic> comment) {
-    List<Widget> ccommentList = [];
+    List<Widget> ccommentWidgetList = [];
+    List<Map> ccommentList = [];
 
     var commentTime = comment['comment']['time']
         .substring(2, 16)
@@ -168,8 +175,17 @@ Widget postWidget(dynamic response) {
     // 대댓 리스트 생성
     if (comment['cc'] != []) {
       for (int i = 0; i < comment['cc'].length; i++) {
-        ccommentList.add(ccommentWidget(comment['cc'][i]));
+        // ccommentWidgetList.add(ccommentWidget(comment['cc'][i]));
+        ccommentList.add(comment['cc'][i]);
       }
+      ccommentList.sort((a, b) => a['time'].compareTo(b['time']));
+      print(ccommentList);
+
+      for (var item in ccommentList) {
+        ccommentWidgetList.add(ccommentWidget(item));
+      }
+    } else {
+      ccommentWidgetList.add(Container(child: null));
     }
 
     return Column(
@@ -247,17 +263,20 @@ Widget postWidget(dynamic response) {
 
         // 대댓글
         Container(
-            child: comment['cc'] != []
-                ? Column(
-                    children: ccommentList,
-                  )
-                : null)
+            child: Column(
+          children: ccommentWidgetList,
+        ))
       ],
     );
   }
 
-  for (var item in body['comments'].keys) {
-    commentList.add(commentWidget(body['comments'][item]));
+  // 댓글 리스트 생성
+  if (body['comments'] != null) {
+    for (var item in body['comments'].keys) {
+      commentWidgetList.add(commentWidget(body['comments'][item]));
+    }
+  } else {
+    commentWidgetList.add(Container(child: null));
   }
 
   return SingleChildScrollView(
@@ -399,7 +418,7 @@ Widget postWidget(dynamic response) {
         // 여기부턴 댓글
         Column(
           // children: [commentWidget(body['comments']['77']['comment'])],
-          children: commentList,
+          children: commentWidgetList,
         )
       ],
     ),
