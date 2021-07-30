@@ -19,7 +19,7 @@ class _MainPageState extends State<MainPage> {
         actions: [
           IconButton(
               onPressed: () {
-                Session().get('/logout');
+                Session().getX('/logout');
                 Session.cookies = {};
                 Session.headers['Cookie'] = '';
                 // Navigator.pushNamedAndRemoveUntil(
@@ -82,16 +82,21 @@ class _MainPageScrollState extends State<MainPageScroll> {
 
     Future<String> getBoardInfo() async {
       // var response = await Session().getN('http://10.0.2.2:3000/');
-      var response = await Session().getX('/');
-      var body = utf8.decode(response.bodyBytes);
+      var getResponse = await Session().getX('/');
+      var body = utf8.decode(getResponse.bodyBytes);
 
-      // print(jsonDecode(body)['board']);
+      if (getResponse.headers['content-type'] == 'text/html; charset=utf-8') {
+        Session().getX('/logout');
+        Get.offAllNamed('/login');
+        return null;
+      } else {
+        return body;
+      }
+      // if(jsonDecode(body)['board'])
 
       // print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
 
       // billboardContent(jsonDecode(jsonDecode(body)['hotboard'])[0]);
-
-      return body;
     }
 
     return Center(

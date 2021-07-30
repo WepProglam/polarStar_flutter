@@ -30,8 +30,7 @@ class MyApp extends StatelessWidget {
       getPages: [
         GetPage(
             name: '/',
-            page: () =>
-                Session.cookies['connect.sid'].isEmpty ? Login() : MainPage()),
+            page: () => Session.headers['Cookie'] == '' ? Login() : MainPage()),
         GetPage(name: '/login', page: () => Login()),
         GetPage(name: '/signUp', page: () => SignUp()),
         GetPage(name: '/mainPage', page: () => MainPage()),

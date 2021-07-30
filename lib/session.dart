@@ -6,7 +6,7 @@ class Session extends GetConnect {
   static Map<String, String> headers = {
     'User-Agent': 'PolarStar',
     'Cookie': '',
-  }; //다른 핸드폰으로 보면 정상적으로 화면 띄우려고 바꿈
+  };
   static Map<String, String> cookies = {};
 
   static String session;
@@ -21,11 +21,12 @@ class Session extends GetConnect {
           'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
       body: data,
       headers: headers);
+
   GetSocket socketX(String url) {
     return socket(
         'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url');
   }
-
+/*
   Future<dynamic> getN(String url) async {
     http.Response response = await http.get(Uri.parse(url), headers: headers);
 
@@ -48,6 +49,7 @@ class Session extends GetConnect {
     }
     return response;
   }
+  */
 
   String updateCookie(http.Response response, String str) {
     String rawCookie = response.headers['set-cookie'];

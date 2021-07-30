@@ -64,6 +64,7 @@ class _LoginInputsState extends State<LoginInputs> {
     // var statusCode = response.statusCode;
     var postHeaders = response_post.headers;
     var postBody = utf8.decode(response_post.bodyBytes);
+    print(getHeaders);
 
     // print('status code: $statusCode');
     // print('body: $postBody');
@@ -73,6 +74,7 @@ class _LoginInputsState extends State<LoginInputs> {
 
     if (postHeaders['location'] == '../') {
       // Navigator.popAndPushNamed(context, '/mainPage');
+
       Get.offNamed('/mainPage');
     } else {
       Session.cookies['connect.sid'] = '';

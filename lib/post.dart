@@ -29,15 +29,26 @@ class PostState extends StatefulWidget {
 
 class _PostStateState extends State<PostState> {
   String getUrl;
+
   Future getPostData(String url) async {
     // print(url);
     if (url != '') {
       getUrl = url;
     }
+
     var response = await Session().getX(getUrl);
-    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments']['47']['cc']
-    //     .length);
-    return response;
+
+    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments']['47']);
+
+    print(response.headers['content-type']);
+
+    if (response.headers['content-type'] == 'text/html; charset=utf-8') {
+      Session().getX('/logout');
+      Get.offAllNamed('/login');
+      return null;
+    } else {
+      return response;
+    }
   }
 
   @override
@@ -73,6 +84,7 @@ Widget postWidget(dynamic response) {
         .substring(2, 16)
         .replaceAll(RegExp(r'-'), '/');
 
+    //대댓
     Widget ccommentWidget(Map<String, dynamic> ccomment) {
       var ccommentTime =
           ccomment['time'].substring(2, 16).replaceAll(RegExp(r'-'), '/');
@@ -88,9 +100,14 @@ Widget postWidget(dynamic response) {
               child: Row(
                 children: [
                   // 프사
-                  Container(
-                    height: 20,
-                    width: 20,
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Container(
+                      height: 20,
+                      width: 20,
+                      child: Image.network(
+                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${ccomment['profile_photo']}'),
+                    ),
                   ), // 프로필 사진
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,6 +165,7 @@ Widget postWidget(dynamic response) {
       );
     }
 
+    // 대댓 리스트 생성
     if (comment['cc'] != []) {
       for (int i = 0; i < comment['cc'].length; i++) {
         ccommentList.add(ccommentWidget(comment['cc'][i]));
@@ -165,9 +183,14 @@ Widget postWidget(dynamic response) {
             child: Row(
               children: [
                 // 프사
-                Container(
-                  height: 20,
-                  width: 20,
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Container(
+                    height: 20,
+                    width: 20,
+                    child: Image.network(
+                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${comment['comment']['profile_photo'].toString()}'),
+                  ),
                 ), // 프로필 사진
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,14 +272,20 @@ Widget postWidget(dynamic response) {
                 BoxDecoration(border: BorderDirectional(top: BorderSide())),
             child: Row(
               children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                ), // 프로필 사진
+                // 프로필 사진
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 30,
+                    width: 30,
+                    child: Image.network(
+                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${item['profile_photo']}'),
+                  ),
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(body['myself'] ? '나($nickname)' : nickname),
+                    Text(nickname),
                     Text(
                       time,
                       textScaleFactor: 0.6,
@@ -311,6 +340,12 @@ Widget postWidget(dynamic response) {
               textScaleFactor: 1.5,
             ),
           ),
+        ),
+        Container(
+          child: item['photo'] != ''
+              ? Image.network(
+                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${item['photo']}')
+              : null,
         ),
         // 좋아요, 댓글, 스크랩 수
         Container(
