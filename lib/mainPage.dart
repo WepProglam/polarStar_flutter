@@ -87,7 +87,7 @@ class _MainPageScrollState extends State<MainPageScroll> {
 
       // print(jsonDecode(body)['board']);
 
-      print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
+      // print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
 
       // billboardContent(jsonDecode(jsonDecode(body)['hotboard'])[0]);
 
@@ -228,7 +228,17 @@ class _MainPageScrollState extends State<MainPageScroll> {
                             height: 50,
                             decoration: BoxDecoration(color: Colors.orange),
                           ),
-                        )
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Container(
+                            child: billboardContent(jsonDecode(
+                                jsonDecode(snapshot.data)['hotboard'])[2]),
+                            width: deviceWidth,
+                            height: 50,
+                            decoration: BoxDecoration(color: Colors.orange),
+                          ),
+                        ),
                       ],
                     );
                   }

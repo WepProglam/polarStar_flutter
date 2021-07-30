@@ -35,7 +35,8 @@ class _PostStateState extends State<PostState> {
       getUrl = 'http://10.0.2.2:3000' + url;
     }
     var response = await Session().getX(getUrl);
-    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments']);
+    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments']['47']['cc']
+    //     .length);
     return response;
   }
 
@@ -66,6 +67,93 @@ Widget postWidget(dynamic response) {
   List<Widget> commentList = [];
 
   Widget commentWidget(Map<String, dynamic> comment) {
+    List<Widget> ccommentList = [];
+
+    var commentTime = comment['comment']['time']
+        .substring(2, 16)
+        .replaceAll(RegExp(r'-'), '/');
+
+    Widget ccommentWidget(Map<String, dynamic> ccomment) {
+      var ccommentTime =
+          ccomment['time'].substring(2, 16).replaceAll(RegExp(r'-'), '/');
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 2.0, left: 40),
+            child: Container(
+              // decoration:
+              //     BoxDecoration(border: BorderDirectional(top: BorderSide())),
+              child: Row(
+                children: [
+                  // 프사
+                  Container(
+                    height: 20,
+                    width: 20,
+                  ), // 프로필 사진
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(ccomment['nickname']),
+                      Text(
+                        ccommentTime,
+                        textScaleFactor: 0.6,
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Icon(
+                        Icons.thumb_up,
+                        size: 10,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Icon(
+                        Icons.add_comment,
+                        size: 10,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Icon(
+                        Icons.settings,
+                        size: 10,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 50.0, bottom: 5.0),
+            child: Text(ccomment['content']),
+          ),
+          Container(
+            decoration: BoxDecoration(border: Border(bottom: BorderSide())),
+          ),
+        ],
+      );
+    }
+
+    if (comment['cc'] != []) {
+      for (int i = 0; i < comment['cc'].length; i++) {
+        ccommentList.add(ccommentWidget(comment['cc'][i]));
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -84,9 +172,9 @@ Widget postWidget(dynamic response) {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(comment['nickname']),
+                    Text(comment['comment']['nickname']),
                     Text(
-                      time,
+                      commentTime,
                       textScaleFactor: 0.6,
                     ),
                   ],
@@ -128,17 +216,25 @@ Widget postWidget(dynamic response) {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 10.0, bottom: 5.0),
-          child: Text(comment['content']),
+          child: Text(comment['comment']['content']),
         ),
         Container(
           decoration: BoxDecoration(border: Border(bottom: BorderSide())),
-        )
+        ),
+
+        // 대댓글
+        Container(
+            child: comment['cc'] != []
+                ? Column(
+                    children: ccommentList,
+                  )
+                : null)
       ],
     );
   }
 
   for (var item in body['comments'].keys) {
-    commentList.add(commentWidget(body['comments'][item]['comment']));
+    commentList.add(commentWidget(body['comments'][item]));
   }
 
   return SingleChildScrollView(
