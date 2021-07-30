@@ -32,7 +32,7 @@ class _PostStateState extends State<PostState> {
   Future getPostData(String url) async {
     // print(url);
     if (url != '') {
-      getUrl = 'http://10.0.2.2:3000' + url;
+      getUrl = url;
     }
     var response = await Session().getX(getUrl);
     // print(jsonDecode(utf8.decode(response.bodyBytes))['comments']['47']['cc']

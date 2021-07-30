@@ -19,7 +19,7 @@ class _MainPageState extends State<MainPage> {
         actions: [
           IconButton(
               onPressed: () {
-                Session().get('http://10.0.2.2:3000/logout');
+                Session().get('/logout');
                 Session.cookies = {};
                 Session.headers['Cookie'] = '';
                 // Navigator.pushNamedAndRemoveUntil(
@@ -82,7 +82,7 @@ class _MainPageScrollState extends State<MainPageScroll> {
 
     Future<String> getBoardInfo() async {
       // var response = await Session().getN('http://10.0.2.2:3000/');
-      var response = await Session().getN('http://10.0.2.2:3000/');
+      var response = await Session().getX('/');
       var body = utf8.decode(response.bodyBytes);
 
       // print(jsonDecode(body)['board']);

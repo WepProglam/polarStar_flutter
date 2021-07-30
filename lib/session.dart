@@ -12,12 +12,18 @@ class Session extends GetConnect {
   static String session;
   static String salt;
 
-  Future<http.Response> getX(String url) =>
-      http.get(Uri.parse(url), headers: headers);
-  Future<http.Response> postX(String url, Map data) =>
-      http.post(Uri.parse(url), body: data, headers: headers);
+  Future<http.Response> getX(String url) => http.get(
+      Uri.parse(
+          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
+      headers: headers);
+  Future<http.Response> postX(String url, Map data) => http.post(
+      Uri.parse(
+          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
+      body: data,
+      headers: headers);
   GetSocket socketX(String url) {
-    return socket(url);
+    return socket(
+        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url');
   }
 
   Future<dynamic> getN(String url) async {

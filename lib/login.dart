@@ -45,10 +45,8 @@ class _LoginInputsState extends State<LoginInputs> {
     };
 
     //var url_login =    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/login';
-
-    var url_login = 'http://10.0.2.2:3000/login'; //자기 포트 번호 직접 입력
     // get
-    var response_get = await Session().getN(url_login);
+    var response_get = await Session().getX('/login');
 
     var getHeaders = response_get.headers;
     var getBody = utf8.decode(response_get.bodyBytes);
@@ -61,7 +59,7 @@ class _LoginInputsState extends State<LoginInputs> {
     data['pw'] = crypto_login(user_id, user_pw);
 
     //post
-    var response_post = await Session().postN(url_login, data);
+    var response_post = await Session().postX('/login', data);
 
     // var statusCode = response.statusCode;
     var postHeaders = response_post.headers;
