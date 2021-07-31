@@ -6,16 +6,49 @@ import 'session.dart';
 class Post extends StatelessWidget {
   const Post({Key key}) : super(key: key);
 
+  String commentWrite(String arg) {
+    String commentWriteUrl = arg.replaceAll('/read', '');
+    List<String> argList = arg.split('/');
+    commentWriteUrl = commentWriteUrl + '/' + argList[2];
+
+    return commentWriteUrl;
+  }
+
   @override
   Widget build(BuildContext context) {
     String arg = Get.arguments;
 
+    var commentWriteController = TextEditingController();
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('polarStar'),
-      ),
-      body: PostScroll(arg: arg),
-    );
+        appBar: AppBar(
+          title: Text('polarStar'),
+        ),
+        body: PostScroll(arg: arg),
+        bottomSheet: Container(
+          height: 60,
+          child: Stack(children: [
+            TextFormField(
+              controller: commentWriteController,
+              decoration: InputDecoration(
+                  hintText: '댓글 작성', border: OutlineInputBorder()),
+            ),
+            Positioned(
+              top: 15,
+              right: 20,
+              child: InkWell(
+                onTap: () {
+                  //이거 하는중
+                  // Session().postX(commentWrite(arg), )
+                },
+                child: Icon(
+                  Icons.send,
+                  size: 30,
+                ),
+              ),
+            )
+          ]),
+        ));
   }
 }
 
@@ -38,7 +71,7 @@ class _PostScrollState extends State<PostScroll> {
 
     var response = await Session().getX(getUrl);
 
-    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments'].toString());
+    print(json.decode(response.body)['comments'].toString());
 
     // print(response.headers['content-type']);
 
@@ -419,7 +452,11 @@ Widget postWidget(dynamic response) {
         Column(
           // children: [commentWidget(body['comments']['77']['comment'])],
           children: commentWidgetList,
-        )
+        ),
+        Container(
+          height: 60,
+          child: null,
+        ),
       ],
     ),
   );
