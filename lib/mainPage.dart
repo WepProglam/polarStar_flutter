@@ -78,6 +78,8 @@ class _MainPageScrollState extends State<MainPageScroll> {
       var getResponse = await Session().getX('/');
       var body = utf8.decode(getResponse.bodyBytes);
 
+      // print(jsonDecode(body)['hotboard'][0]);
+
       if (getResponse.headers['content-type'] == 'text/html; charset=utf-8') {
         Session().getX('/logout');
         Get.offAllNamed('/login');
@@ -87,7 +89,7 @@ class _MainPageScrollState extends State<MainPageScroll> {
       }
       // if(jsonDecode(body)['board'])
 
-      // print(jsonDecode(jsonDecode(body)['hotboard'])[0]); // Map<String,Dynamic>
+      // Map<String,Dynamic>
 
       // billboardContent(jsonDecode(jsonDecode(body)['hotboard'])[0]);
     }
@@ -193,9 +195,7 @@ class _MainPageScrollState extends State<MainPageScroll> {
                         )
                       ],
                     );
-                  }
-                  // 데이터를 정상적으로 받아오게 되면 다음 부분을 실행하게 되는 것이다.
-                  else {
+                  } else {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -210,8 +210,8 @@ class _MainPageScrollState extends State<MainPageScroll> {
                         Padding(
                           padding: const EdgeInsets.all(2.0),
                           child: Container(
-                            child: billboardContent(jsonDecode(
-                                jsonDecode(snapshot.data)['hotboard'])[0]),
+                            child: billboardContent(
+                                jsonDecode(snapshot.data)['hotboard'][0]),
                             width: deviceWidth,
                             height: 50,
                             decoration: BoxDecoration(color: Colors.orange),
@@ -220,8 +220,8 @@ class _MainPageScrollState extends State<MainPageScroll> {
                         Padding(
                           padding: const EdgeInsets.all(2.0),
                           child: Container(
-                            child: billboardContent(jsonDecode(
-                                jsonDecode(snapshot.data)['hotboard'])[1]),
+                            child: billboardContent(
+                                jsonDecode(snapshot.data)['hotboard'][1]),
                             width: deviceWidth,
                             height: 50,
                             decoration: BoxDecoration(color: Colors.orange),
@@ -230,8 +230,8 @@ class _MainPageScrollState extends State<MainPageScroll> {
                         Padding(
                           padding: const EdgeInsets.all(2.0),
                           child: Container(
-                            child: billboardContent(jsonDecode(
-                                jsonDecode(snapshot.data)['hotboard'])[2]),
+                            child: billboardContent(
+                                jsonDecode(snapshot.data)['hotboard'][2]),
                             width: deviceWidth,
                             height: 50,
                             decoration: BoxDecoration(color: Colors.orange),
@@ -342,7 +342,8 @@ Widget billboardContent(Map<String, dynamic> data) {
     ),
     onPressed: () {
       // print('url: ${data['url']}');
-      Get.toNamed('/post', arguments: data['url'].toString());
+      String boardUrl = '/board/${data['type']}/read/${data['bid']}';
+      Get.toNamed('/post', arguments: boardUrl);
     },
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,

@@ -74,7 +74,7 @@ class _PostScrollState extends State<PostScroll> {
 }
 
 Widget postWidget(dynamic response) {
-  var body = jsonDecode(utf8.decode(response.bodyBytes));
+  var body = json.decode(response.body);
   var item = body['item'];
   var title = item['title'];
   var content = item['content'];
