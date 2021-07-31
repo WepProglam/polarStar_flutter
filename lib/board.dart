@@ -27,8 +27,6 @@ class _BoardState extends State<Board> {
     }
     var res = await Session().getX(getUrl);
 
-    print(json.decode(res.body));
-
     List<Widget> buttons = [];
     for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {
       buttons.add(pageButton(i + 1));
@@ -66,6 +64,16 @@ class _BoardState extends State<Board> {
     return Scaffold(
         appBar: AppBar(
           title: Text('polarStar'),
+          actions: [
+            Container(
+              width: 40,
+              child: InkWell(
+                  onTap: () {},
+                  child: Icon(
+                    Icons.add,
+                  )),
+            )
+          ],
         ),
         body: Obx(() => FutureBuilder(
               future: getBoardData(arg, c.pageIndex.value),

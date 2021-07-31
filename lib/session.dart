@@ -19,9 +19,6 @@ class Session extends GetConnect {
               headers: headers)
           .then((value) {
         switch (value.statusCode) {
-          case 404:
-            Get.back();
-            break;
           case 403:
             getX('/logout');
             Get.offAllNamed('/logout');

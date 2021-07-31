@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class Controller extends GetxController {
+  var mainPageIndex = 0.obs;
+
+  updateMainPage(int index) {
+    mainPageIndex.value = index;
+    update();
+  }
+
   var anonymousCheck = true.obs;
   var isCcomment = false.obs;
   var ccommentUrl = '/board/cid'.obs;
