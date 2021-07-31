@@ -384,7 +384,7 @@ Widget boards(Map<String, dynamic> data, BuildContext context) {
   List<Widget> boardList = [];
 
   data.forEach((key, value) {
-    boardList.add(board(key, value, context));
+    boardList.add(board(key, value));
   });
 
   return Column(
@@ -394,18 +394,21 @@ Widget boards(Map<String, dynamic> data, BuildContext context) {
 }
 
 // 게시판 위젯
-Widget board(String boardKey, dynamic boardName, BuildContext context) {
+Widget board(String boardKey, dynamic boardName) {
   return Padding(
     padding: const EdgeInsets.all(1),
     child: Container(
       decoration: BoxDecoration(color: Colors.lightGreen),
-      width: MediaQuery.of(context).size.width - 18,
+      width: Get.mediaQuery.size.width - 18,
       height: 25,
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
           primary: Colors.black,
         ),
-        onPressed: () {},
+        onPressed: () {
+          Get.toNamed('/board');
+          print(boardKey);
+        },
         child: Text(
           boardName.toString(),
           textAlign: TextAlign.center,

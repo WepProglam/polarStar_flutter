@@ -2,66 +2,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'session.dart';
+import 'getXController.dart';
 
-class Post extends StatelessWidget {
+class Post extends StatefulWidget {
   const Post({Key key}) : super(key: key);
 
-  String commentWrite(String arg) {
-    String commentWriteUrl = arg.replaceAll('/read', '');
-    List<String> argList = arg.split('/');
-    commentWriteUrl = commentWriteUrl + '/' + argList[2];
-
-    return commentWriteUrl;
-  }
-
   @override
-  Widget build(BuildContext context) {
-    String arg = Get.arguments;
-
-    var commentWriteController = TextEditingController();
-
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('polarStar'),
-        ),
-        body: PostScroll(arg: arg),
-        bottomSheet: Container(
-          height: 60,
-          child: Stack(children: [
-            TextFormField(
-              controller: commentWriteController,
-              decoration: InputDecoration(
-                  hintText: '댓글 작성', border: OutlineInputBorder()),
-            ),
-            Positioned(
-              top: 15,
-              right: 20,
-              child: InkWell(
-                onTap: () {
-                  //이거 하는중
-                  // Session().postX(commentWrite(arg), )
-                },
-                child: Icon(
-                  Icons.send,
-                  size: 30,
-                ),
-              ),
-            )
-          ]),
-        ));
-  }
+  _PostState createState() => _PostState();
 }
 
-class PostScroll extends StatefulWidget {
-  PostScroll({Key key, this.arg}) : super(key: key);
-
-  final String arg;
-
-  @override
-  _PostScrollState createState() => _PostScrollState();
-}
-
-class _PostScrollState extends State<PostScroll> {
+class _PostState extends State<Post> {
   Future getPostData(String url) async {
     String getUrl;
     // print(url);
@@ -71,7 +21,7 @@ class _PostScrollState extends State<PostScroll> {
 
     var response = await Session().getX(getUrl);
 
-    print(json.decode(response.body)['comments'].toString());
+    // print(json.decode(response.body)['comments'].toString());
 
     // print(response.headers['content-type']);
 
@@ -84,25 +34,114 @@ class _PostScrollState extends State<PostScroll> {
     }
   }
 
-  @override
-  void initState() {
-    // http.get 여기서 하면 될 듯
-    super.initState();
+  String commentPostUrl(String arg) {
+    List<String> argList = arg.split('/');
+    String commentWriteUrl = '/board/bid/${argList[4]}';
+
+    return commentWriteUrl;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getPostData(widget.arg),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData == false) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Container(child: Text(snapshot.data.bodyBytes));
-          } else {
-            return Container(child: postWidget(snapshot.data));
-          }
-        });
+    String arg = Get.arguments;
+
+    final Controller c = Get.put(Controller());
+
+    var commentWriteController = TextEditingController();
+
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('polarStar'),
+        ),
+        body: FutureBuilder(
+            future: getPostData(arg),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasData == false) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return CircularProgressIndicator();
+              } else {
+                return Container(child: postWidget(snapshot.data));
+              }
+            }),
+        bottomSheet: Container(
+          height: 60,
+          child: Stack(children: [
+            Container(
+              child: Row(
+                children: [
+                  // 익명 체크
+                  Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                        border: Border(top: BorderSide(color: Colors.grey))),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          GetBuilder<Controller>(
+                            // init: Controller(), // GetBuilder안 init
+                            builder: (c) {
+                              return Container(
+                                height: 20,
+                                width: 20,
+                                child: Transform.scale(
+                                  scale: 1,
+                                  child: Checkbox(
+                                    value: c.anonymousCheck.value,
+                                    onChanged: (value) {
+                                      c.changeAnonymous(value);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          Text(' 익명'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                      child: Obx(
+                    () => TextFormField(
+                      controller: commentWriteController,
+                      decoration: InputDecoration(
+                          hintText: c.isCcomment.value ? '대댓글 작성' : '댓글 작성',
+                          border: OutlineInputBorder()),
+                    ),
+                  )),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 15,
+              right: 20,
+              child: InkWell(
+                onTap: () async {
+                  Map commentData = {
+                    'content': commentWriteController.text,
+                    'unnamed': c.anonymousCheck.value ? '1' : '0'
+                  };
+                  String postUrl;
+                  if (c.isCcomment.value) {
+                    postUrl = c.ccommentUrl.value;
+                  } else {
+                    postUrl = commentPostUrl(arg);
+                  }
+
+                  Session()
+                      .postX(postUrl, commentData)
+                      .then((value) => setState(() {}));
+                },
+                child: Icon(
+                  Icons.send,
+                  size: 30,
+                ),
+              ),
+            ),
+          ]),
+        ));
   }
 }
 
@@ -114,11 +153,15 @@ Widget postWidget(dynamic response) {
   var nickname = item['nickname'];
   var time = item['time'].substring(2, 16).replaceAll(RegExp(r'-'), '/');
 
+  final Controller c = Get.put(Controller());
+
   List<Widget> commentWidgetList = [];
 
   Widget commentWidget(Map<String, dynamic> comment) {
     List<Widget> ccommentWidgetList = [];
     List<Map> ccommentList = [];
+
+    String ccommentCidUrl = '/board/cid/${comment['comment']['cid']}';
 
     var commentTime = comment['comment']['time']
         .substring(2, 16)
@@ -166,27 +209,18 @@ Widget postWidget(dynamic response) {
                       onTap: () {},
                       child: Icon(
                         Icons.thumb_up,
-                        size: 10,
+                        size: 15,
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: InkWell(
-                      onTap: () {},
-                      child: Icon(
-                        Icons.add_comment,
-                        size: 10,
-                      ),
-                    ),
-                  ),
+
                   Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: InkWell(
                       onTap: () {},
                       child: Icon(
                         Icons.settings,
-                        size: 10,
+                        size: 15,
                       ),
                     ),
                   ),
@@ -212,7 +246,7 @@ Widget postWidget(dynamic response) {
         ccommentList.add(comment['cc'][i]);
       }
       ccommentList.sort((a, b) => a['time'].compareTo(b['time']));
-      print(ccommentList);
+      // print(ccommentList);
 
       for (var item in ccommentList) {
         ccommentWidgetList.add(ccommentWidget(item));
@@ -258,19 +292,26 @@ Widget postWidget(dynamic response) {
                     onTap: () {},
                     child: Icon(
                       Icons.thumb_up,
-                      size: 10,
+                      size: 15,
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: InkWell(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.add_comment,
-                      size: 10,
-                    ),
-                  ),
+                      onTap: () {
+                        c.changeCcomment(ccommentCidUrl);
+                        c.makeCcommentUrl(comment['comment']['cid']);
+                      },
+                      child: Obx(
+                        () => Icon(
+                          c.isCcomment.value &&
+                                  c.ccommentUrl.value == ccommentCidUrl
+                              ? Icons.comment
+                              : Icons.add,
+                          size: 15,
+                        ),
+                      )),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
@@ -278,7 +319,7 @@ Widget postWidget(dynamic response) {
                     onTap: () {},
                     child: Icon(
                       Icons.settings,
-                      size: 10,
+                      size: 15,
                     ),
                   ),
                 ),
@@ -304,6 +345,7 @@ Widget postWidget(dynamic response) {
   }
 
   // 댓글 리스트 생성
+
   if (body['comments'] != null) {
     for (var item in body['comments'].keys) {
       commentWidgetList.add(commentWidget(body['comments'][item]));
@@ -393,6 +435,7 @@ Widget postWidget(dynamic response) {
             ),
           ),
         ),
+        //사진
         Container(
           child: item['photo'] != ''
               ? Image.network(
