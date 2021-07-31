@@ -25,4 +25,11 @@ class Controller extends GetxController {
     ccommentUrl.value = '/board/cid/$cid';
     update();
   }
+
+  var pageIndex = 1.obs;
+
+  updatePageIndex(int i) {
+    pageIndex.value = i;
+    update();
+  }
 }

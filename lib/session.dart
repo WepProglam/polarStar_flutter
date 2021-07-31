@@ -12,10 +12,25 @@ class Session extends GetConnect {
   static String session;
   static String salt;
 
-  Future<http.Response> getX(String url) => http.get(
-      Uri.parse(
-          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
-      headers: headers);
+  Future<http.Response> getX(String url) => http
+          .get(
+              Uri.parse(
+                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
+              headers: headers)
+          .then((value) {
+        switch (value.statusCode) {
+          case 404:
+            Get.back();
+            break;
+          case 403:
+            getX('/logout');
+            Get.offAllNamed('/logout');
+            break;
+          default:
+            return value;
+        }
+        return value;
+      });
   Future<http.Response> postX(String url, Map data) => http.post(
       Uri.parse(
           'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
@@ -26,30 +41,6 @@ class Session extends GetConnect {
     return socket(
         'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url');
   }
-/*
-  Future<dynamic> getN(String url) async {
-    http.Response response = await http.get(Uri.parse(url), headers: headers);
-
-    final int statusCode = response.statusCode;
-    if (statusCode < 200 || statusCode > 400 || json == null) {
-      //코드 입력
-    }
-
-    return response;
-  }
-
-  Future<dynamic> postN(String url, dynamic data) async {
-    http.Response response =
-        await http.post(Uri.parse(url), body: data, headers: headers);
-
-    final int statusCode = response.statusCode;
-    if (statusCode < 200 || statusCode > 400 || json == null) {
-      //코드 입력
-
-    }
-    return response;
-  }
-  */
 
   String updateCookie(http.Response response, String str) {
     String rawCookie = response.headers['set-cookie'];

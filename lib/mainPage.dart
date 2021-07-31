@@ -266,12 +266,11 @@ class _MainPageScrollState extends State<MainPageScroll> {
                         if (snapshot.hasData == false) {
                           return CircularProgressIndicator();
                         } else if (snapshot.hasError) {
-                          return boards(
-                              jsonDecode(snapshot.data)['board'], context);
+                          return boards(jsonDecode(snapshot.data)['board']);
                         } else {
                           return Container(
-                              child: boards(
-                                  jsonDecode(snapshot.data)['board'], context));
+                              child:
+                                  boards(jsonDecode(snapshot.data)['board']));
                         }
                       }),
                 ],
@@ -368,6 +367,7 @@ Widget billboardContent(Map<String, dynamic> data) {
                 child: Text(
                   data['content'],
                   textAlign: TextAlign.left,
+                  maxLines: 1,
                 ),
               )
             ],
@@ -380,7 +380,7 @@ Widget billboardContent(Map<String, dynamic> data) {
 }
 
 // 게시판 목록 위젯
-Widget boards(Map<String, dynamic> data, BuildContext context) {
+Widget boards(Map<String, dynamic> data) {
   List<Widget> boardList = [];
 
   data.forEach((key, value) {
@@ -394,7 +394,7 @@ Widget boards(Map<String, dynamic> data, BuildContext context) {
 }
 
 // 게시판 위젯
-Widget board(String boardKey, dynamic boardName) {
+Widget board(String boardtype, dynamic boardName) {
   return Padding(
     padding: const EdgeInsets.all(1),
     child: Container(
@@ -406,8 +406,7 @@ Widget board(String boardKey, dynamic boardName) {
           primary: Colors.black,
         ),
         onPressed: () {
-          Get.toNamed('/board');
-          print(boardKey);
+          Get.toNamed('/board', arguments: boardtype);
         },
         child: Text(
           boardName.toString(),
