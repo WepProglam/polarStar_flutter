@@ -7,6 +7,7 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userController = Get.put(UserController());
+    List<String> postName = ["내가 쓴 글", "내가 쓴 댓글", "저장한 글"];
 
     return Scaffold(
         appBar: AppBar(
@@ -198,48 +199,20 @@ class Profile extends StatelessWidget {
                     ),
                   ), //userController.profilePostIndex.value
                   Obx(() {
-                    List<Widget> posts = [
-                      Expanded(
-                          flex: 412,
-                          child: Column(
-                            children: [
-                              for (var i = 0; i < 8; i++)
-                                Expanded(
-                                    flex: 59,
-                                    child: getPosts(
-                                        i,
-                                        userController.userProfile.value.photo,
-                                        "내가 쓴 글")),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 412,
-                          child: Column(
-                            children: [
-                              for (var i = 0; i < 8; i++)
-                                Expanded(
-                                    flex: 59,
-                                    child: getPosts(
-                                        i,
-                                        userController.userProfile.value.photo,
-                                        "내가 쓴 댓글")),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 412,
-                          child: Column(
-                            children: [
-                              for (var i = 0; i < 8; i++)
-                                Expanded(
-                                    flex: 59,
-                                    child: getPosts(
-                                        i,
-                                        userController.userProfile.value.photo,
-                                        "저장한 글"))
-                            ],
-                          )),
-                    ];
-                    return posts[userController.profilePostIndex.value];
+                    return Expanded(
+                        flex: 412,
+                        child: Column(
+                          children: [
+                            for (var i = 0; i < 8; i++)
+                              Expanded(
+                                  flex: 59,
+                                  child: getPosts(
+                                      i,
+                                      userController.userProfile.value.photo,
+                                      postName[userController
+                                          .profilePostIndex.value])),
+                          ],
+                        ));
                   }),
                 ],
               );
@@ -251,89 +224,89 @@ class Profile extends StatelessWidget {
           },
         ));
   }
+}
 
-  Widget getPosts(i, url_to_photo, type) {
-    return Row(
-      children: [
-        Spacer(
-          flex: 6,
-        ),
-        Expanded(
-            flex: 40,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Spacer(
-                  flex: 7,
+Widget getPosts(i, url_to_photo, type) {
+  return Row(
+    children: [
+      Spacer(
+        flex: 6,
+      ),
+      Expanded(
+          flex: 40,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Spacer(
+                flex: 7,
+              ),
+              Expanded(
+                flex: 20,
+                child: Container(
+                  color: Colors.amber,
                 ),
-                Expanded(
-                  flex: 20,
-                  child: Container(
-                    color: Colors.amber,
-                  ),
+              ),
+              Spacer(
+                flex: 5,
+              ),
+              Expanded(
+                flex: 9,
+                child: Text(
+                  "익명",
+                  style: TextStyle(fontSize: 12),
                 ),
-                Spacer(
-                  flex: 5,
+              ),
+              Expanded(
+                flex: 9,
+                child: Text(
+                  "학교 게시판",
+                  style: TextStyle(fontSize: 12),
                 ),
-                Expanded(
-                  flex: 9,
+              ),
+              Spacer(
+                flex: 8,
+              )
+            ],
+          )),
+      Spacer(
+        flex: 10,
+      ),
+      Expanded(
+          flex: 257,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Spacer(
+                flex: 11,
+              ),
+              Expanded(
+                  flex: 18,
                   child: Text(
-                    "익명",
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-                Expanded(
-                  flex: 9,
+                    '제목제목제목제목(${type})_${i}',
+                    style: TextStyle(fontSize: 20),
+                  )),
+              Spacer(
+                flex: 11,
+              ),
+              Expanded(
+                  flex: 12,
                   child: Text(
-                    "학교 게시판",
+                    '내용내용내용내용내용내용내용내용내용내용내용내용',
                     style: TextStyle(fontSize: 12),
-                  ),
-                ),
-                Spacer(
-                  flex: 8,
-                )
-              ],
-            )),
-        Spacer(
-          flex: 10,
-        ),
-        Expanded(
-            flex: 257,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Spacer(
-                  flex: 11,
-                ),
-                Expanded(
-                    flex: 18,
-                    child: Text(
-                      '제목제목제목제목(${type})_${i}',
-                      style: TextStyle(fontSize: 20),
-                    )),
-                Spacer(
-                  flex: 11,
-                ),
-                Expanded(
-                    flex: 12,
-                    child: Text(
-                      '내용내용내용내용내용내용내용내용내용내용내용내용',
-                      style: TextStyle(fontSize: 12),
-                    )),
-                Spacer(
-                  flex: 7,
-                )
-              ],
-            )),
-        Expanded(
-          flex: 49,
-          child: Image.network(
-              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${url_to_photo}'),
-        ),
-        Spacer(
-          flex: 4,
-        )
-      ],
-    );
-  }
+                  )),
+              Spacer(
+                flex: 7,
+              )
+            ],
+          )),
+      Expanded(
+        flex: 49,
+        child: Image.network(
+            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${url_to_photo}'),
+      ),
+      Spacer(
+        flex: 4,
+      )
+    ],
+  );
 }
