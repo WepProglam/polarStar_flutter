@@ -2,172 +2,77 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'session.dart';
-import 'getXController.dart';
 
-class Post extends StatefulWidget {
+class Post extends StatelessWidget {
   const Post({Key key}) : super(key: key);
-
-  @override
-  _PostState createState() => _PostState();
-}
-
-class _PostState extends State<Post> {
-  Future getPostData(String url) async {
-    String getUrl;
-    // print(url);
-    if (url != '') {
-      getUrl = url;
-    }
-
-    var response = await Session().getX(getUrl);
-
-    // print(json.decode(response.body)['comments'].toString());
-
-    // print(response.headers['content-type']);
-
-    if (response.headers['content-type'] == 'text/html; charset=utf-8') {
-      Session().getX('/logout');
-      Get.offAllNamed('/login');
-      return null;
-    } else {
-      return response;
-    }
-  }
-
-  String commentPostUrl(String arg) {
-    List<String> argList = arg.split('/');
-    String commentWriteUrl = '/board/bid/${argList[4]}';
-
-    return commentWriteUrl;
-  }
 
   @override
   Widget build(BuildContext context) {
     String arg = Get.arguments;
 
-    final Controller c = Get.put(Controller());
-
-    var commentWriteController = TextEditingController();
-
     return Scaffold(
-        appBar: AppBar(
-          title: Text('polarStar'),
-        ),
-        body: FutureBuilder(
-            future: getPostData(arg),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData == false) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return CircularProgressIndicator();
-              } else {
-                return Container(child: postWidget(snapshot.data));
-              }
-            }),
-        bottomSheet: Container(
-          height: 60,
-          child: Stack(children: [
-            Container(
-              child: Row(
-                children: [
-                  // 익명 체크
-                  Container(
-                    height: 60,
-                    decoration: BoxDecoration(
-                        border: Border(top: BorderSide(color: Colors.grey))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          GetBuilder<Controller>(
-                            // init: Controller(), // GetBuilder안 init
-                            builder: (c) {
-                              return Container(
-                                height: 20,
-                                width: 20,
-                                child: Transform.scale(
-                                  scale: 1,
-                                  child: Checkbox(
-                                    value: c.anonymousCheck.value,
-                                    onChanged: (value) {
-                                      c.changeAnonymous(value);
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          Text(' 익명'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                      child: Obx(
-                    () => TextFormField(
-                      controller: commentWriteController,
-                      decoration: InputDecoration(
-                          hintText: c.isCcomment.value ? '대댓글 작성' : '댓글 작성',
-                          border: OutlineInputBorder()),
-                    ),
-                  )),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 15,
-              right: 20,
-              child: InkWell(
-                onTap: () async {
-                  Map commentData = {
-                    'content': commentWriteController.text,
-                    'unnamed': c.anonymousCheck.value ? '1' : '0'
-                  };
-                  String postUrl;
-                  if (c.isCcomment.value) {
-                    postUrl = c.ccommentUrl.value;
-                  } else {
-                    postUrl = commentPostUrl(arg);
-                  }
+      appBar: AppBar(
+        title: Text('polarStar'),
+      ),
+      body: PostState(arg: arg),
+    );
+  }
+}
 
-                  Session()
-                      .postX(postUrl, commentData)
-                      .then((value) => setState(() {}));
-                },
-                child: Icon(
-                  Icons.send,
-                  size: 30,
-                ),
-              ),
-            ),
-          ]),
-        ));
+class PostState extends StatefulWidget {
+  final String arg;
+  PostState({Key key, this.arg}) : super(key: key);
+
+  @override
+  _PostStateState createState() => _PostStateState();
+}
+
+class _PostStateState extends State<PostState> {
+  String getUrl;
+  Future getPostData(String url) async {
+    // print(url);
+    if (url != '') {
+      getUrl = url;
+    }
+    var response = await Session().getX(getUrl);
+    // print(jsonDecode(utf8.decode(response.bodyBytes))['comments']['47']['cc']
+    //     .length);
+    return response;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: getPostData(widget.arg),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData == false) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Container(child: Text(snapshot.data.bodyBytes));
+          } else {
+            return Container(child: postWidget(snapshot.data));
+          }
+        });
   }
 }
 
 Widget postWidget(dynamic response) {
-  var body = json.decode(response.body);
+  var body = jsonDecode(utf8.decode(response.bodyBytes));
   var item = body['item'];
   var title = item['title'];
   var content = item['content'];
   var nickname = item['nickname'];
   var time = item['time'].substring(2, 16).replaceAll(RegExp(r'-'), '/');
 
-  final Controller c = Get.put(Controller());
-
-  List<Widget> commentWidgetList = [];
+  List<Widget> commentList = [];
 
   Widget commentWidget(Map<String, dynamic> comment) {
-    List<Widget> ccommentWidgetList = [];
-    List<Map> ccommentList = [];
-
-    String ccommentCidUrl = '/board/cid/${comment['comment']['cid']}';
+    List<Widget> ccommentList = [];
 
     var commentTime = comment['comment']['time']
         .substring(2, 16)
         .replaceAll(RegExp(r'-'), '/');
 
-    //대댓
     Widget ccommentWidget(Map<String, dynamic> ccomment) {
       var ccommentTime =
           ccomment['time'].substring(2, 16).replaceAll(RegExp(r'-'), '/');
@@ -183,14 +88,9 @@ Widget postWidget(dynamic response) {
               child: Row(
                 children: [
                   // 프사
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Container(
-                      height: 20,
-                      width: 20,
-                      child: Image.network(
-                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${ccomment['profile_photo']}'),
-                    ),
+                  Container(
+                    height: 20,
+                    width: 20,
                   ), // 프로필 사진
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,18 +109,27 @@ Widget postWidget(dynamic response) {
                       onTap: () {},
                       child: Icon(
                         Icons.thumb_up,
-                        size: 15,
+                        size: 10,
                       ),
                     ),
                   ),
-
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Icon(
+                        Icons.add_comment,
+                        size: 10,
+                      ),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: InkWell(
                       onTap: () {},
                       child: Icon(
                         Icons.settings,
-                        size: 15,
+                        size: 10,
                       ),
                     ),
                   ),
@@ -239,20 +148,10 @@ Widget postWidget(dynamic response) {
       );
     }
 
-    // 대댓 리스트 생성
     if (comment['cc'] != []) {
       for (int i = 0; i < comment['cc'].length; i++) {
-        // ccommentWidgetList.add(ccommentWidget(comment['cc'][i]));
-        ccommentList.add(comment['cc'][i]);
+        ccommentList.add(ccommentWidget(comment['cc'][i]));
       }
-      ccommentList.sort((a, b) => a['time'].compareTo(b['time']));
-      // print(ccommentList);
-
-      for (var item in ccommentList) {
-        ccommentWidgetList.add(ccommentWidget(item));
-      }
-    } else {
-      ccommentWidgetList.add(Container(child: null));
     }
 
     return Column(
@@ -266,14 +165,9 @@ Widget postWidget(dynamic response) {
             child: Row(
               children: [
                 // 프사
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Container(
-                    height: 20,
-                    width: 20,
-                    child: Image.network(
-                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${comment['comment']['profile_photo'].toString()}'),
-                  ),
+                Container(
+                  height: 20,
+                  width: 20,
                 ), // 프로필 사진
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,26 +186,19 @@ Widget postWidget(dynamic response) {
                     onTap: () {},
                     child: Icon(
                       Icons.thumb_up,
-                      size: 15,
+                      size: 10,
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: InkWell(
-                      onTap: () {
-                        c.changeCcomment(ccommentCidUrl);
-                        c.makeCcommentUrl(comment['comment']['cid']);
-                      },
-                      child: Obx(
-                        () => Icon(
-                          c.isCcomment.value &&
-                                  c.ccommentUrl.value == ccommentCidUrl
-                              ? Icons.comment
-                              : Icons.add,
-                          size: 15,
-                        ),
-                      )),
+                    onTap: () {},
+                    child: Icon(
+                      Icons.add_comment,
+                      size: 10,
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
@@ -319,7 +206,7 @@ Widget postWidget(dynamic response) {
                     onTap: () {},
                     child: Icon(
                       Icons.settings,
-                      size: 15,
+                      size: 10,
                     ),
                   ),
                 ),
@@ -337,21 +224,17 @@ Widget postWidget(dynamic response) {
 
         // 대댓글
         Container(
-            child: Column(
-          children: ccommentWidgetList,
-        ))
+            child: comment['cc'] != []
+                ? Column(
+                    children: ccommentList,
+                  )
+                : null)
       ],
     );
   }
 
-  // 댓글 리스트 생성
-
-  if (body['comments'] != null) {
-    for (var item in body['comments'].keys) {
-      commentWidgetList.add(commentWidget(body['comments'][item]));
-    }
-  } else {
-    commentWidgetList.add(Container(child: null));
+  for (var item in body['comments'].keys) {
+    commentList.add(commentWidget(body['comments'][item]));
   }
 
   return SingleChildScrollView(
@@ -366,20 +249,14 @@ Widget postWidget(dynamic response) {
                 BoxDecoration(border: BorderDirectional(top: BorderSide())),
             child: Row(
               children: [
-                // 프로필 사진
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 30,
-                    width: 30,
-                    child: Image.network(
-                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${item['profile_photo']}'),
-                  ),
-                ),
+                Container(
+                  height: 50,
+                  width: 50,
+                ), // 프로필 사진
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(nickname),
+                    Text(body['myself'] ? '나($nickname)' : nickname),
                     Text(
                       time,
                       textScaleFactor: 0.6,
@@ -435,13 +312,6 @@ Widget postWidget(dynamic response) {
             ),
           ),
         ),
-        //사진
-        Container(
-          child: item['photo'] != ''
-              ? Image.network(
-                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${item['photo']}')
-              : null,
-        ),
         // 좋아요, 댓글, 스크랩 수
         Container(
           decoration:
@@ -494,12 +364,8 @@ Widget postWidget(dynamic response) {
         // 여기부턴 댓글
         Column(
           // children: [commentWidget(body['comments']['77']['comment'])],
-          children: commentWidgetList,
-        ),
-        Container(
-          height: 60,
-          child: null,
-        ),
+          children: commentList,
+        )
       ],
     ),
   );
