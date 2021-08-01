@@ -32,11 +32,9 @@ dependencies:
 
   get:
 
-<<<<<<< HEAD
   image_picker: ^0.8.2
-=======
+  
   json_annotation: 
->>>>>>> c87ecb6f23f2092162532b5bd052d65fd2d34026
 
   
   # The following adds the Cupertino Icons font to your application.
