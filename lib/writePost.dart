@@ -42,6 +42,30 @@ class _WritePostState extends State<WritePost> {
       });
     }
 
+    Future postPost(String arg, Map data) async {
+      String url = '/board/$arg';
+      Session().postX(url, data).then((value) {
+        switch (value.statusCode) {
+          case 200:
+            Get.back();
+            break;
+          case 401:
+            Session().getX('/logout');
+            Get.offAllNamed('/login');
+            break;
+          case 403:
+            Get.snackbar('Forbidden', 'Forbidden');
+            break;
+          case 404:
+            Get.snackbar('Type is not founded', 'type is not founded');
+            Get.back();
+            break;
+          default:
+            print(value.statusCode);
+        }
+      });
+    }
+
     Future upload(String arg, XFile imageFile, Map data) async {
       var request = Session().multipartReq('/board/$arg');
 
@@ -73,31 +97,33 @@ class _WritePostState extends State<WritePost> {
                     'unnamed': c.anonymousCheck.value ? '1' : '0',
                   };
 
-                  upload(arg, _image, data).then((value) {
-                    switch (value.statusCode) {
-                      case 200:
-                        Get.back();
-                        break;
-                      case 401:
-                        // Get.snackbar('login error', 'session expired');
-                        // Session().getX('/logout');
-                        // Get.offAllNamed('/login');
-                        break;
-                      case 403:
-                        Get.snackbar('Forbidden', 'Forbidden');
+                  if (_image != null) {
+                    upload(arg, _image, data).then((value) {
+                      switch (value.statusCode) {
+                        case 200:
+                          Get.back();
+                          break;
+                        case 401:
+                          // Get.snackbar('login error', 'session expired');
+                          // Session().getX('/logout');
+                          // Get.offAllNamed('/login');
+                          break;
+                        case 403:
+                          Get.snackbar('Forbidden', 'Forbidden');
 
-                        break;
-                      case 404:
-                        Get.snackbar(
-                            'Type is not founded', 'type is not founded');
-                        Get.back();
-                        break;
-                      default:
-                        print(value.statucCode);
-                    }
-                  });
-
-                  // postPost(Get.arguments, data);
+                          break;
+                        case 404:
+                          Get.snackbar(
+                              'Type is not founded', 'type is not founded');
+                          Get.back();
+                          break;
+                        default:
+                          print(value.statucCode);
+                      }
+                    });
+                  } else {
+                    postPost(arg, data);
+                  }
                 },
                 child: Container(
                   margin: EdgeInsets.all(8),
