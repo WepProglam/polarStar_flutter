@@ -6,8 +6,6 @@ import 'session.dart';
 import 'getXController.dart';
 
 class MainPage extends StatelessWidget {
-  final Controller c = Get.put(Controller());
-
   List<Widget> mainPageWidget = [
     MainPageScroll(),
     Boards(),
@@ -17,6 +15,8 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Controller c = Get.put(Controller());
+
     return Scaffold(
         appBar: AppBar(
           title: Text('polarStar'),

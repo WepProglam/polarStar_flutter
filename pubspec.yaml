@@ -32,7 +32,11 @@ dependencies:
 
   get:
 
+<<<<<<< HEAD
   image_picker: ^0.8.2
+=======
+  json_annotation: 
+>>>>>>> c87ecb6f23f2092162532b5bd052d65fd2d34026
 
   
   # The following adds the Cupertino Icons font to your application.
@@ -44,6 +48,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: 
+  json_serializable: 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

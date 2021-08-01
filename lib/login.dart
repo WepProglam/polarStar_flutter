@@ -48,6 +48,8 @@ class _LoginInputsState extends State<LoginInputs> {
     // get
     var response_get = await Session().getX('/login');
 
+    print(response_get);
+
     var getHeaders = response_get.headers;
     var getBody = utf8.decode(response_get.bodyBytes);
 
