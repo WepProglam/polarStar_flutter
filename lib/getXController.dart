@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Controller extends GetxController {
+  // mainPage
   var mainPageIndex = 1.obs;
 
   updateMainPage(int index) {
@@ -9,6 +11,7 @@ class Controller extends GetxController {
     update();
   }
 
+  // Post
   var anonymousCheck = true.obs;
   var isCcomment = false.obs;
   var ccommentUrl = '/board/cid'.obs;
@@ -33,15 +36,9 @@ class Controller extends GetxController {
     update();
   }
 
-  // 게시판 페이지 인덱스
-  var pageIndex = 1.obs;
-
-  updatePageIndex(int i) {
-    pageIndex.value = i;
-    update();
-  }
-
+  // board
   var isBoardEmpty = false.obs;
+
   changeIsBoardEmpty(bool value) {
     isBoardEmpty.value = value;
     update();

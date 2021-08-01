@@ -19,6 +19,8 @@ class _BoardState extends State<Board> {
 
   final Controller c = Get.put(Controller());
 
+  int pageIndex = 1;
+
   Future getBoardData(String type, int page) async {
     String getUrl;
     List<Widget> buttons = [];
@@ -64,7 +66,9 @@ class _BoardState extends State<Board> {
             ),
           )),
       onTap: () {
-        c.updatePageIndex(index);
+        setState(() {
+          pageIndex = index;
+        });
       },
     );
   }
@@ -140,7 +144,7 @@ class _BoardState extends State<Board> {
               width: 40,
               child: InkWell(
                   onTap: () {
-                    Get.toNamed('/writePost');
+                    Get.toNamed('/writePost', arguments: arg);
                   },
                   child: Icon(
                     Icons.add,
@@ -148,49 +152,49 @@ class _BoardState extends State<Board> {
             )
           ],
         ),
-        body: Obx(() => FutureBuilder(
-              future: getBoardData(arg, c.pageIndex.value),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData == false) {
-                  return Column(
-                    children: [
-                      Container(
-                          // child: boardContents(json.decode(response.body)),
-                          ),
-                      Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: pageButtons,
-                          ),
-                        ),
-                      )
-                    ],
-                  );
-                } else if (snapshot.hasError) {
-                  return CircularProgressIndicator();
-                } else {
-                  return Column(
-                    children: [
-                      Container(
-                        child: boardContents(json.decode(response.body)),
+        body: FutureBuilder(
+          future: getBoardData(arg, pageIndex),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData == false) {
+              return Column(
+                children: [
+                  Container(
+                      // child: boardContents(json.decode(response.body)),
                       ),
-                      Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: pageButtons,
-                          ),
-                        ),
-                      )
-                    ],
-                  );
-                }
-              },
-            )));
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: pageButtons,
+                      ),
+                    ),
+                  )
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return CircularProgressIndicator();
+            } else {
+              return Column(
+                children: [
+                  Container(
+                    child: boardContents(json.decode(response.body)),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: pageButtons,
+                      ),
+                    ),
+                  )
+                ],
+              );
+            }
+          },
+        ));
   }
 }

@@ -34,6 +34,18 @@ class Session extends GetConnect {
       body: data,
       headers: headers);
 
+  multipartReq(String url) {
+    var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'));
+
+    request.headers['user-agent'] = headers['user-agent'];
+    request.headers['Cookie'] = headers['Cookie'];
+
+    return request;
+  }
+
   GetSocket socketX(String url) {
     return socket(
         'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url');
