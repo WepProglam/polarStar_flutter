@@ -8,7 +8,7 @@ import 'session.dart';
 
 class Controller extends GetxController {
   // mainPage
-  var mainPageIndex = 1.obs;
+  var mainPageIndex = 0.obs;
 
   updateMainPage(int index) {
     mainPageIndex.value = index;
