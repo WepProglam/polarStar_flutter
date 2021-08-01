@@ -17,6 +17,8 @@ class MainPageScroll extends StatelessWidget {
       return body;
     }
 
+    TextEditingController searchText = TextEditingController();
+
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -30,6 +32,7 @@ class MainPageScroll extends StatelessWidget {
                   Expanded(
                     flex: 8,
                     child: TextFormField(
+                      controller: searchText,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                           border: OutlineInputBorder(),
@@ -43,7 +46,13 @@ class MainPageScroll extends StatelessWidget {
                       child: Container(
                         child: IconButton(
                           padding: EdgeInsets.all(0),
-                          onPressed: () {},
+                          onPressed: () {
+                            Map arg = {
+                              'search': searchText.text,
+                              'from': 'home'
+                            };
+                            Get.toNamed('/searchBoard', arguments: arg);
+                          },
                           icon: Icon(Icons.search_outlined),
                           iconSize: 20,
                         ),

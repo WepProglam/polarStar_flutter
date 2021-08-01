@@ -5,14 +5,14 @@ import 'session.dart';
 import 'dart:convert';
 import 'getXController.dart';
 
-class Board extends StatefulWidget {
-  const Board({Key key}) : super(key: key);
+class SearchBoard extends StatefulWidget {
+  const SearchBoard({Key key}) : super(key: key);
 
   @override
-  _BoardState createState() => _BoardState();
+  _SearchBoardState createState() => _SearchBoardState();
 }
 
-class _BoardState extends State<Board> {
+class _SearchBoardState extends State<SearchBoard> {
   List<Widget> pageButtons = [];
   var response;
   dynamic arg = Get.arguments;
@@ -191,46 +191,6 @@ class _BoardState extends State<Board> {
             } else {
               return Column(
                 children: [
-                  // 검색창
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 8,
-                          child: TextFormField(
-                            controller: searchText,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Search',
-                                isDense: true,
-                                contentPadding: EdgeInsets.all(8)),
-                          ),
-                        ),
-                        Expanded(
-                            flex: 1,
-                            child: Container(
-                              child: IconButton(
-                                padding: EdgeInsets.all(0),
-                                onPressed: () {
-                                  Map argument = {
-                                    'search': searchText.text,
-                                    'from': 'board',
-                                    'type': json.decode(response.body)['type']
-                                  };
-
-                                  Get.toNamed('/searchBoard',
-                                      arguments: argument);
-                                },
-                                icon: Icon(Icons.search_outlined),
-                                iconSize: 20,
-                              ),
-                            )),
-                      ],
-                    ),
-                  ),
                   Container(
                     child: boardContents(json.decode(response.body)),
                   ),

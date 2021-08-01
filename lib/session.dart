@@ -28,11 +28,19 @@ class Session extends GetConnect {
         }
         return value;
       });
+
   Future<http.Response> postX(String url, Map data) => http.post(
-      Uri.parse(
-          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
-      body: data,
-      headers: headers);
+        Uri.parse(
+            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
+        body: data,
+        headers: headers,
+      );
+
+  // 왜 안되는지 모르겠음
+  // Future<Response> getQuery(String url, Map query) => get(
+  //     'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url',
+  //     query: query,
+  //     headers: headers);
 
   multipartReq(String url) {
     var request = http.MultipartRequest(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:polarstar_flutter/searchBoard.dart';
+
 import 'session.dart';
 
 import 'package:polarstar_flutter/login.dart';
@@ -37,6 +39,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/mainPage', page: () => MainPage()),
         GetPage(name: '/profile', page: () => Profile()),
         GetPage(name: '/board', page: () => Board()),
+        GetPage(name: '/searchBoard', page: () => SearchBoard()),
         GetPage(name: '/post', page: () => Post()),
         GetPage(name: '/writePost', page: () => WritePost())
       ],
