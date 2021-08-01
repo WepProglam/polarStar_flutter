@@ -156,7 +156,8 @@ class _BoardState extends State<Board> {
               child: arg is! Map
                   ? InkWell(
                       onTap: () {
-                        Get.toNamed('/writePost', arguments: arg);
+                        Get.toNamed('/writePost',
+                            arguments: {'type': arg.toString()});
                       },
                       child: Icon(
                         Icons.add,

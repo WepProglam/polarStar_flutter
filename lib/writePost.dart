@@ -18,70 +18,86 @@ class _WritePostState extends State<WritePost> {
   TextEditingController title = TextEditingController();
   TextEditingController content = TextEditingController();
   Controller c = Controller();
-  String arg = Get.arguments;
+  Map arg = Get.arguments;
 
   final ImagePicker _picker = ImagePicker();
   TextEditingController photoName = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    getGalleryImage(String titleStr, String contentStr) async {
-      var img = await _picker.pickImage(source: ImageSource.gallery);
-      print(titleStr);
+  void initState() {
+    if (arg['item'] != null) {
       setState(() {
-        _image = img;
-        title.text = titleStr;
-        content.text = contentStr;
-      });
-    }
-
-    getCameraImage(String title, String content) async {
-      var img = await _picker.pickImage(source: ImageSource.camera);
-      setState(() {
-        _image = img;
-      });
-    }
-
-    Future postPost(String arg, Map data) async {
-      String url = '/board/$arg';
-      Session().postX(url, data).then((value) {
-        switch (value.statusCode) {
-          case 200:
-            Get.back();
-            break;
-          case 401:
-            Session().getX('/logout');
-            Get.offAllNamed('/login');
-            break;
-          case 403:
-            Get.snackbar('Forbidden', 'Forbidden');
-            break;
-          case 404:
-            Get.snackbar('Type is not founded', 'type is not founded');
-            Get.back();
-            break;
-          default:
-            print(value.statusCode);
+        title.text = arg['item']['title'].toString();
+        content.text = arg['item']['content'].toString();
+        if (arg['item']['photo'] != null) {
+          _image = XFile(
+              'http://http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${arg['item']['photo']}');
         }
       });
     }
 
-    Future upload(String arg, XFile imageFile, Map data) async {
-      var request = Session().multipartReq('/board/$arg');
+    super.initState();
+  }
 
-      var pic = await http.MultipartFile.fromPath("photo", imageFile.path);
-      //contentType: new MediaType('image', 'png'));
+  getGalleryImage(String titleStr, String contentStr) async {
+    var img = await _picker.pickImage(source: ImageSource.gallery);
+    print(titleStr);
+    setState(() {
+      _image = img;
+      title.text = titleStr;
+      content.text = contentStr;
+    });
+  }
 
-      request.files.add(pic);
-      request.fields['title'] = data['title'];
-      request.fields['description'] = data['description'];
-      request.fields['unnamed'] = data['unnamed'];
-      print(request.files[0].filename);
-      var response = await request.send();
-      print(response.statusCode);
-      return response;
-    }
+  getCameraImage(String title, String content) async {
+    var img = await _picker.pickImage(source: ImageSource.camera);
+    setState(() {
+      _image = img;
+    });
+  }
 
+  Future postPost(String arg, Map data) async {
+    String url = '/board/$arg';
+    Session().postX(url, data).then((value) {
+      switch (value.statusCode) {
+        case 200:
+          Get.back();
+          break;
+        case 401:
+          Session().getX('/logout');
+          Get.offAllNamed('/login');
+          break;
+        case 403:
+          Get.snackbar('Forbidden', 'Forbidden');
+          break;
+        case 404:
+          Get.snackbar('Type is not founded', 'type is not founded');
+          Get.back();
+          break;
+        default:
+          print(value.statusCode);
+      }
+    });
+  }
+
+  Future upload(String arg, XFile imageFile, Map data) async {
+    var request = Session().multipartReq('/board/$arg');
+
+    var pic = await http.MultipartFile.fromPath("photo", imageFile.path);
+    //contentType: new MediaType('image', 'png'));
+
+    request.files.add(pic);
+    request.fields['title'] = data['title'];
+    request.fields['description'] = data['description'];
+    request.fields['unnamed'] = data['unnamed'];
+    print(request.files[0].filename);
+    var response = await request.send();
+    print(response.statusCode);
+    return response;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('polarStar'),
@@ -98,7 +114,7 @@ class _WritePostState extends State<WritePost> {
                   };
 
                   if (_image != null) {
-                    upload(arg, _image, data).then((value) {
+                    upload(arg['type'].toString(), _image, data).then((value) {
                       switch (value.statusCode) {
                         case 200:
                           Get.back();
@@ -122,7 +138,7 @@ class _WritePostState extends State<WritePost> {
                       }
                     });
                   } else {
-                    postPost(arg, data);
+                    postPost(arg['type'].toString(), data);
                   }
                 },
                 child: Container(

@@ -20,6 +20,8 @@ class _PostState extends State<Post> {
     }
     var response = await Session().getX(getUrl);
 
+    print(json.decode(response.body));
+
     if (response.headers['content-type'] == 'text/html; charset=utf-8') {
       Session().getX('/logout');
       Get.offAllNamed('/login');
@@ -381,24 +383,30 @@ Widget postWidget(dynamic response) {
                 Spacer(),
                 IconButton(
                   onPressed: () {
-                    if (body['myself']) {}
+                    if (body['myself']) {
+                    } else {}
                   },
-                  icon: Icon(Icons.thumb_up),
+                  icon: body['myself'] ? Text('') : Icon(Icons.thumb_up),
                   iconSize: 20,
                 ),
                 IconButton(
                   onPressed: () {
-                    if (body['myself']) {}
+                    if (body['myself']) {
+                      Get.toNamed('/writePost', arguments: body);
+                    } else {}
                   },
-                  icon: Icon(Icons.bookmark),
+                  icon: body['myself'] ? Icon(Icons.edit) : Text('신고'),
                   iconSize: 20,
                 ),
 
                 IconButton(
                   onPressed: () {
-                    if (body['myself']) {}
+                    if (body['myself']) {
+                    } else {}
                   },
-                  icon: Icon(Icons.settings),
+                  icon: body['myself']
+                      ? Icon(Icons.remove_circle)
+                      : Icon(Icons.bookmark),
                   iconSize: 20,
                 ),
               ],
