@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'boards.dart';
+import 'boardList.dart';
 import 'home.dart';
 import 'session.dart';
 import 'getXController.dart';

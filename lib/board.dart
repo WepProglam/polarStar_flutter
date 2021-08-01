@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'session.dart';
 import 'dart:convert';
 import 'getXController.dart';
@@ -13,7 +13,6 @@ class Board extends StatefulWidget {
 }
 
 class _BoardState extends State<Board> {
-  List<Widget> boardContentList = [];
   List<Widget> pageButtons = [];
   var response;
   var arg = Get.arguments;
@@ -22,12 +21,24 @@ class _BoardState extends State<Board> {
 
   Future getBoardData(String type, int page) async {
     String getUrl;
+    List<Widget> buttons = [];
+
     if (type != '') {
       getUrl = '/board/$type/page/$page';
     }
-    var res = await Session().getX(getUrl);
+    var res = await Session().getX(getUrl).then((value) {
+      if (value.statusCode == 404) {
+        c.changeIsBoardEmpty(true);
+        buttons = [pageButton(1)];
+        pageButtons = buttons;
+        setState(() {});
+        return value;
+      } else {
+        c.changeIsBoardEmpty(false);
+        return value;
+      }
+    });
 
-    List<Widget> buttons = [];
     for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {
       buttons.add(pageButton(i + 1));
     }
@@ -37,7 +48,6 @@ class _BoardState extends State<Board> {
       pageButtons = buttons;
     });
 
-    // print(response.headers['content-type']);
     return res;
   }
 
@@ -59,6 +69,67 @@ class _BoardState extends State<Board> {
     );
   }
 
+  Widget boardContents(Map<String, dynamic> body) {
+    List<Widget> boardContentList = [];
+
+    for (Map<String, dynamic> item in body['rows']) {
+      boardContentList.add(boardContent(item));
+    }
+
+    return Column(
+      children: boardContentList,
+    );
+  }
+
+  Widget boardContent(Map<String, dynamic> data) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Container(
+        height: 50,
+        child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            primary: Colors.black,
+          ),
+          onPressed: () {
+            // print('url: ${data['url']}');
+            String boardUrl = '/board/${data['type']}/read/${data['bid']}';
+            Get.toNamed('/post', arguments: boardUrl);
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: 200,
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        data['title'],
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        data['content'],
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Spacer(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +139,9 @@ class _BoardState extends State<Board> {
             Container(
               width: 40,
               child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Get.toNamed('/writePost');
+                  },
                   child: Icon(
                     Icons.add,
                   )),
@@ -79,7 +152,23 @@ class _BoardState extends State<Board> {
               future: getBoardData(arg, c.pageIndex.value),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData == false) {
-                  return CircularProgressIndicator();
+                  return Column(
+                    children: [
+                      Container(
+                          // child: boardContents(json.decode(response.body)),
+                          ),
+                      Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: pageButtons,
+                          ),
+                        ),
+                      )
+                    ],
+                  );
                 } else if (snapshot.hasError) {
                   return CircularProgressIndicator();
                 } else {
@@ -104,65 +193,4 @@ class _BoardState extends State<Board> {
               },
             )));
   }
-}
-
-Widget boardContents(Map<String, dynamic> body) {
-  List<Widget> boardContentList = [];
-
-  for (Map<String, dynamic> item in body['rows']) {
-    boardContentList.add(boardContent(item));
-  }
-
-  return Column(
-    children: boardContentList,
-  );
-}
-
-Widget boardContent(Map<String, dynamic> data) {
-  return Padding(
-    padding: const EdgeInsets.all(2.0),
-    child: Container(
-      height: 50,
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          primary: Colors.black,
-        ),
-        onPressed: () {
-          // print('url: ${data['url']}');
-          String boardUrl = '/board/${data['type']}/read/${data['bid']}';
-          Get.toNamed('/post', arguments: boardUrl);
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-              width: 200,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      data['title'],
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      data['content'],
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Spacer(),
-          ],
-        ),
-      ),
-    ),
-  );
 }

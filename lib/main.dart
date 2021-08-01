@@ -9,6 +9,7 @@ import 'package:polarstar_flutter/sign_up.dart';
 import 'package:polarstar_flutter/profile.dart';
 import 'package:polarstar_flutter/board.dart';
 import 'package:polarstar_flutter/post.dart';
+import 'package:polarstar_flutter/writePost.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/profile', page: () => Profile()),
         GetPage(name: '/board', page: () => Board()),
         GetPage(name: '/post', page: () => Post()),
+        GetPage(name: '/writePost', page: () => WritePost())
       ],
 
       // routes: {

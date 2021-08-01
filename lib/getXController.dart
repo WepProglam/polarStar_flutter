@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class Controller extends GetxController {
-  var mainPageIndex = 0.obs;
+  var mainPageIndex = 1.obs;
 
   updateMainPage(int index) {
     mainPageIndex.value = index;
@@ -33,10 +33,17 @@ class Controller extends GetxController {
     update();
   }
 
+  // 게시판 페이지 인덱스
   var pageIndex = 1.obs;
 
   updatePageIndex(int i) {
     pageIndex.value = i;
+    update();
+  }
+
+  var isBoardEmpty = false.obs;
+  changeIsBoardEmpty(bool value) {
+    isBoardEmpty.value = value;
     update();
   }
 }
