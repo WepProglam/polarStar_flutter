@@ -51,6 +51,7 @@ class Controller extends GetxController {
 
 class UserController extends GetxController {
   Rx<User> userProfile = new User().obs;
+  Rx<int> profilePostIndex = 0.obs;
   //var user = User().obs;
   Future<String> getUserProfile() async {
     var response = await Session().getX("/info");
@@ -76,9 +77,18 @@ class UserController extends GetxController {
     return "a";
   }
 
+  void setProfilePostIndex(index) {
+    profilePostIndex.value = index;
+  }
+
   @override
   void onInit() async {
     print("object");
     super.onInit();
+    profilePostIndex.value = 0;
+
+    ever(profilePostIndex, (_) {
+      print('$_이/가 변경되었습니다.');
+    });
   }
 }

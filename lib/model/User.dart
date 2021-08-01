@@ -36,7 +36,7 @@ class User {
     school = item['school'];
     photo = item['photo'];
     profilemsg = item['profilemsg'];
-    likes = jsonDecode(item['likes']);
+    likes = (item['likes']);
     friends = (item['friends']);
     buffer = (item['buffer']);
     arrest = item['arrest'];
