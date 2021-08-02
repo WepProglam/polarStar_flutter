@@ -41,7 +41,7 @@ class Session extends GetConnect {
         headers: headers,
       );
 
-  Future deleteX(String url) => delete(_basicUrl + url);
+  Future deleteX(String url) => delete(_basicUrl + url, headers: headers);
 
   // 왜 안되는지 모르겠음
   // Future<Response> getQuery(String url, Map query) => get(

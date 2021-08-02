@@ -402,9 +402,21 @@ Widget postWidget(dynamic response) {
                 IconButton(
                   onPressed: () {
                     if (body['myself']) {
+                      print(body['item']['bid']);
+                      Session()
+                          .deleteX('/board/bid/${body['item']['bid']}')
+                          .then((value) {
+                        switch (value.statusCode) {
+                          case 200:
+                            Get.back();
+
+                            break;
+                          default:
+                        }
+                      });
                     } else {}
                   },
-                  icon: body['myself'] ? Icon(Icons.remove_circle) : Text('신고'),
+                  icon: body['myself'] ? Icon(Icons.delete) : Text('신고'),
                   iconSize: 20,
                 ),
               ],
