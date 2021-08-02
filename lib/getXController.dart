@@ -52,13 +52,14 @@ class Controller extends GetxController {
 class UserController extends GetxController {
   Rx<User> userProfile = new User().obs;
   Rx<int> profilePostIndex = 0.obs;
+  Rx<Post> postPreview = new Post().obs;
+
   //var user = User().obs;
   Future<String> getUserProfile() async {
     var response = await Session().getX("/info");
     var responseBody = utf8.decode(response.bodyBytes);
     var json = jsonDecode(responseBody)["profile"];
-    json["likes"] = jsonDecode(json["likes"]);
-    print(json["likes"]["b"]);
+
     userProfile.value = User(
       pid: json["pid"],
       uid: json["uid"],

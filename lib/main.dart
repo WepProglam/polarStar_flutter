@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/signUp', page: () => SignUp()),
         GetPage(name: '/mainPage', page: () => MainPage()),
         GetPage(name: '/profile', page: () => Profile()),
+        GetPage(name: '/profile/setting', page: () => ProfileSetting()),
         GetPage(name: '/board', page: () => Board()),
         GetPage(name: '/searchBoard', page: () => SearchBoard()),
         GetPage(name: '/post', page: () => Post()),
