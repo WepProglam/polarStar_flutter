@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'session.dart';
 import 'getXController.dart';
 
-class Profile extends StatelessWidget {
+class Mypage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userController = Get.put(UserController());
@@ -124,7 +124,7 @@ class Profile extends StatelessWidget {
                                   ),
                                 ),
                                 onTap: () {
-                                  Get.toNamed('/profile/setting');
+                                  Get.toNamed('/myPage/profile');
                                 },
                               )),
                           Spacer(
@@ -139,7 +139,7 @@ class Profile extends StatelessWidget {
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(25))),
                                 child: Text(
-                                  "text",
+                                  "setting",
                                   style: TextStyle(fontSize: 20),
                                   textAlign: TextAlign.center,
                                 ),
@@ -343,7 +343,7 @@ Widget getPosts(i, json) {
   );
 }
 
-class ProfileSetting extends StatelessWidget {
+class Profile extends StatelessWidget {
   final userController = Get.put(UserController());
 
   @override

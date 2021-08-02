@@ -33,7 +33,7 @@ class MainPage extends StatelessWidget {
                 icon: Text('LOGOUT')),
             IconButton(
                 onPressed: () {
-                  Get.toNamed('/profile');
+                  Get.toNamed('/myPage');
                 },
                 icon: Icon(Icons.person)),
           ],
