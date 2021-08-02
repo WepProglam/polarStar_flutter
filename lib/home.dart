@@ -276,8 +276,8 @@ Widget billboardContent(Map<String, dynamic> data) {
     ),
     onPressed: () {
       // print('url: ${data['url']}');
-      String boardUrl = '/board/${data['type']}/read/${data['bid']}';
-      Get.toNamed('/post', arguments: boardUrl);
+      Map argument = {'boardUrl': '/board/${data['type']}/read/${data['bid']}'};
+      Get.toNamed('/post', arguments: argument);
     },
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
