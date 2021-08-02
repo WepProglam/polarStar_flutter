@@ -17,7 +17,7 @@ class _WritePostState extends State<WritePost> {
   XFile _image;
   TextEditingController title = TextEditingController();
   TextEditingController content = TextEditingController();
-  Controller c = Get.put(Controller());
+  final c = Get.put(PostController());
   Map arg = Get.arguments;
 
   final ImagePicker _picker = ImagePicker();
@@ -94,8 +94,8 @@ class _WritePostState extends State<WritePost> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: GetBuilder<Controller>(
-                builder: (c) => InkWell(
+              child: Obx(
+                () => InkWell(
                   onTap: () {
                     Map data = {
                       'title': title.text,
@@ -224,9 +224,8 @@ class _WritePostState extends State<WritePost> {
                   ),
                 ),
                 Spacer(),
-                GetBuilder<Controller>(
-                  // init: Controller(), // GetBuilder안 init
-                  builder: (c) {
+                Obx(
+                  () {
                     return Container(
                       height: 20,
                       width: 20,

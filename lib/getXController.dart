@@ -15,31 +15,6 @@ class Controller extends GetxController {
     update();
   }
 
-  // Post
-  var anonymousCheck = true.obs;
-  var isCcomment = false.obs;
-  var ccommentUrl = '/board/cid'.obs;
-
-  changeAnonymous(bool value) {
-    anonymousCheck.value = value;
-    update();
-  }
-
-  changeCcomment(String cidUrl) {
-    if (isCcomment.value && ccommentUrl.value == cidUrl) {
-      isCcomment.value = false;
-    } else {
-      isCcomment.value = true;
-    }
-
-    update();
-  }
-
-  makeCcommentUrl(String cid) {
-    ccommentUrl.value = '/board/cid/$cid';
-    update();
-  }
-
   // board
   var isBoardEmpty = false.obs;
 
@@ -98,6 +73,45 @@ class UserController extends GetxController {
 }
 
 class PostController extends GetxController {
+  // Post
+  var anonymousCheck = true.obs;
+  var isCcomment = false.obs;
+  var ccommentUrl = '/board/cid'.obs;
+
+  changeAnonymous(bool value) {
+    anonymousCheck.value = value;
+    update();
+  }
+
+  changeCcomment(String cidUrl) {
+    if (isCcomment.value && ccommentUrl.value == cidUrl) {
+      isCcomment.value = false;
+    } else {
+      isCcomment.value = true;
+    }
+
+    update();
+  }
+
+  makeCcommentUrl(String cid) {
+    ccommentUrl.value = '/board/cid/$cid';
+    update();
+  }
+
+  // 댓글 수정
+  var autoFocusTextForm = false.obs;
+  var putUrl = '/board'.obs;
+
+  updateAutoFocusTextForm(bool b) {
+    autoFocusTextForm.value = b;
+    update();
+  }
+
+  updatePutUrl(String url) {
+    putUrl.value = url;
+    update();
+  }
+
   void getPostFromCommentData(Map comment) async {
     var response = await Session().getX(
         "/board/${comment['comment']['type']}/read/${comment['comment']['bid']}");
