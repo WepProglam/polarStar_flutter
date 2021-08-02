@@ -7,7 +7,7 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userController = Get.put(UserController());
-    List<String> postName = ["내가 쓴 글", "내가 쓴 댓글", "저장한 글"];
+    List<String> postName = ["내가 쓴 글", "좋아요 누른 글", "저장한 글"];
 
     return Scaffold(
         appBar: AppBar(
@@ -18,6 +18,17 @@ class Profile extends StatelessWidget {
           future: userController.getUserProfile(),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
+              List<dynamic> userPost = [
+                userController.userProfile.value.likes,
+                userController.userProfile.value.likes,
+                userController.userProfile.value.scrap
+              ];
+
+              List<int> userPostLength = [
+                userController.userProfile.value.likes.length,
+                userController.userProfile.value.likes.length,
+                userController.userProfile.value.scrap.length
+              ];
               return Column(
                 children: [
                   Spacer(
@@ -48,7 +59,7 @@ class Profile extends StatelessWidget {
                                     flex: 20,
                                     child: Obx(() {
                                       return Text(
-                                        '${userController.userProfile.value.nickname}',
+                                        '${userController.userProfile.value.nickname} | ${userController.userProfile.value.profilemsg}',
                                         style: TextStyle(fontSize: 20),
                                       );
                                     })),
@@ -163,8 +174,8 @@ class Profile extends StatelessWidget {
                         Expanded(
                           flex: 70,
                           child: InkWell(
-                            child:
-                                Text("내가 쓴 댓글", style: TextStyle(fontSize: 15)),
+                            child: Text("좋아요 누른 글",
+                                style: TextStyle(fontSize: 15)),
                             onTap: () {
                               userController.setProfilePostIndex(1);
                             },
@@ -198,26 +209,31 @@ class Profile extends StatelessWidget {
                       color: Colors.purple,
                     ),
                   ), //userController.profilePostIndex.value
-                  Obx(() {
-                    return Expanded(
-                        flex: 412,
-                        child: Column(
-                          children: [
-                            for (var i = 0; i < 8; i++)
-                              Expanded(
-                                  flex: 59,
-                                  child: getPosts(
-                                      i,
-                                      userController.userProfile.value.photo,
-                                      postName[userController
-                                          .profilePostIndex.value])),
-                          ],
-                        ));
-                  }),
+                  Expanded(
+                      flex: 412,
+                      child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Obx(() {
+                            return Column(
+                              children: [
+                                for (var i = 0;
+                                    i <
+                                        userPostLength[userController
+                                            .profilePostIndex.value];
+                                    i++)
+                                  Container(
+                                      height: 120,
+                                      child: getPosts(
+                                          i,
+                                          userPost[userController
+                                              .profilePostIndex.value][i]))
+                              ],
+                            );
+                          })))
                 ],
               );
             } else if (snapshot.hasError) {
-              return Container(child: Text(snapshot.data.bodyBytes));
+              return Container(child: Text(snapshot.data));
             } else {
               return CircularProgressIndicator();
             }
@@ -226,87 +242,96 @@ class Profile extends StatelessWidget {
   }
 }
 
-Widget getPosts(i, url_to_photo, type) {
-  return Row(
-    children: [
-      Spacer(
-        flex: 6,
-      ),
-      Expanded(
-          flex: 40,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Spacer(
-                flex: 7,
-              ),
-              Expanded(
-                flex: 20,
-                child: Container(
-                  color: Colors.amber,
+Widget getPosts(i, json) {
+  return InkWell(
+    onTap: () {
+      String boardUrl = '/board/${json["type"]}/read/${json["bid"]}';
+      Get.toNamed('/post', arguments: boardUrl);
+    },
+    child: Row(
+      children: [
+        Spacer(
+          flex: 6,
+        ),
+        Expanded(
+            flex: 40,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Spacer(
+                  flex: 7,
                 ),
-              ),
-              Spacer(
-                flex: 5,
-              ),
-              Expanded(
-                flex: 9,
-                child: Text(
-                  "익명",
-                  style: TextStyle(fontSize: 12),
+                Expanded(
+                  flex: 20,
+                  child: Image.network(
+                      'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}'),
                 ),
-              ),
-              Expanded(
-                flex: 9,
-                child: Text(
-                  "학교 게시판",
-                  style: TextStyle(fontSize: 12),
+                Spacer(
+                  flex: 5,
                 ),
-              ),
-              Spacer(
-                flex: 8,
-              )
-            ],
-          )),
-      Spacer(
-        flex: 10,
-      ),
-      Expanded(
-          flex: 257,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Spacer(
-                flex: 11,
-              ),
-              Expanded(
-                  flex: 18,
+                Expanded(
+                  flex: 9,
                   child: Text(
-                    '제목제목제목제목(${type})_${i}',
-                    style: TextStyle(fontSize: 20),
-                  )),
-              Spacer(
-                flex: 11,
-              ),
-              Expanded(
-                  flex: 12,
-                  child: Text(
-                    '내용내용내용내용내용내용내용내용내용내용내용내용',
+                    "익명",
                     style: TextStyle(fontSize: 12),
-                  )),
-              Spacer(
-                flex: 7,
+                  ),
+                ),
+                Expanded(
+                  flex: 9,
+                  child: Text(
+                    "학교 게시판",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+                Spacer(
+                  flex: 8,
+                )
+              ],
+            )),
+        Spacer(
+          flex: 10,
+        ),
+        Expanded(
+            flex: 257,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Spacer(
+                  flex: 11,
+                ),
+                Expanded(
+                    flex: 18,
+                    child: Text(
+                      json["title"],
+                      style: TextStyle(fontSize: 20),
+                    )),
+                Spacer(
+                  flex: 11,
+                ),
+                Expanded(
+                    flex: 12,
+                    child: Text(
+                      json["content"],
+                      style: TextStyle(fontSize: 12),
+                    )),
+                Spacer(
+                  flex: 7,
+                )
+              ],
+            )),
+        json["photo"]?.isEmpty
+            ? Spacer(
+                flex: 49,
               )
-            ],
-          )),
-      Expanded(
-        flex: 49,
-        child: Image.network(
-            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${url_to_photo}'),
-      ),
-      Spacer(
-        flex: 4,
-      )
-    ],
+            : Expanded(
+                flex: 49,
+                child: Image.network(
+                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}'),
+              ),
+        Spacer(
+          flex: 4,
+        )
+      ],
+    ),
   );
 }

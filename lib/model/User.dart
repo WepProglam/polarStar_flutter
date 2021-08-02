@@ -9,7 +9,7 @@ class User {
   String school;
   String photo;
   String profilemsg;
-  Map<String, dynamic> likes;
+  List<dynamic> likes;
   List<dynamic> friends;
   List<dynamic> buffer;
   int arrest;
@@ -42,4 +42,27 @@ class User {
     arrest = item['arrest'];
     scrap = item['scrap'];
   }
+}
+
+class Post {
+  int bid;
+  String uid;
+  int unnamed;
+  int like;
+  String photo;
+  int type;
+  String title;
+  String content;
+  String time;
+
+  Post(
+      {this.bid,
+      this.uid,
+      this.unnamed,
+      this.like,
+      this.photo,
+      this.type,
+      this.title,
+      this.content,
+      this.time});
 }
