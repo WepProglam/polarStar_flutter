@@ -17,31 +17,15 @@ class _WritePostState extends State<WritePost> {
   XFile _image;
   TextEditingController title = TextEditingController();
   TextEditingController content = TextEditingController();
-  Controller c = Controller();
+  Controller c = Get.put(Controller());
   Map arg = Get.arguments;
 
   final ImagePicker _picker = ImagePicker();
   TextEditingController photoName = TextEditingController();
 
-  @override
-  void initState() {
-    if (arg['item'] != null) {
-      setState(() {
-        title.text = arg['item']['title'].toString();
-        content.text = arg['item']['content'].toString();
-        if (arg['item']['photo'] != null) {
-          _image = XFile(
-              'http://http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${arg['item']['photo']}');
-        }
-      });
-    }
-
-    super.initState();
-  }
-
   getGalleryImage(String titleStr, String contentStr) async {
     var img = await _picker.pickImage(source: ImageSource.gallery);
-    print(titleStr);
+    // print(titleStr);
     setState(() {
       _image = img;
       title.text = titleStr;
@@ -56,32 +40,21 @@ class _WritePostState extends State<WritePost> {
     });
   }
 
-  Future postPost(String arg, Map data) async {
-    String url = '/board/$arg';
-    Session().postX(url, data).then((value) {
-      switch (value.statusCode) {
-        case 200:
-          Get.back();
-          break;
-        case 401:
-          Session().getX('/logout');
-          Get.offAllNamed('/login');
-          break;
-        case 403:
-          Get.snackbar('Forbidden', 'Forbidden');
-          break;
-        case 404:
-          Get.snackbar('Type is not founded', 'type is not founded');
-          Get.back();
-          break;
-        default:
-          print(value.statusCode);
-      }
-    });
+  Future postPost(Map arg, Map data) async {
+    if (arg['myself'] != null && arg['myself']) {
+      String url = '/board/bid/${arg['item']['bid']}';
+
+      return await Session().putX(url, data);
+    } else {
+      String url = '/board/${arg['type']}';
+      return await Session().postX(url, data);
+    }
   }
 
-  Future upload(String arg, XFile imageFile, Map data) async {
-    var request = Session().multipartReq('/board/$arg');
+  Future upload(Map arg, XFile imageFile, Map data) async {
+    var request = arg['myself'] != null && arg['myself']
+        ? Session().multipartReq('/board/bid/${arg['item']['bid']}')
+        : Session().multipartReq('/board/${arg['type']}');
 
     var pic = await http.MultipartFile.fromPath("photo", imageFile.path);
     //contentType: new MediaType('image', 'png'));
@@ -90,10 +63,26 @@ class _WritePostState extends State<WritePost> {
     request.fields['title'] = data['title'];
     request.fields['description'] = data['description'];
     request.fields['unnamed'] = data['unnamed'];
-    print(request.files[0].filename);
+    // print(request.files[0].filename);
     var response = await request.send();
     print(response.statusCode);
     return response;
+  }
+
+  @override
+  void initState() {
+    if (arg['item'] != null) {
+      setState(() {
+        title.text = arg['item']['title'].toString();
+        content.text = arg['item']['content'].toString();
+        if (arg['item']['photo'] != '' || arg['item']['photo'] == null) {
+          _image = XFile(
+              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${arg['item']['photo']}');
+        }
+      });
+    }
+
+    super.initState();
   }
 
   @override
@@ -105,45 +94,72 @@ class _WritePostState extends State<WritePost> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: () {
-                  Map data = {
-                    'title': title.text,
-                    'description': content.text,
-                    'unnamed': c.anonymousCheck.value ? '1' : '0',
-                  };
+              child: GetBuilder<Controller>(
+                builder: (c) => InkWell(
+                  onTap: () {
+                    Map data = {
+                      'title': title.text,
+                      'description': content.text,
+                      'unnamed': c.anonymousCheck.value ? '1' : '0',
+                    };
 
-                  if (_image != null) {
-                    upload(arg['type'].toString(), _image, data).then((value) {
-                      switch (value.statusCode) {
-                        case 200:
-                          Get.back();
-                          break;
-                        case 401:
-                          // Get.snackbar('login error', 'session expired');
-                          // Session().getX('/logout');
-                          // Get.offAllNamed('/login');
-                          break;
-                        case 403:
-                          Get.snackbar('Forbidden', 'Forbidden');
+                    if (_image != null) {
+                      upload(arg, _image, data).then((value) {
+                        switch (value.statusCode) {
+                          case 200:
+                            Get.back();
+                            break;
+                          case 401:
+                            // Get.snackbar('login error', 'session expired');
+                            // Session().getX('/logout');
+                            // Get.offAllNamed('/login');
+                            break;
+                          case 403:
+                            Get.snackbar('Forbidden', 'Forbidden');
 
-                          break;
-                        case 404:
-                          Get.snackbar(
-                              'Type is not founded', 'type is not founded');
-                          Get.back();
-                          break;
-                        default:
-                          print(value.statucCode);
-                      }
-                    });
-                  } else {
-                    postPost(arg['type'].toString(), data);
-                  }
-                },
-                child: Container(
-                  margin: EdgeInsets.all(8),
-                  child: Text('작성'),
+                            break;
+                          case 404:
+                            Get.snackbar(
+                                'Type is not founded', 'type is not founded');
+                            Get.back();
+                            break;
+                          default:
+                            print(value.statucCode);
+                        }
+                      });
+                    } else {
+                      postPost(arg, data).then((value) {
+                        print(value.statusCode);
+                        switch (value.statusCode) {
+                          case 200:
+                            Get.back();
+                            break;
+                          case 401:
+                            Get.snackbar('login error', 'session expired');
+                            Session().getX('/logout');
+                            Get.offAllNamed('/login');
+                            break;
+                          case 403:
+                            Get.snackbar('Forbidden', 'Forbidden');
+
+                            break;
+                          case 404:
+                            Get.snackbar(
+                                'Type is not founded', 'type is not founded');
+                            Get.back();
+                            break;
+                          default:
+                            print(value.statucCode);
+                        }
+                      });
+                    }
+                  },
+                  child: Container(
+                    margin: EdgeInsets.all(8),
+                    child: arg['myself'] != null && arg['myself']
+                        ? Text('수정')
+                        : Text('작성'),
+                  ),
                 ),
               ),
             ),

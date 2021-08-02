@@ -5,6 +5,7 @@ import 'dart:convert';
 class Session extends GetConnect {
   static Map<String, String> headers = {
     'User-Agent': 'PolarStar',
+    'polar': 'star',
     'Cookie': '',
   };
   static Map<String, String> cookies = {};
@@ -12,12 +13,11 @@ class Session extends GetConnect {
   static String session;
   static String salt;
 
-  Future<http.Response> getX(String url) => http
-          .get(
-              Uri.parse(
-                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
-              headers: headers)
-          .then((value) {
+  final String _basicUrl =
+      'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000';
+
+  Future<http.Response> getX(String url) =>
+      http.get(Uri.parse(_basicUrl + url), headers: headers).then((value) {
         switch (value.statusCode) {
           case 403:
             getX('/logout');
@@ -30,9 +30,14 @@ class Session extends GetConnect {
       });
 
   Future<http.Response> postX(String url, Map data) => http.post(
-        Uri.parse(
-            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'),
+        Uri.parse(_basicUrl + url),
         body: data,
+        headers: headers,
+      );
+
+  Future putX(String url, Map data) => put(
+        _basicUrl + url,
+        data,
         headers: headers,
       );
 
@@ -48,7 +53,8 @@ class Session extends GetConnect {
         Uri.parse(
             'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'));
 
-    request.headers['user-agent'] = headers['user-agent'];
+    request.headers['User-Agent'] = headers['User-Agent'];
+    request.headers['polar'] = headers['polar'];
     request.headers['Cookie'] = headers['Cookie'];
 
     return request;
