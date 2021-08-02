@@ -123,7 +123,9 @@ class Profile extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                onTap: () => {print("profile")},
+                                onTap: () {
+                                  Get.toNamed('/profile/setting');
+                                },
                               )),
                           Spacer(
                             flex: 8,
