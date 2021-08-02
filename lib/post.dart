@@ -12,6 +12,7 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
+  Map arg = Get.arguments;
   Future getPostData(String url) async {
     String getUrl;
     // print(url);
@@ -40,8 +41,6 @@ class _PostState extends State<Post> {
 
   @override
   Widget build(BuildContext context) {
-    String arg = Get.arguments;
-
     final Controller c = Get.put(Controller());
 
     var commentWriteController = TextEditingController();
@@ -51,7 +50,7 @@ class _PostState extends State<Post> {
           title: Text('polarStar'),
         ),
         body: FutureBuilder(
-            future: getPostData(arg),
+            future: getPostData(arg['boardUrl']),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasData == false) {
                 return CircularProgressIndicator();
@@ -124,7 +123,7 @@ class _PostState extends State<Post> {
                   if (c.isCcomment.value) {
                     postUrl = c.ccommentUrl.value;
                   } else {
-                    postUrl = commentPostUrl(arg);
+                    postUrl = commentPostUrl(arg['boardUrl']);
                   }
 
                   Session()
@@ -395,18 +394,29 @@ Widget postWidget(dynamic response) {
                       Get.toNamed('/writePost', arguments: body);
                     } else {}
                   },
-                  icon: body['myself'] ? Icon(Icons.edit) : Text('신고'),
+                  icon:
+                      body['myself'] ? Icon(Icons.edit) : Icon(Icons.bookmark),
                   iconSize: 20,
                 ),
 
                 IconButton(
                   onPressed: () {
                     if (body['myself']) {
+                      print(body['item']['bid']);
+                      Session()
+                          .deleteX('/board/bid/${body['item']['bid']}')
+                          .then((value) {
+                        switch (value.statusCode) {
+                          case 200:
+                            Get.back();
+
+                            break;
+                          default:
+                        }
+                      });
                     } else {}
                   },
-                  icon: body['myself']
-                      ? Icon(Icons.remove_circle)
-                      : Icon(Icons.bookmark),
+                  icon: body['myself'] ? Icon(Icons.delete) : Text('신고'),
                   iconSize: 20,
                 ),
               ],

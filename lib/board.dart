@@ -28,6 +28,7 @@ class _BoardState extends State<Board> {
     List<Widget> buttons = [];
 
     if (arg is Map) {
+      // 검색한경우
       if (arg['from'] == 'home') {
         getUrl = '/board/searchAll/page/$page?search=${arg['search']}';
       } else if (arg['from'] == 'board') {
@@ -107,8 +108,10 @@ class _BoardState extends State<Board> {
           ),
           onPressed: () {
             // print('url: ${data['url']}');
-            String boardUrl = '/board/${data['type']}/read/${data['bid']}';
-            Get.toNamed('/post', arguments: boardUrl);
+            Map argument = {
+              'boardUrl': '/board/${data['type']}/read/${data['bid']}'
+            };
+            Get.toNamed('/post', arguments: argument);
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -153,7 +156,7 @@ class _BoardState extends State<Board> {
           actions: [
             Container(
               width: 40,
-              child: arg is! Map
+              child: arg is! Map // 검색창이 아닌경우
                   ? InkWell(
                       onTap: () {
                         Get.toNamed('/writePost',
