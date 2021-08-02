@@ -117,13 +117,21 @@ class _PostState extends State<Post> {
                       ),
                     ),
                     Spacer(),
+                    // 대댓 수정 or 좋아요
                     Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: InkWell(
                         onTap: () {
+                          String putUrl = '/board/ccid/${ccomment['ccid']}';
                           if (ccomment['myself']) {
-                            c.updateAutoFocusTextForm(true);
-                            c.updatePutUrl('/board/ccid/${ccomment['ccid']}');
+                            if (c.autoFocusTextForm.value &&
+                                c.putUrl.value == putUrl) {
+                              c.updateAutoFocusTextForm(false);
+                              c.updatePutUrl('/board');
+                            } else {
+                              c.updateAutoFocusTextForm(true);
+                              c.updatePutUrl(putUrl);
+                            }
                           } else {
                             Session()
                                 .getX('/board/like/ccid/${ccomment['ccid']}')
@@ -145,20 +153,52 @@ class _PostState extends State<Post> {
                           }
                         },
                         child: ccomment['myself']
-                            ? Icon(
-                                Icons.edit,
-                                size: 15,
-                              )
+                            ? Obx(() => Icon(
+                                  c.autoFocusTextForm.value &&
+                                          c.putUrl.value ==
+                                              '/board/ccid/${ccomment['ccid']}'
+                                      ? Icons.comment
+                                      : Icons.edit,
+                                  size: 15,
+                                ))
                             : Icon(
                                 Icons.thumb_up,
                                 size: 15,
                               ),
                       ),
                     ),
+                    // 대댓 삭제 or 신고
                     Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            if (ccomment['myself']) {
+                              Session()
+                                  .deleteX('/board/ccid/${ccomment['ccid']}')
+                                  .then((value) {
+                                switch (value.statusCode) {
+                                  case 200:
+                                    print('대댓글 삭제');
+                                    setState(() {});
+                                    break;
+                                  default:
+                                }
+                              });
+                            } else {
+                              Session()
+                                  .getX(
+                                      '/board/arrest/ccid/${ccomment['ccid']}')
+                                  .then((value) {
+                                switch (value.statusCode) {
+                                  case 200:
+                                    print('대댓글 신고');
+
+                                    break;
+                                  default:
+                                }
+                              });
+                            }
+                          },
                           child: ccomment['myself']
                               ? Icon(
                                   Icons.delete,
@@ -276,10 +316,17 @@ class _PostState extends State<Post> {
                     padding: const EdgeInsets.all(2.0),
                     child: InkWell(
                       onTap: () {
+                        String putUrl =
+                            '/board/cid/${comment['comment']['cid']}';
                         if (comment['comment']['myself']) {
-                          c.updateAutoFocusTextForm(true);
-                          c.updatePutUrl(
-                              '/board/cid/${comment['comment']['cid']}');
+                          if (c.autoFocusTextForm.value &&
+                              c.putUrl.value == putUrl) {
+                            c.updateAutoFocusTextForm(false);
+                            c.updatePutUrl('/board');
+                          } else {
+                            c.updateAutoFocusTextForm(true);
+                            c.updatePutUrl(putUrl);
+                          }
                         } else {
                           Session()
                               .getX(
@@ -302,10 +349,14 @@ class _PostState extends State<Post> {
                         }
                       },
                       child: comment['comment']['myself']
-                          ? Icon(
-                              Icons.edit,
-                              size: 15,
-                            )
+                          ? Obx(() => Icon(
+                                c.autoFocusTextForm.value &&
+                                        c.putUrl.value ==
+                                            '/board/like/cid/${comment['comment']['cid']}'
+                                    ? Icons.comment
+                                    : Icons.edit,
+                                size: 15,
+                              ))
                           : Icon(
                               Icons.thumb_up,
                               size: 15,
@@ -316,11 +367,44 @@ class _PostState extends State<Post> {
                   Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: InkWell(
-                      onTap: () {},
-                      child: Icon(
-                        Icons.settings,
-                        size: 15,
-                      ),
+                      onTap: () {
+                        if (comment['comment']['myself']) {
+                          Session()
+                              .deleteX(
+                                  '/board/cid/${comment['comment']['cid']}')
+                              .then((value) {
+                            switch (value.statusCode) {
+                              case 200:
+                                print('댓글 삭제');
+                                setState(() {});
+                                break;
+                              default:
+                            }
+                          });
+                        } else {
+                          Session()
+                              .getX(
+                                  '/board/arrest/cid/${comment['comment']['cid']}')
+                              .then((value) {
+                            switch (value.statusCode) {
+                              case 200:
+                                print('댓글 신고');
+
+                                break;
+                              default:
+                            }
+                          });
+                        }
+                      },
+                      child: comment['comment']['myself']
+                          ? Icon(
+                              Icons.delete, // 댓글 삭제
+                              size: 15,
+                            )
+                          : Icon(
+                              Icons.report, // 댓글 신고
+                              size: 15,
+                            ),
                     ),
                   ),
                 ],
@@ -409,21 +493,38 @@ class _PostState extends State<Post> {
                   IconButton(
                     onPressed: () {
                       if (body['myself']) {
-                        print('게시글 삭제');
                         Session()
                             .deleteX('/board/bid/${body['item']['bid']}')
                             .then((value) {
                           switch (value.statusCode) {
                             case 200:
+                              print('게시글 삭제');
                               Get.back();
 
                               break;
                             default:
                           }
                         });
-                      } else {}
+                      }
+                      // 게시글 신고
+                      else {
+                        Session()
+                            .getX('/board/arrest/bid/${body['item']['bid']}')
+                            .then((value) {
+                          print(value.statusCode);
+                          switch (value.statusCode) {
+                            case 200:
+                              print('게시글 신고');
+
+                              break;
+                            default:
+                          }
+                        });
+                      }
                     },
-                    icon: body['myself'] ? Icon(Icons.delete) : Text('신고'),
+                    icon: body['myself']
+                        ? Icon(Icons.delete)
+                        : Icon(Icons.report),
                     iconSize: 20,
                   ),
                 ],
@@ -583,6 +684,7 @@ class _PostState extends State<Post> {
                     () => TextFormField(
                       controller: commentWriteController,
                       autofocus: c.autoFocusTextForm.value,
+                      autovalidate: c.autoFocusTextForm.value,
                       decoration: InputDecoration(
                           hintText: c.autoFocusTextForm.value
                               ? '수정하기'

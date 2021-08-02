@@ -94,72 +94,70 @@ class _WritePostState extends State<WritePost> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Obx(
-                () => InkWell(
-                  onTap: () {
-                    Map data = {
-                      'title': title.text,
-                      'description': content.text,
-                      'unnamed': c.anonymousCheck.value ? '1' : '0',
-                    };
+              child: InkWell(
+                onTap: () {
+                  Map data = {
+                    'title': title.text,
+                    'description': content.text,
+                    'unnamed': c.anonymousCheck.value ? '1' : '0',
+                  };
 
-                    if (_image != null) {
-                      upload(arg, _image, data).then((value) {
-                        switch (value.statusCode) {
-                          case 200:
-                            Get.back();
-                            break;
-                          case 401:
-                            // Get.snackbar('login error', 'session expired');
-                            // Session().getX('/logout');
-                            // Get.offAllNamed('/login');
-                            break;
-                          case 403:
-                            Get.snackbar('Forbidden', 'Forbidden');
+                  if (_image != null) {
+                    upload(arg, _image, data).then((value) {
+                      switch (value.statusCode) {
+                        case 200:
+                          Get.back();
+                          break;
+                        case 401:
+                          // Get.snackbar('login error', 'session expired');
+                          // Session().getX('/logout');
+                          // Get.offAllNamed('/login');
+                          break;
+                        case 403:
+                          Get.snackbar('Forbidden', 'Forbidden');
 
-                            break;
-                          case 404:
-                            Get.snackbar(
-                                'Type is not founded', 'type is not founded');
-                            Get.back();
-                            break;
-                          default:
-                            print(value.statucCode);
-                        }
-                      });
-                    } else {
-                      postPost(arg, data).then((value) {
-                        print(value.statusCode);
-                        switch (value.statusCode) {
-                          case 200:
-                            Get.back();
-                            break;
-                          case 401:
-                            Get.snackbar('login error', 'session expired');
-                            Session().getX('/logout');
-                            Get.offAllNamed('/login');
-                            break;
-                          case 403:
-                            Get.snackbar('Forbidden', 'Forbidden');
+                          break;
+                        case 404:
+                          Get.snackbar(
+                              'Type is not founded', 'type is not founded');
+                          Get.back();
+                          break;
+                        default:
+                          print(value.statucCode);
+                      }
+                    });
+                  } else {
+                    postPost(arg, data).then((value) {
+                      print(value.statusCode);
+                      switch (value.statusCode) {
+                        case 200:
+                          Get.back();
+                          break;
+                        case 401:
+                          Get.snackbar('login error', 'session expired');
+                          Session().getX('/logout');
+                          Get.offAllNamed('/login');
+                          break;
+                        case 403:
+                          Get.snackbar('Forbidden', 'Forbidden');
 
-                            break;
-                          case 404:
-                            Get.snackbar(
-                                'Type is not founded', 'type is not founded');
-                            Get.back();
-                            break;
-                          default:
-                            print(value.statucCode);
-                        }
-                      });
-                    }
-                  },
-                  child: Container(
-                    margin: EdgeInsets.all(8),
-                    child: arg['myself'] != null && arg['myself']
-                        ? Text('수정')
-                        : Text('작성'),
-                  ),
+                          break;
+                        case 404:
+                          Get.snackbar(
+                              'Type is not founded', 'type is not founded');
+                          Get.back();
+                          break;
+                        default:
+                          print(value.statucCode);
+                      }
+                    });
+                  }
+                },
+                child: Container(
+                  margin: EdgeInsets.all(8),
+                  child: arg['myself'] != null && arg['myself']
+                      ? Text('수정')
+                      : Text('작성'),
                 ),
               ),
             ),
