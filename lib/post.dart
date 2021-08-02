@@ -21,7 +21,7 @@ class _PostState extends State<Post> {
     }
     var response = await Session().getX(getUrl);
 
-    print(json.decode(response.body));
+    print(json.decode(response.body)['comments']);
 
     if (response.headers['content-type'] == 'text/html; charset=utf-8') {
       Session().getX('/logout');
@@ -279,17 +279,30 @@ Widget postWidget(dynamic response) {
                     ),
                   ],
                 ),
-                Spacer(),
+                // 좋아요 개수 표시
                 Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: InkWell(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.thumb_up,
-                      size: 15,
-                    ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.thumb_up,
+                          size: 15,
+                          color: Colors.red,
+                        ),
+                      ),
+                      Text(
+                        comment['comment']['like'].toString(),
+                        textScaleFactor: 0.8,
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ],
                   ),
                 ),
+
+                Spacer(),
+
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: InkWell(
@@ -306,6 +319,37 @@ Widget postWidget(dynamic response) {
                           size: 15,
                         ),
                       )),
+                ),
+                GetBuilder(
+                  init: PostController(),
+                  builder: (_) => Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: InkWell(
+                      onTap: () {
+                        _.getPostFromCommentData(comment);
+                        if (comment['comment']['myself']) {
+                        } else {
+                          Session()
+                              .getX(
+                                  '/board/like/cid/${comment['comment']['cid']}')
+                              .then((value) {
+                            print(value.statusCode);
+                            switch (value.statusCode) {
+                              case 200:
+                                break;
+                              default:
+                            }
+                          });
+                        }
+                      },
+                      child: comment['comment']['myself']
+                          ? Icon(Icons.edit)
+                          : Icon(
+                              Icons.thumb_up,
+                              size: 15,
+                            ),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
@@ -402,7 +446,7 @@ Widget postWidget(dynamic response) {
                 IconButton(
                   onPressed: () {
                     if (body['myself']) {
-                      print(body['item']['bid']);
+                      print('게시글 삭제');
                       Session()
                           .deleteX('/board/bid/${body['item']['bid']}')
                           .then((value) {

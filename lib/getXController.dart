@@ -96,3 +96,10 @@ class UserController extends GetxController {
     });
   }
 }
+
+class PostController extends GetxController {
+  void getPostFromCommentData(Map comment) async {
+    var response = await Session().getX(
+        "/board/${comment['comment']['type']}/read/${comment['comment']['bid']}");
+  }
+}
