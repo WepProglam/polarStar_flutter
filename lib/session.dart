@@ -19,14 +19,9 @@ class Session extends GetConnect {
   Future<http.Response> getX(String url) =>
       http.get(Uri.parse(_basicUrl + url), headers: headers).then((value) {
         switch (value.statusCode) {
-          case 403:
-            getX('/logout');
-            Get.offAllNamed('/logout');
-            break;
           default:
             return value;
         }
-        return value;
       });
 
   Future<http.Response> postX(String url, Map data) => http.post(

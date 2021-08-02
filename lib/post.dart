@@ -320,37 +320,34 @@ Widget postWidget(dynamic response) {
                         ),
                       )),
                 ),
-                GetBuilder(
-                  init: PostController(),
-                  builder: (_) => Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: InkWell(
-                      onTap: () {
-                        _.getPostFromCommentData(comment);
-                        if (comment['comment']['myself']) {
-                        } else {
-                          Session()
-                              .getX(
-                                  '/board/like/cid/${comment['comment']['cid']}')
-                              .then((value) {
-                            print(value.statusCode);
-                            switch (value.statusCode) {
-                              case 200:
-                                break;
-                              default:
-                            }
-                          });
-                        }
-                      },
-                      child: comment['comment']['myself']
-                          ? Icon(Icons.edit)
-                          : Icon(
-                              Icons.thumb_up,
-                              size: 15,
-                            ),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: InkWell(
+                    onTap: () {
+                      if (comment['comment']['myself']) {
+                      } else {
+                        Session()
+                            .getX(
+                                '/board/like/cid/${comment['comment']['cid']}')
+                            .then((value) {
+                          print(value.statusCode);
+                          switch (value.statusCode) {
+                            case 200:
+                              break;
+                            default:
+                          }
+                        });
+                      }
+                    },
+                    child: comment['comment']['myself']
+                        ? Icon(Icons.edit)
+                        : Icon(
+                            Icons.thumb_up,
+                            size: 15,
+                          ),
                   ),
                 ),
+
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: InkWell(
