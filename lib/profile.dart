@@ -43,8 +43,13 @@ class Profile extends StatelessWidget {
                         ),
                         Expanded(
                             flex: 80,
-                            child: Image.network(
-                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.userProfile.value.photo}', //수정해야함
+                            child: InkWell(
+                              onTap: () {
+                                Get.toNamed('/profile/setting');
+                              },
+                              child: Image.network(
+                                'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.userProfile.value.photo}', //수정해야함
+                              ),
                             )),
                         Spacer(
                           flex: 20,
@@ -334,4 +339,92 @@ Widget getPosts(i, json) {
       ],
     ),
   );
+}
+
+class ProfileSetting extends StatelessWidget {
+  final userController = Get.put(UserController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('polarStar'),
+          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
+        ),
+        body: Row(children: [
+          Spacer(
+            flex: 80,
+          ),
+          Expanded(
+              flex: 280,
+              child: Column(children: [
+                Spacer(
+                  flex: 56,
+                ),
+                Expanded(
+                  flex: 200,
+                  child: Obx(() {
+                    return Image.network(
+                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.userProfile.value.photo}');
+                  }),
+                ),
+                Spacer(
+                  flex: 60,
+                ),
+                Expanded(
+                  flex: 50,
+                  child: Text(
+                    "닉네임",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ),
+                Spacer(
+                  flex: 20,
+                ),
+                Expanded(
+                  flex: 50,
+                  child: Text(
+                    "이름",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ),
+                Spacer(
+                  flex: 20,
+                ),
+                Expanded(
+                  flex: 50,
+                  child: Text(
+                    "학교",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ),
+                Spacer(
+                  flex: 20,
+                ),
+                Expanded(
+                  flex: 50,
+                  child: Text(
+                    "아이디",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ),
+                Spacer(
+                  flex: 20,
+                ),
+                Expanded(
+                  flex: 50,
+                  child: Text(
+                    "settubg",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ),
+                Spacer(
+                  flex: 20,
+                )
+              ])),
+          Spacer(
+            flex: 80,
+          ),
+        ]));
+  }
 }
