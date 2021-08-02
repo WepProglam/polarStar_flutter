@@ -41,15 +41,17 @@ class Session extends GetConnect {
         headers: headers,
       );
 
+  Future deleteX(String url) => delete(_basicUrl + url);
+
   // 왜 안되는지 모르겠음
   // Future<Response> getQuery(String url, Map query) => get(
   //     'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url',
   //     query: query,
   //     headers: headers);
 
-  multipartReq(String url) {
+  multipartReq(String type, String url) {
     var request = http.MultipartRequest(
-        'POST',
+        type,
         Uri.parse(
             'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000$url'));
 

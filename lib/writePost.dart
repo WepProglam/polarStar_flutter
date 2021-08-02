@@ -53,8 +53,8 @@ class _WritePostState extends State<WritePost> {
 
   Future upload(Map arg, XFile imageFile, Map data) async {
     var request = arg['myself'] != null && arg['myself']
-        ? Session().multipartReq('/board/bid/${arg['item']['bid']}')
-        : Session().multipartReq('/board/${arg['type']}');
+        ? Session().multipartReq('PUT', '/board/bid/${arg['item']['bid']}')
+        : Session().multipartReq('POST', '/board/${arg['type']}');
 
     var pic = await http.MultipartFile.fromPath("photo", imageFile.path);
     //contentType: new MediaType('image', 'png'));
