@@ -352,7 +352,7 @@ class _PostState extends State<Post> {
                           ? Obx(() => Icon(
                                 c.autoFocusTextForm.value &&
                                         c.putUrl.value ==
-                                            '/board/like/cid/${comment['comment']['cid']}'
+                                            '/board/cid/${comment['comment']['cid']}'
                                     ? Icons.comment
                                     : Icons.edit,
                                 size: 15,
@@ -470,62 +470,85 @@ class _PostState extends State<Post> {
                     ],
                   ),
                   Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      if (body['myself']) {
-                      } else {}
-                    },
-                    icon: body['myself'] ? Text('') : Icon(Icons.thumb_up),
-                    iconSize: 20,
+                  // 게시글 좋아요 버튼
+                  Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: InkWell(
+                      onTap: () {
+                        if (body['myself']) {
+                        } else {
+                          Session()
+                              .getX('/board/like/bid/${body['item']['bid']}')
+                              .then((value) {
+                            switch (value.statusCode) {
+                              case 200:
+                                print('게시글 좋아요');
+                                setState(() {});
+
+                                break;
+                              default:
+                            }
+                          });
+                        }
+                      },
+                      child:
+                          body['myself'] ? Container() : Icon(Icons.thumb_up),
+                    ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      if (body['myself']) {
-                        Get.toNamed('/writePost', arguments: body);
-                      } else {}
-                    },
-                    icon: body['myself']
-                        ? Icon(Icons.edit)
-                        : Icon(Icons.bookmark),
-                    iconSize: 20,
+                  // 게시글 수정, 스크랩 버튼
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: InkWell(
+                      onTap: () {
+                        if (body['myself']) {
+                          Get.toNamed('/writePost', arguments: body);
+                        } else {}
+                      },
+                      child: body['myself']
+                          ? Icon(Icons.edit)
+                          : Icon(Icons.bookmark),
+                    ),
                   ),
+                  // 게시글 삭제, 신고 버튼
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                      onTap: () {
+                        // 게시글 삭제
+                        if (body['myself']) {
+                          Session()
+                              .deleteX('/board/bid/${body['item']['bid']}')
+                              .then((value) {
+                            switch (value.statusCode) {
+                              case 200:
+                                print('게시글 삭제');
+                                Get.back();
 
-                  IconButton(
-                    onPressed: () {
-                      if (body['myself']) {
-                        Session()
-                            .deleteX('/board/bid/${body['item']['bid']}')
-                            .then((value) {
-                          switch (value.statusCode) {
-                            case 200:
-                              print('게시글 삭제');
-                              Get.back();
+                                break;
+                              default:
+                            }
+                          });
+                        }
+                        // 게시글 신고
+                        else {
+                          Session()
+                              .getX('/board/arrest/bid/${body['item']['bid']}')
+                              .then((value) {
+                            print(value.statusCode);
+                            switch (value.statusCode) {
+                              case 200:
+                                print('게시글 신고');
 
-                              break;
-                            default:
-                          }
-                        });
-                      }
-                      // 게시글 신고
-                      else {
-                        Session()
-                            .getX('/board/arrest/bid/${body['item']['bid']}')
-                            .then((value) {
-                          print(value.statusCode);
-                          switch (value.statusCode) {
-                            case 200:
-                              print('게시글 신고');
-
-                              break;
-                            default:
-                          }
-                        });
-                      }
-                    },
-                    icon: body['myself']
-                        ? Icon(Icons.delete)
-                        : Icon(Icons.report),
-                    iconSize: 20,
+                                break;
+                              default:
+                            }
+                          });
+                        }
+                      },
+                      child: body['myself']
+                          ? Icon(Icons.delete)
+                          : Icon(Icons.report),
+                    ),
                   ),
                 ],
               ),
