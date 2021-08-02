@@ -12,6 +12,7 @@ class User {
   List<dynamic> likes;
   List<dynamic> friends;
   List<dynamic> buffer;
+  List<dynamic> bids;
   int arrest;
   List<dynamic> scrap;
 
@@ -25,6 +26,7 @@ class User {
       this.profilemsg,
       this.likes,
       this.friends,
+      this.bids,
       this.buffer,
       this.arrest,
       this.scrap});
@@ -41,6 +43,7 @@ class User {
     buffer = (item['buffer']);
     arrest = item['arrest'];
     scrap = item['scrap'];
+    bids = item['bids'];
   }
 }
 

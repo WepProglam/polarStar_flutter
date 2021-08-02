@@ -60,6 +60,8 @@ class UserController extends GetxController {
     var responseBody = utf8.decode(response.bodyBytes);
     var json = jsonDecode(responseBody)["profile"];
 
+    print(json["bids"][0]);
+
     userProfile.value = User(
       pid: json["pid"],
       uid: json["uid"],
@@ -69,6 +71,7 @@ class UserController extends GetxController {
       photo: json["photo"],
       profilemsg: json["profilemsg"],
       likes: json["likes"],
+      bids: json["bids"],
       friends: json["friends"],
       buffer: json["buffer"],
       scrap: json["scrap"],

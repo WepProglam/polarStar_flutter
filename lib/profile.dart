@@ -19,13 +19,13 @@ class Mypage extends StatelessWidget {
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               List<dynamic> userPost = [
-                userController.userProfile.value.likes,
+                userController.userProfile.value.bids,
                 userController.userProfile.value.likes,
                 userController.userProfile.value.scrap
               ];
 
               List<int> userPostLength = [
-                userController.userProfile.value.likes.length,
+                userController.userProfile.value.bids.length,
                 userController.userProfile.value.likes.length,
                 userController.userProfile.value.scrap.length
               ];
@@ -230,10 +230,8 @@ class Mypage extends StatelessWidget {
                                     i++)
                                   Container(
                                       height: 120,
-                                      child: getPosts(
-                                          i,
-                                          userPost[userController
-                                              .profilePostIndex.value][i]))
+                                      child: getPosts(userPost[userController
+                                          .profilePostIndex.value][i]))
                               ],
                             );
                           })))
@@ -249,11 +247,12 @@ class Mypage extends StatelessWidget {
   }
 }
 
-Widget getPosts(i, json) {
+Widget getPosts(json) {
   return InkWell(
     onTap: () {
       String boardUrl = '/board/${json["type"]}/read/${json["bid"]}';
-      Get.toNamed('/post', arguments: boardUrl);
+      Map argument = {'boardUrl': boardUrl};
+      Get.toNamed('/post', arguments: argument);
     },
     child: Row(
       children: [
@@ -299,7 +298,7 @@ Widget getPosts(i, json) {
           flex: 10,
         ),
         Expanded(
-            flex: 257,
+            flex: 200,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -326,15 +325,37 @@ Widget getPosts(i, json) {
                 )
               ],
             )),
-        json["photo"]?.isEmpty
-            ? Spacer(
-                flex: 49,
-              )
+        json["photo"] == "" //빈 문자열 처리해야함
+            ? Expanded(
+                flex: 80,
+                child: Column(children: [
+                  Spacer(
+                    flex: 40,
+                  ),
+                  Expanded(
+                    child: Text(
+                      "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    flex: 9,
+                  )
+                ]))
             : Expanded(
-                flex: 49,
-                child: Image.network(
-                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}'),
-              ),
+                flex: 80,
+                child: Column(children: [
+                  Expanded(
+                    flex: 40,
+                    child: Image.network(
+                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}'),
+                  ),
+                  Expanded(
+                    child: Text(
+                      "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    flex: 9,
+                  )
+                ])),
         Spacer(
           flex: 4,
         )
