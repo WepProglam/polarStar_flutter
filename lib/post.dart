@@ -21,7 +21,7 @@ class _PostState extends State<Post> {
     }
     var response = await Session().getX(getUrl);
 
-    print(json.decode(response.body)['comments']);
+    print(json.decode(response.body)['item']);
 
     if (response.headers['content-type'] == 'text/html; charset=utf-8') {
       Session().getX('/logout');
@@ -486,6 +486,11 @@ class _PostState extends State<Post> {
                                 setState(() {});
 
                                 break;
+                              case 403:
+                                Get.snackbar(
+                                    '이미 좋아요를 누른 게시글입니다', '이미 좋아요를 누른 게시글입니다',
+                                    snackPosition: SnackPosition.BOTTOM);
+                                break;
                               default:
                             }
                           });
@@ -540,6 +545,10 @@ class _PostState extends State<Post> {
                                 print('게시글 신고');
 
                                 break;
+                              case 403:
+                                Get.snackbar('이미 신고한 게시글입니다', '이미 신고한 게시글입니다',
+                                    snackPosition: SnackPosition.BOTTOM);
+                                break;
                               default:
                             }
                           });
@@ -591,17 +600,40 @@ class _PostState extends State<Post> {
               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Row(
                 children: [
+                  // 게시글 좋아요 수 버튼
                   TextButton.icon(
                     style: ButtonStyle(
                         foregroundColor:
                             MaterialStateProperty.all<Color>(Colors.red)),
-                    onPressed: () {},
+                    onPressed: () {
+                      if (body['myself']) {
+                      } else {
+                        Session()
+                            .getX('/board/like/bid/${item['bid']}')
+                            .then((value) {
+                          switch (value.statusCode) {
+                            case 200:
+                              print('게시글 좋아요');
+                              setState(() {});
+
+                              break;
+                            case 403:
+                              Get.snackbar(
+                                  '이미 좋아요를 누른 게시글입니다', '이미 좋아요를 누른 게시글입니다',
+                                  snackPosition: SnackPosition.BOTTOM);
+                              break;
+                            default:
+                          }
+                        });
+                      }
+                    },
                     icon: Icon(
                       Icons.thumb_up,
                       size: 20,
                     ),
                     label: Text(item['like'].toString()),
                   ),
+                  // 게시글 댓글 수 버튼
                   TextButton.icon(
                     style: ButtonStyle(
                         foregroundColor:
@@ -617,6 +649,7 @@ class _PostState extends State<Post> {
                         ? body['comments'].length.toString()
                         : '0'),
                   ),
+                  // 게시글 스크랩 수 버튼
                   TextButton.icon(
                     style: ButtonStyle(
                         foregroundColor: MaterialStateProperty.all<Color>(
