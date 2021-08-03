@@ -16,6 +16,8 @@ class _BoardsState extends State<Boards> {
     var getResponse = await Session().getX('/');
     var body = json.decode(getResponse.body);
 
+    print(body);
+
     return body;
   }
 
@@ -29,6 +31,7 @@ class _BoardsState extends State<Boards> {
           child: Container(
             child: Column(
               children: [
+                Container(child: hotBoard()),
                 Padding(
                   padding: const EdgeInsets.all(8),
                   child: Row(
@@ -89,6 +92,7 @@ Widget boards(Map<String, dynamic> data) {
 
   data.forEach((key, value) {
     boardList.add(board(key, value));
+    // boardList.add(getPosts(value));
   });
 
   return Column(
@@ -114,6 +118,30 @@ Widget board(String boardtype, dynamic boardName) {
         },
         child: Text(
           boardName.toString(),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget hotBoard() {
+  return Padding(
+    padding: const EdgeInsets.all(1),
+    child: Container(
+      decoration: BoxDecoration(color: Colors.lightBlue[100]),
+      width: Get.mediaQuery.size.width - 18,
+      height: 100,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          primary: Colors.black,
+        ),
+        onPressed: () {
+          Map argument = {'from': 'hot'};
+          Get.toNamed('/board', arguments: argument);
+        },
+        child: Text(
+          'HOT',
           textAlign: TextAlign.center,
         ),
       ),

@@ -35,22 +35,38 @@ class _BoardState extends State<Board> {
         getUrl =
             '/board/${arg['type']}/search/page/$page?search=${arg['search']}';
       }
-    } else {
+      // 핫게시판
+      else {
+        getUrl = '/board/hot/page/$page';
+      }
+    }
+    // 그냥 열람
+    else {
       if (arg != '') {
         getUrl = '/board/$arg/page/$page';
       }
     }
     var res = await Session().getX(getUrl).then((value) {
-      if (value.statusCode == 404) {
-        c.changeIsBoardEmpty(true);
-        buttons = [pageButton(1)];
-        pageButtons = buttons;
-        setState(() {});
-        return value;
-      } else {
-        c.changeIsBoardEmpty(false);
-        return value;
+      print(value.statusCode);
+      print(json.decode(value.body));
+
+      switch (value.statusCode) {
+        case 200:
+          break;
+        case 401:
+          break;
+        case 404:
+          c.changeIsBoardEmpty(true);
+          buttons = [pageButton(1)];
+          pageButtons = buttons;
+          setState(() {});
+
+          break;
+
+        default:
+          c.changeIsBoardEmpty(false);
       }
+      return value;
     });
 
     for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {

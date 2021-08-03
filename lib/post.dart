@@ -21,7 +21,7 @@ class _PostState extends State<Post> {
     }
     var response = await Session().getX(getUrl);
 
-    print(json.decode(response.body)['item']);
+    print(json.decode(response.body));
 
     if (response.headers['content-type'] == 'text/html; charset=utf-8') {
       Session().getX('/logout');
@@ -507,7 +507,24 @@ class _PostState extends State<Post> {
                       onTap: () {
                         if (body['myself']) {
                           Get.toNamed('/writePost', arguments: body);
-                        } else {}
+                        } else {
+                          Session()
+                              .getX('/board/scrap/bid/${body['item']['bid']}')
+                              .then((value) {
+                            switch (value.statusCode) {
+                              case 200:
+                                print('게시글 스크랩');
+                                setState(() {});
+                                break;
+                              case 403:
+                                Get.snackbar(
+                                    '이미 스크랩 한 게시글입니다', '이미 스크랩 한 게시글입니다',
+                                    snackPosition: SnackPosition.BOTTOM);
+                                break;
+                              default:
+                            }
+                          });
+                        }
                       },
                       child: body['myself']
                           ? Icon(Icons.edit)
@@ -645,21 +662,36 @@ class _PostState extends State<Post> {
                       Icons.comment,
                       size: 20,
                     ),
-                    label: Text(body['comments'] != {}
-                        ? body['comments'].length.toString()
-                        : '0'),
+                    label: Text(body['item']['comments']),
                   ),
                   // 게시글 스크랩 수 버튼
                   TextButton.icon(
                     style: ButtonStyle(
                         foregroundColor: MaterialStateProperty.all<Color>(
                             Colors.yellow[700])),
-                    onPressed: () {},
+                    onPressed: () {
+                      Session()
+                          .getX('/board/scrap/bid/${body['item']['bid']}')
+                          .then((value) {
+                        switch (value.statusCode) {
+                          case 200:
+                            print('게시글 스크랩');
+                            setState(() {});
+
+                            break;
+                          case 403:
+                            Get.snackbar('이미 스크랩 한 게시글입니다', '이미 스크랩 한 게시글입니다',
+                                snackPosition: SnackPosition.BOTTOM);
+                            break;
+                          default:
+                        }
+                      });
+                    },
                     icon: Icon(
                       Icons.bookmark,
                       size: 20,
                     ),
-                    label: Text('0'),
+                    label: Text(body['item']['scrap']),
                   ),
                   Spacer(),
                 ],
