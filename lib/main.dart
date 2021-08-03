@@ -20,7 +20,6 @@ void main() async {
   await GetStorage.init();
   if (GetStorage().hasData('token')) {
     Session.headers['Cookie'] = await GetStorage().read('token');
-    print(Session.headers['Cookie']);
   }
   runApp(MyApp());
 }
