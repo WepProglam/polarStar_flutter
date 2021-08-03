@@ -21,13 +21,6 @@ class _MainPageState extends State<MainPage> {
   ];
 
   @override
-  void initState() {
-    print(Session.headers['Cookie']);
-    // print(Session.headers['Cookie']);
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final Controller c = Get.put(Controller());
 
@@ -41,9 +34,8 @@ class _MainPageState extends State<MainPage> {
                   Session.cookies = {};
                   Session.headers['Cookie'] = '';
                   box.remove('id');
-                  box.remove('pw');
                   box.remove('isloggined');
-                  box.remove('connect.sid');
+                  box.remove('token');
                   // Navigator.pushNamedAndRemoveUntil(
                   //     context, '/login', (Route<dynamic> route) => false);
                   Get.offAllNamed('/login');

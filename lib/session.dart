@@ -85,10 +85,4 @@ class Session extends GetConnect {
       return cookies[str];
     }
   }
-
-  updateAutoLoginCookie() async {
-    String storageSession = await box.read('connect.sid');
-
-    headers['Cookie'] = 'connect.sid=$storageSession';
-  }
 }

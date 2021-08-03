@@ -16,7 +16,7 @@ class _BoardsState extends State<Boards> {
     var getResponse = await Session().getX('/');
     var body = json.decode(getResponse.body);
 
-    print(body);
+    // print(body);
 
     return body;
   }
@@ -55,12 +55,20 @@ class _BoardsState extends State<Boards> {
                           // maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         ),
                       ),
+                      // 게시판 추가
                       InkWell(
                         onTap: () {
                           Session().postX('/board', {
                             'boardName': boardNameController.text
-                          }).then((value) => print(value.statusCode));
-                          setState(() {});
+                          }).then((value) {
+                            print(value.statusCode);
+                            switch (value.statusCode) {
+                              case 200:
+                                setState(() {});
+                                break;
+                              default:
+                            }
+                          });
                         },
                         child: Icon(Icons.add),
                       )

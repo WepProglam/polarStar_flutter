@@ -47,9 +47,6 @@ class _BoardState extends State<Board> {
       }
     }
     var res = await Session().getX(getUrl).then((value) {
-      print(value.statusCode);
-      print(json.decode(value.body));
-
       switch (value.statusCode) {
         case 200:
           break;
