@@ -169,89 +169,91 @@ class _BoardState extends State<Board> {
             )
           ],
         ),
-        body: FutureBuilder(
-          future: getBoardData(arg, pageIndex),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData == false) {
-              return Column(
-                children: [
-                  Container(
-                      // child: boardContents(json.decode(response.body)),
+        body: Column(
+          children: [
+            FutureBuilder(
+              future: getBoardData(arg, pageIndex),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.hasData == false) {
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(),
                       ),
-                  Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: pageButtons,
-                      ),
-                    ),
-                  )
-                ],
-              );
-            } else if (snapshot.hasError) {
-              return CircularProgressIndicator();
-            } else {
-              return Column(
-                children: [
-                  // 검색창
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 8,
-                          child: TextFormField(
-                            controller: searchText,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Search',
-                                isDense: true,
-                                contentPadding: EdgeInsets.all(8)),
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          child: Text('게시글이 없습니다'),
                         ),
-                        Expanded(
-                            flex: 1,
-                            child: Container(
-                              child: IconButton(
-                                padding: EdgeInsets.all(0),
-                                onPressed: () {
-                                  Map argument = {
-                                    'search': searchText.text,
-                                    'from': 'board',
-                                    'type': json.decode(response.body)['type']
-                                  };
-
-                                  Get.toNamed('/searchBoard',
-                                      arguments: argument);
-                                },
-                                icon: Icon(Icons.search_outlined),
-                                iconSize: 20,
-                              ),
-                            )),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    child: boardContents(json.decode(response.body)),
-                  ),
-                  Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: pageButtons,
                       ),
-                    ),
-                  )
-                ],
-              );
-            }
-          },
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return CircularProgressIndicator();
+                } else {
+                  return Column(
+                    children: [
+                      // 검색창
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              flex: 8,
+                              child: TextFormField(
+                                controller: searchText,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Search',
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.all(8)),
+                              ),
+                            ),
+                            Expanded(
+                                flex: 1,
+                                child: Container(
+                                  child: IconButton(
+                                    padding: EdgeInsets.all(0),
+                                    onPressed: () {
+                                      Map argument = {
+                                        'search': searchText.text,
+                                        'from': 'board',
+                                        'type':
+                                            json.decode(response.body)['type']
+                                      };
+
+                                      Get.toNamed('/searchBoard',
+                                          arguments: argument);
+                                    },
+                                    icon: Icon(Icons.search_outlined),
+                                    iconSize: 20,
+                                  ),
+                                )),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        child: boardContents(json.decode(response.body)),
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: pageButtons,
+                ),
+              ),
+            )
+          ],
         ));
   }
 }
