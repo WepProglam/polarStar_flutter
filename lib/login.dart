@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'session.dart';
 import 'crypt.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'getXController.dart';
 
 // void main() {
 //   runApp(Login());
@@ -20,16 +22,15 @@ class Login extends StatelessWidget {
   }
 }
 
-class LoginInputs extends StatefulWidget {
+class LoginInputs extends StatelessWidget {
   LoginInputs({Key key}) : super(key: key);
 
-  @override
-  _LoginInputsState createState() => _LoginInputsState();
-}
-
-class _LoginInputsState extends State<LoginInputs> {
   final loginIdContoller = TextEditingController();
   final loginPwContoller = TextEditingController();
+
+  final box = GetStorage();
+
+  final loginController = LoginController();
 
   // login 함수
   Future userLogin() async {
@@ -44,11 +45,7 @@ class _LoginInputsState extends State<LoginInputs> {
       'pw': user_pw,
     };
 
-    //var url_login =    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/login';
-    // get
     var response_get = await Session().getX('/login');
-
-    print(response_get);
 
     var getHeaders = response_get.headers;
     var getBody = utf8.decode(response_get.bodyBytes);
@@ -56,31 +53,29 @@ class _LoginInputsState extends State<LoginInputs> {
     // 사실 Session.salt는 필요없는데 값 확인하려고 만듦
     Session.salt = Session().updateCookie(response_get, 'salt');
 
-    // print('salt: ${Session.cookies['salt']}');
-
     data['pw'] = crypto_login(user_id, user_pw);
 
     //post
-    var response_post = await Session().postX('/login', data);
-
-    // var statusCode = response.statusCode;
-    var postHeaders = response_post.headers;
-    var postBody = utf8.decode(response_post.bodyBytes);
-    print(getHeaders);
-
-    // print('status code: $statusCode');
-    // print('body: $postBody');
-    // print('postHeader: $postHeaders');
-
-    Session.session = Session().updateCookie(response_post, 'connect.sid');
-
-    if (postHeaders['location'] == '../') {
-      // Navigator.popAndPushNamed(context, '/mainPage');
-
-      Get.offNamed('/mainPage');
-    } else {
-      Session.cookies['connect.sid'] = '';
-    }
+    Session().postX('/login', data).then((value) async {
+      switch (value.statusCode) {
+        case 200:
+          Session.session = Session().updateCookie(value, 'connect.sid');
+          if (loginController.isAutoLogin.value) {
+            await box.write('id', data['id']);
+            await box.write('pw', data['pw']);
+            await box.write('isLoggined', true);
+            await box.write('token', Session.headers['Cookie']);
+          } else {
+            await box.remove('id');
+            await box.remove('pw');
+            await box.remove('isLoggined');
+            await box.remove('token');
+          }
+          Get.offAndToNamed('/mainPage');
+          break;
+        default:
+      }
+    });
   }
 
   @override
@@ -120,6 +115,19 @@ class _LoginInputsState extends State<LoginInputs> {
               ),
             ],
           ),
+        ),
+        Row(
+          children: [
+            Obx(
+              () => Checkbox(
+                  value: loginController.isAutoLogin.value,
+                  onChanged: (value) {
+                    print(value);
+                    loginController.updateAutoLogin(value);
+                  }),
+            ),
+            Text('자동 로그인'),
+          ],
         ),
         Container(
           child: Row(

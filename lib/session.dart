@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
 
 class Session extends GetConnect {
+  final box = GetStorage();
   static Map<String, String> headers = {
     'User-Agent': 'PolarStar',
     'polar': 'star',
@@ -78,9 +80,15 @@ class Session extends GetConnect {
           .replaceAll(RegExp(r': '), '=')
           .replaceAll(RegExp(r','), ';');
 
-      // print(headers['Cookie']);
+      print(headers['Cookie']);
 
       return cookies[str];
     }
+  }
+
+  updateAutoLoginCookie() async {
+    String storageSession = await box.read('connect.sid');
+
+    headers['Cookie'] = 'connect.sid=$storageSession';
   }
 }

@@ -32,6 +32,8 @@ dependencies:
 
   get:
 
+  get_storage:
+
   image_picker: ^0.8.2
   
   json_annotation: 

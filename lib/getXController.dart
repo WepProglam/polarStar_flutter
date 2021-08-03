@@ -117,3 +117,12 @@ class PostController extends GetxController {
         "/board/${comment['comment']['type']}/read/${comment['comment']['bid']}");
   }
 }
+
+class LoginController extends GetxController {
+  var isAutoLogin = true.obs;
+
+  updateAutoLogin(bool b) {
+    isAutoLogin.value = b;
+    update();
+  }
+}

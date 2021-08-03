@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'boardList.dart';
 import 'home.dart';
 import 'session.dart';
 import 'getXController.dart';
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  final box = GetStorage();
   List<Widget> mainPageWidget = [
     MainPageScroll(),
     Boards(),
     Boards(),
     Boards(),
   ];
+
+  @override
+  void initState() {
+    print(Session.headers['Cookie']);
+    // print(Session.headers['Cookie']);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +40,10 @@ class MainPage extends StatelessWidget {
                   Session().getX('/logout');
                   Session.cookies = {};
                   Session.headers['Cookie'] = '';
+                  box.remove('id');
+                  box.remove('pw');
+                  box.remove('isloggined');
+                  box.remove('connect.sid');
                   // Navigator.pushNamedAndRemoveUntil(
                   //     context, '/login', (Route<dynamic> route) => false);
                   Get.offAllNamed('/login');
