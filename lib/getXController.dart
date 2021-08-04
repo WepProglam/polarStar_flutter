@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'model/User.dart';
 import 'session.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class Controller extends GetxController {
   // mainPage
@@ -68,6 +70,59 @@ class UserController extends GetxController {
 
     ever(profilePostIndex, (_) {
       print('$_이/가 변경되었습니다.');
+    });
+  }
+}
+
+class NotiController extends GetxController {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+  Rx<Map<String, dynamic>> notiObs = Rx<Map<String, dynamic>>({
+    "notification": {"title": "제목", "body": "텍스트"}
+  });
+
+  @override
+  void onInit() async {
+    print("ON INIT");
+    super.onInit();
+    firebaseCloudMessaging_Listeners();
+
+    //메세지 스낵바에 띄움
+    ever(notiObs, (_) {
+      Get.snackbar(notiObs.value["notification"]["title"],
+          notiObs.value["notification"]["body"],
+          snackPosition: SnackPosition.TOP);
+    });
+  }
+
+  // ignore: non_constant_identifier_names
+  void firebaseCloudMessaging_Listeners() {
+    if (Platform.isIOS) iOS_Permission();
+
+    _firebaseMessaging.getToken().then((token) {
+      print('token:' + token);
+    });
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        notiObs.value = message;
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+  }
+
+  void iOS_Permission() {
+    _firebaseMessaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
     });
   }
 }

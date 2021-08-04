@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -48,6 +49,7 @@ class _MyHomePage extends State<MyHomePage> {
     );
   }
 
+  // ignore: non_constant_identifier_names
   void firebaseCloudMessaging_Listeners() {
     if (Platform.isIOS) iOS_Permission();
 
@@ -57,6 +59,7 @@ class _MyHomePage extends State<MyHomePage> {
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
+        Get.snackbar('Snackbar', 'Snackbar', snackPosition: SnackPosition.TOP);
         print('on message $message');
       },
       onResume: (Map<String, dynamic> message) async {

@@ -16,6 +16,8 @@ import 'package:polarstar_flutter/post.dart';
 import 'package:polarstar_flutter/writePost.dart';
 import 'package:polarstar_flutter/searchBoard.dart';
 
+import 'getXController.dart';
+
 void main() async {
   await GetStorage.init();
   if (GetStorage().hasData('token')) {
@@ -29,6 +31,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final notiController = Get.put(NotiController());
     return GetMaterialApp(
       title: 'polarStar',
 
