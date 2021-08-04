@@ -48,6 +48,13 @@ class _MainPageState extends State<MainPage> {
                 icon: Icon(Icons.person)),
           ],
         ),
+        floatingActionButton: FloatingActionButton.extended(
+            onPressed: () async {
+              var response = await Session().getX('/push');
+
+              print(response.body);
+            },
+            label: const Text("FCM test!")),
         body: Obx(() => mainPageWidget[c.mainPageIndex.value]),
         bottomNavigationBar: Obx(
           () => BottomNavigationBar(

@@ -108,6 +108,7 @@ class NotiController extends GetxController {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         notiObs.value = message;
+        print(notiObs.value);
         print('on message $message');
       },
       onResume: (Map<String, dynamic> message) async {
