@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'model/User.dart';
 import 'session.dart';
@@ -31,13 +32,27 @@ class UserController extends GetxController {
   Rx<int> profilePostIndex = 0.obs;
   Rx<Post> postPreview = new Post().obs;
 
+  var profileMsg = Rx<String>('');
+  var nickName = Rx<String>('');
+  var image = Rx<XFile>(null);
+  var profileImagePath = Rx<String>('');
+
+  final box = GetStorage();
+
   //var user = User().obs;
-  Future<String> getUserProfile() async {
+  Future<String> getUserPage() async {
+    print("get user page");
     var response = await Session().getX("/info");
     var responseBody = utf8.decode(response.bodyBytes);
     var json = jsonDecode(responseBody)["profile"];
+    await box.write("nickname", json["nickname"]);
+    await box.write("profilemsg", json["profilemsg"]);
+
+    print(box.read("nickname"));
 
     print(json["bids"][0]);
+
+    profileImagePath.value = json["photo"];
 
     userProfile.value = User(
       pid: json["pid"],
@@ -58,8 +73,50 @@ class UserController extends GetxController {
     return "a";
   }
 
+  Future<String> getUserProfile() async {
+    print("get user profile");
+    var response = await Session().getX("/info");
+    var responseBody = utf8.decode(response.bodyBytes);
+    var json = jsonDecode(responseBody)["profile"];
+    await box.write("nickname", json["nickname"]);
+    await box.write("profilemsg", json["profilemsg"]);
+
+    print(box.read("nickname"));
+
+    print(json["bids"][0]);
+
+    profileImagePath.value = json["photo"];
+
+    userProfile.value = User(
+        pid: json["pid"],
+        uid: json["uid"],
+        nickname: json["nickname"],
+        school: json["school"],
+        photo: json["photo"],
+        profilemsg: json["profilemsg"]);
+
+    return "a";
+  }
+
+  void setProfileImagePath(path) async {
+    profileImagePath.value = path;
+    print("updated!!!");
+  }
+
   void setProfilePostIndex(index) {
     profilePostIndex.value = index;
+  }
+
+  void setProfileMessage(value) {
+    profileMsg.value = value;
+  }
+
+  void setNickName(value) {
+    nickName.value = value;
+  }
+
+  void setProfileImage(img) {
+    image.value = img;
   }
 
   @override
@@ -67,6 +124,17 @@ class UserController extends GetxController {
     print("object");
     super.onInit();
     profilePostIndex.value = 0;
+    ever(profileImagePath, (_) {
+      print("변경 됬다고 시발");
+    });
+
+    ever(image, (_) {
+      print("사진 변경됨");
+    });
+
+    ever(nickName, (_) {
+      print("$_이/가 변경되었습니다.");
+    });
 
     ever(profilePostIndex, (_) {
       print('$_이/가 변경되었습니다.');

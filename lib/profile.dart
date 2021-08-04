@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'session.dart';
 import 'getXController.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 
 class Mypage extends StatelessWidget {
   @override
@@ -15,7 +22,7 @@ class Mypage extends StatelessWidget {
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
         ),
         body: FutureBuilder(
-          future: userController.getUserProfile(),
+          future: userController.getUserPage(),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               List<dynamic> userPost = [
@@ -42,15 +49,33 @@ class Mypage extends StatelessWidget {
                           flex: 10,
                         ),
                         Expanded(
-                            flex: 80,
-                            child: InkWell(
+                          flex: 80,
+                          child: InkWell(
                               onTap: () {
                                 Get.toNamed('/profile/setting');
                               },
                               child: Image.network(
-                                'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.userProfile.value.photo}', //수정해야함
+                                'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                fit: BoxFit.fill,
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress
+                                                  .expectedTotalBytes !=
+                                              null
+                                          ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes
+                                          : null,
+                                    ),
+                                  );
+                                },
+                              ) //수정해야함
                               ),
-                            )),
+                        ),
                         Spacer(
                           flex: 20,
                         ),
@@ -65,7 +90,7 @@ class Mypage extends StatelessWidget {
                                     child: Obx(() {
                                       return Text(
                                         '${userController.userProfile.value.nickname} | ${userController.userProfile.value.profilemsg}',
-                                        style: TextStyle(fontSize: 20),
+                                        textScaleFactor: 0.8,
                                       );
                                     })),
                                 Spacer(
@@ -76,7 +101,7 @@ class Mypage extends StatelessWidget {
                                     child: Obx(() {
                                       return Text(
                                         '${userController.userProfile.value.uid}',
-                                        style: TextStyle(fontSize: 20),
+                                        textScaleFactor: 0.8,
                                       );
                                     })),
                                 Spacer(
@@ -87,7 +112,7 @@ class Mypage extends StatelessWidget {
                                     child: Obx(() {
                                       return Text(
                                         '${userController.userProfile.value.school}',
-                                        style: TextStyle(fontSize: 20),
+                                        textScaleFactor: 0.8,
                                       );
                                     })),
                                 Spacer(
@@ -119,7 +144,7 @@ class Mypage extends StatelessWidget {
                                           Radius.circular(25))),
                                   child: Text(
                                     "profile",
-                                    style: TextStyle(fontSize: 20),
+                                    textScaleFactor: 0.8,
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
@@ -140,7 +165,7 @@ class Mypage extends StatelessWidget {
                                         BorderRadius.all(Radius.circular(25))),
                                 child: Text(
                                   "setting",
-                                  style: TextStyle(fontSize: 20),
+                                  textScaleFactor: 0.8,
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -168,7 +193,7 @@ class Mypage extends StatelessWidget {
                           child: InkWell(
                             child: Text(
                               "내가 쓴 글",
-                              style: TextStyle(fontSize: 15),
+                              textScaleFactor: 0.8,
                             ),
                             onTap: () {
                               userController.setProfilePostIndex(0);
@@ -181,8 +206,10 @@ class Mypage extends StatelessWidget {
                         Expanded(
                           flex: 70,
                           child: InkWell(
-                            child: Text("좋아요 누른 글",
-                                style: TextStyle(fontSize: 15)),
+                            child: Text(
+                              "좋아요 누른 글",
+                              textScaleFactor: 0.8,
+                            ),
                             onTap: () {
                               userController.setProfilePostIndex(1);
                             },
@@ -194,8 +221,10 @@ class Mypage extends StatelessWidget {
                         Expanded(
                           flex: 54,
                           child: InkWell(
-                            child:
-                                Text("저장한 글", style: TextStyle(fontSize: 15)),
+                            child: Text(
+                              "저장한 글",
+                              textScaleFactor: 0.8,
+                            ),
                             onTap: () {
                               userController.setProfilePostIndex(2);
                             },
@@ -254,200 +283,432 @@ Widget getPosts(json) {
       Map argument = {'boardUrl': boardUrl};
       Get.toNamed('/post', arguments: argument);
     },
-    child: Row(
-      children: [
-        Spacer(
-          flex: 6,
-        ),
-        Expanded(
-            flex: 40,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Spacer(
-                  flex: 7,
-                ),
-                Expanded(
-                  flex: 20,
-                  child: Image.network(
-                      'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}'),
-                ),
-                Spacer(
-                  flex: 5,
-                ),
-                Expanded(
-                  flex: 9,
-                  child: Text(
-                    "익명",
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-                Expanded(
-                  flex: 9,
-                  child: Text(
-                    "학교 게시판",
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-                Spacer(
-                  flex: 8,
-                )
-              ],
-            )),
-        Spacer(
-          flex: 10,
-        ),
-        Expanded(
-            flex: 200,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Spacer(
-                  flex: 11,
-                ),
-                Expanded(
-                    flex: 18,
-                    child: Text(
-                      json["title"],
-                      style: TextStyle(fontSize: 20),
-                    )),
-                Spacer(
-                  flex: 11,
-                ),
-                Expanded(
-                    flex: 12,
-                    child: Text(
-                      json["content"],
-                      style: TextStyle(fontSize: 12),
-                    )),
-                Spacer(
-                  flex: 7,
-                )
-              ],
-            )),
-        json["photo"] == "" //빈 문자열 처리해야함
-            ? Expanded(
-                flex: 80,
-                child: Column(children: [
+    child: Container(
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.black54))),
+      child: Row(
+        children: [
+          Spacer(
+            flex: 6,
+          ),
+          Expanded(
+              flex: 40,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Spacer(
-                    flex: 40,
+                    flex: 7,
                   ),
                   Expanded(
-                    child: Text(
-                      "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
-                      style: TextStyle(fontSize: 10),
-                    ),
-                    flex: 9,
-                  )
-                ]))
-            : Expanded(
-                flex: 80,
-                child: Column(children: [
-                  Expanded(
-                    flex: 40,
-                    child: Image.network(
-                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}'),
+                      flex: 20,
+                      child: Image.network(
+                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}',
+                        fit: BoxFit.fill,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes
+                                  : null,
+                            ),
+                          );
+                        },
+                      )),
+                  Spacer(
+                    flex: 5,
                   ),
                   Expanded(
-                    child: Text(
-                      "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
-                      style: TextStyle(fontSize: 10),
-                    ),
                     flex: 9,
+                    child: Text(
+                      "익명",
+                      textScaleFactor: 0.8,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 9,
+                    child: Text(
+                      "학교 게시판",
+                      textScaleFactor: 0.5,
+                    ),
+                  ),
+                  Spacer(
+                    flex: 8,
                   )
-                ])),
-        Spacer(
-          flex: 4,
-        )
-      ],
+                ],
+              )),
+          Spacer(
+            flex: 10,
+          ),
+          Expanded(
+              flex: 200,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Spacer(
+                    flex: 11,
+                  ),
+                  Expanded(
+                      flex: 18,
+                      child: Text(
+                        json["title"],
+                        textScaleFactor: 1.5,
+                      )),
+                  Spacer(
+                    flex: 11,
+                  ),
+                  Expanded(
+                      flex: 12,
+                      child: Text(
+                        json["content"],
+                        textScaleFactor: 1.0,
+                      )),
+                  Spacer(
+                    flex: 7,
+                  )
+                ],
+              )),
+          json["photo"] == "" //빈 문자열 처리해야함
+              ? Expanded(
+                  flex: 80,
+                  child: Column(children: [
+                    Spacer(
+                      flex: 40,
+                    ),
+                    Expanded(
+                      child: Text(
+                        "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                        textScaleFactor: 0.5,
+                      ),
+                      flex: 9,
+                    )
+                  ]))
+              : Expanded(
+                  flex: 80,
+                  child: Column(children: [
+                    Expanded(
+                        flex: 40,
+                        child: Image.network(
+                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}',
+                          fit: BoxFit.fill,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes
+                                    : null,
+                              ),
+                            );
+                          },
+                        )),
+                    Expanded(
+                      child: Text(
+                        "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                        textScaleFactor: 0.5,
+                      ),
+                      flex: 9,
+                    )
+                  ])),
+          Spacer(
+            flex: 4,
+          )
+        ],
+      ),
     ),
   );
 }
 
 class Profile extends StatelessWidget {
-  final userController = Get.put(UserController());
+  final ImagePicker _picker = ImagePicker();
+
+  final box = GetStorage();
+  bool showProgress = false;
+
+  getGalleryImage(UserController userController) async {
+    var pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    var img = File(pickedFile.path);
+    userController.setProfileImage(pickedFile);
+    final Directory extDir = await getApplicationDocumentsDirectory();
+    String dirPath = extDir.path;
+    final String filePath = '${dirPath}/profile.png';
+
+    final File profileImage = await img.copy(filePath);
+
+    box.write("profileImage", profileImage.path);
+  }
+
+  Future upload(XFile imageFile, UserController userController) async {
+    var request = Session().multipartReq('PATCH', '/info/modify/photo');
+
+    var pic = await http.MultipartFile.fromPath("photo", imageFile.path);
+    print(imageFile.path);
+    request.files.add(pic);
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+    print(response.statusCode);
+    print(response.body);
+    userController
+        .setProfileImagePath("uploads/" + jsonDecode(response.body)["src"]);
+    print(jsonDecode(response.body)["src"]);
+    print(userController.profileImagePath.value);
+    /*setState(() {
+      showProgress=true;
+    });*/
+    return response;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final box = GetStorage();
+    final userController = Get.put(UserController());
+
+    String pastNickName = box.read("nickname");
+    String pastprofileMsg = box.read("profilemsg");
+
     return Scaffold(
         appBar: AppBar(
           title: Text('polarStar'),
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
         ),
-        body: Row(children: [
-          Spacer(
-            flex: 80,
-          ),
-          Expanded(
-              flex: 280,
-              child: Column(children: [
-                Spacer(
-                  flex: 56,
-                ),
-                Expanded(
-                  flex: 200,
-                  child: Obx(() {
-                    return Image.network(
-                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.userProfile.value.photo}');
-                  }),
-                ),
-                Spacer(
-                  flex: 60,
-                ),
-                Expanded(
-                  flex: 50,
-                  child: Text(
-                    "닉네임",
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-                Spacer(
-                  flex: 20,
-                ),
-                Expanded(
-                  flex: 50,
-                  child: Text(
-                    "이름",
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-                Spacer(
-                  flex: 20,
-                ),
-                Expanded(
-                  flex: 50,
-                  child: Text(
-                    "학교",
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-                Spacer(
-                  flex: 20,
-                ),
-                Expanded(
-                  flex: 50,
-                  child: Text(
-                    "아이디",
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-                Spacer(
-                  flex: 20,
-                ),
-                Expanded(
-                  flex: 50,
-                  child: Text(
-                    "settubg",
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-                Spacer(
-                  flex: 20,
-                )
-              ])),
-          Spacer(
-            flex: 80,
-          ),
-        ]));
+        floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              if (pastNickName == userController.nickName.value.trim() &&
+                  pastprofileMsg == userController.profileMsg.value.trim()) {
+                Get.snackbar("UPDATE ERROR", "변경된 사항이 없습니다.",
+                    snackPosition: SnackPosition.BOTTOM);
+                return;
+              }
+
+              Map modifyData = {
+                'nickname': userController.nickName.value.trim(),
+                'profilemsg': userController.profileMsg.value.trim()
+              };
+              Session().patchX("/info/modify", modifyData).then((value) {
+                if (value.statusCode == 401) {
+                  //바뀐게 없음
+                  Get.snackbar("UPDATE ERROR", "변경된 사항이 없습니다.",
+                      snackPosition: SnackPosition.BOTTOM);
+                } else {
+                  Get.snackbar("UPDATE SUCCESS", "성공적으로 변경되었습니다.",
+                      snackPosition: SnackPosition.BOTTOM);
+
+                  print(modifyData);
+
+                  pastNickName = userController.nickName.value.trim();
+                  pastprofileMsg = userController.profileMsg.value.trim();
+
+                  box.write("nickname", pastNickName);
+                  box.write("profilemsg", pastprofileMsg);
+
+                  print("box read : " +
+                      box.read("nickname") +
+                      " & " +
+                      box.read("profilemsg"));
+                }
+              });
+            },
+            label: Text("수정")),
+        body: FutureBuilder(
+            future: userController.getUserProfile(),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.hasData) {
+                if (showProgress) {
+                  return CircularProgressIndicator();
+                } else {
+                  return Row(children: [
+                    Spacer(
+                      flex: 80,
+                    ),
+                    Expanded(
+                        flex: 280,
+                        child: Column(children: [
+                          Spacer(
+                            flex: 56,
+                          ),
+                          Expanded(
+                              flex: 200,
+                              child: Column(children: [
+                                ElevatedButton(onPressed: () {
+                                  Get.defaultDialog(
+                                      title: "프로필 사진을 변경하시겠습니까?",
+                                      textConfirm: "네",
+                                      textCancel: "아니오",
+                                      confirm: ElevatedButton(
+                                          onPressed: () async {
+                                            print("confirm!");
+                                            await getGalleryImage(
+                                                userController);
+                                            Get.back();
+
+                                            upload(userController.image.value,
+                                                userController);
+
+                                            print(userController
+                                                .userProfile.value.photo);
+                                          },
+                                          child: Text("네")),
+                                      cancel: ElevatedButton(
+                                          onPressed: () {
+                                            print("cancle!");
+                                            Get.back();
+                                          },
+                                          child: Text("아니오")));
+                                }, child: Obx(() {
+                                  print("시발 왜 안돼");
+                                  return Image.network(
+                                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                    fit: BoxFit.fill,
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                })),
+                              ])),
+                          Spacer(
+                            flex: 60,
+                          ),
+                          Expanded(
+                            flex: 50,
+                            child: Row(
+                              children: [
+                                Text(
+                                  "아이디",
+                                  textScaleFactor: 1.5,
+                                ),
+                                Expanded(child: Obx(() {
+                                  return TextFormField(
+                                    enabled: false,
+                                    initialValue:
+                                        userController.userProfile.value.uid,
+                                    style: TextStyle(fontSize: 20),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }))
+                              ],
+                            ),
+                          ),
+                          Spacer(
+                            flex: 20,
+                          ),
+                          Expanded(
+                            flex: 50,
+                            child: Row(children: [
+                              Text(
+                                "학교",
+                                style: TextStyle(fontSize: 30),
+                              ),
+                              Expanded(
+                                child: Obx(() {
+                                  return TextFormField(
+                                    enabled: false,
+                                    initialValue:
+                                        userController.userProfile.value.school,
+                                    style: TextStyle(fontSize: 20),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }),
+                              )
+                            ]),
+                          ),
+                          Spacer(
+                            flex: 20,
+                          ),
+                          Expanded(
+                            flex: 50,
+                            child: Row(
+                              children: [
+                                Text(
+                                  "프로필 메시지",
+                                  textScaleFactor: 1.5,
+                                ),
+                                Expanded(
+                                    child: TextFormField(
+                                  enabled: true,
+                                  initialValue: userController
+                                      .userProfile.value.profilemsg,
+                                  onChanged: (text) {
+                                    userController.setProfileMessage(text);
+                                  },
+                                  validator: (value) {
+                                    if (value.trim().isEmpty) {
+                                      return '프로필 메시지를 입력하세요';
+                                    }
+                                    return null;
+                                  },
+                                  style: TextStyle(fontSize: 20),
+                                  textAlign: TextAlign.center,
+                                ))
+                              ],
+                            ),
+                          ),
+                          Spacer(
+                            flex: 20,
+                          ),
+                          Expanded(
+                            flex: 50,
+                            child: Row(
+                              children: [
+                                Text(
+                                  "닉네임",
+                                  textScaleFactor: 1.5,
+                                ),
+                                Expanded(
+                                    child: TextFormField(
+                                  enabled: true,
+                                  initialValue:
+                                      userController.userProfile.value.nickname,
+                                  onChanged: (text) {
+                                    userController.setNickName(text);
+                                  },
+                                  validator: (value) {
+                                    if (value.trim().isEmpty) {
+                                      return '닉네임을 입력하세요';
+                                    }
+                                    return null;
+                                  },
+                                  style: TextStyle(fontSize: 20),
+                                  textAlign: TextAlign.center,
+                                ))
+                              ],
+                            ),
+                          ),
+                          Spacer(
+                            flex: 20,
+                          ),
+                        ])),
+                    Spacer(
+                      flex: 80,
+                    ),
+                  ]);
+                }
+              } else if (snapshot.hasError) {
+                Get.offAndToNamed("back");
+
+                return CircularProgressIndicator();
+              } else {
+                return CircularProgressIndicator();
+              }
+            }));
   }
 }

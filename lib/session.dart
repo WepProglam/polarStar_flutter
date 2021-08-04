@@ -37,6 +37,11 @@ class Session extends GetConnect {
         data,
         headers: headers,
       );
+  Future<http.Response> patchX(String url, Map data) => http.patch(
+        Uri.parse(_basicUrl + url),
+        body: data,
+        headers: headers,
+      );
 
   Future deleteX(String url) => delete(_basicUrl + url, headers: headers);
 
