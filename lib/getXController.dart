@@ -80,6 +80,7 @@ class NotiController extends GetxController {
   Rx<Map<String, dynamic>> notiObs = Rx<Map<String, dynamic>>({
     "notification": {"title": "제목", "body": "텍스트"}
   });
+  Rx<String> tokenFCM = Rx<String>("");
 
   @override
   void onInit() async {
@@ -100,7 +101,8 @@ class NotiController extends GetxController {
     if (Platform.isIOS) iOS_Permission();
 
     _firebaseMessaging.getToken().then((token) {
-      print('token:' + token);
+      tokenFCM.value = token;
+      print('token:' + tokenFCM.value);
     });
 
     _firebaseMessaging.configure(

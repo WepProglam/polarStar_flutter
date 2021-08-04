@@ -33,7 +33,7 @@ class LoginInputs extends StatelessWidget {
   final loginController = LoginController();
 
   // login 함수
-  Future userLogin() async {
+  Future userLogin(String token) async {
     Session.cookies = {};
     Session.headers['Cookie'] = '';
 
@@ -43,6 +43,7 @@ class LoginInputs extends StatelessWidget {
     Map<String, String> data = {
       'id': user_id,
       'pw': user_pw,
+      'token': token,
     };
 
     var response_get = await Session().getX('/login');
@@ -64,6 +65,7 @@ class LoginInputs extends StatelessWidget {
             await box.write('id', data['id']);
             await box.write('isLoggined', true);
             await box.write('token', Session.headers['Cookie']);
+            await box.write('tokenFCM', token);
           } else {
             await box.remove('id');
             await box.remove('isLoggined');
@@ -78,6 +80,7 @@ class LoginInputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final notiController = Get.put(NotiController());
     return Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -133,7 +136,8 @@ class LoginInputs extends StatelessWidget {
             children: [
               OutlinedButton(
                   onPressed: () {
-                    userLogin();
+                    print(notiController.tokenFCM.value);
+                    userLogin(notiController.tokenFCM.value);
                   },
                   child: Text('LOGIN')),
               OutlinedButton(
