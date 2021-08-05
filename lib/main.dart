@@ -34,7 +34,6 @@ class MyApp extends StatelessWidget {
     final notiController = Get.put(NotiController());
     return GetMaterialApp(
       title: 'polarStar',
-
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,

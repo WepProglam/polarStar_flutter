@@ -69,7 +69,7 @@ class _BoardState extends State<Board> {
     for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {
       buttons.add(pageButton(i + 1));
     }
-
+    //여기때메 계속 정보 받아옴
     setState(() {
       response = res;
       pageButtons = buttons;
