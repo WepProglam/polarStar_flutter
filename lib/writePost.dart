@@ -99,8 +99,11 @@ class _WritePostState extends State<WritePost> {
                   Map data = {
                     'title': title.text,
                     'description': content.text,
-                    'unnamed': c.anonymousCheck.value ? '1' : '0',
+                    'unnamed': (c.anonymousCheck.value) ? '1' : '0',
                   };
+
+                  print(c.anonymousCheck.value);
+                  print(data);
 
                   if (_image != null) {
                     upload(arg, _image, data).then((value) {

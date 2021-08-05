@@ -50,9 +50,9 @@ class _MainPageState extends State<MainPage> {
         ),
         floatingActionButton: FloatingActionButton.extended(
             onPressed: () async {
-              var response = await Session().getX('/push');
+              await Session().getX('/push');
 
-              print(response.body);
+              //print(response.body);
             },
             label: const Text("FCM test!")),
         body: Obx(() => mainPageWidget[c.mainPageIndex.value]),

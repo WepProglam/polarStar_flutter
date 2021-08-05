@@ -139,6 +139,8 @@ class _PostState extends State<Post> {
                               print(value.statusCode);
                               switch (value.statusCode) {
                                 case 200:
+                                  Get.snackbar('좋아요 성공', '좋아요 성공',
+                                      snackPosition: SnackPosition.BOTTOM);
                                   setState(() {});
                                   break;
                                 case 403:
@@ -178,10 +180,13 @@ class _PostState extends State<Post> {
                                   .then((value) {
                                 switch (value.statusCode) {
                                   case 200:
-                                    print('대댓글 삭제');
+                                    Get.snackbar("댓글 삭제 성공", "댓글 삭제 성공",
+                                        snackPosition: SnackPosition.BOTTOM);
                                     setState(() {});
                                     break;
                                   default:
+                                    Get.snackbar("댓글 삭제 실패", "댓글 삭제 실패",
+                                        snackPosition: SnackPosition.BOTTOM);
                                 }
                               });
                             } else {
@@ -191,10 +196,13 @@ class _PostState extends State<Post> {
                                   .then((value) {
                                 switch (value.statusCode) {
                                   case 200:
-                                    print('대댓글 신고');
-
+                                    Get.snackbar("신고 성공", "신고 성공",
+                                        snackPosition: SnackPosition.BOTTOM);
+                                    setState(() {});
                                     break;
                                   default:
+                                    Get.snackbar("신고 실패", "신고 실패",
+                                        snackPosition: SnackPosition.BOTTOM);
                                 }
                               });
                             }
@@ -375,10 +383,13 @@ class _PostState extends State<Post> {
                               .then((value) {
                             switch (value.statusCode) {
                               case 200:
-                                print('댓글 삭제');
+                                Get.snackbar("댓글 삭제 성공", "댓글 삭제 성공",
+                                    snackPosition: SnackPosition.BOTTOM);
                                 setState(() {});
                                 break;
                               default:
+                                Get.snackbar("댓글 삭제 실패", "댓글 삭제 실패",
+                                    snackPosition: SnackPosition.BOTTOM);
                             }
                           });
                         } else {
@@ -388,10 +399,13 @@ class _PostState extends State<Post> {
                               .then((value) {
                             switch (value.statusCode) {
                               case 200:
-                                print('댓글 신고');
+                                Get.snackbar("댓글 신고 성공", "댓글 신고 성공",
+                                    snackPosition: SnackPosition.BOTTOM);
 
                                 break;
                               default:
+                                Get.snackbar("댓글 신고 실패", "댓글 신고 실패",
+                                    snackPosition: SnackPosition.BOTTOM);
                             }
                           });
                         }
@@ -482,7 +496,8 @@ class _PostState extends State<Post> {
                               .then((value) {
                             switch (value.statusCode) {
                               case 200:
-                                print('게시글 좋아요');
+                                Get.snackbar("좋아요 성공", "좋아요 성공",
+                                    snackPosition: SnackPosition.BOTTOM);
                                 setState(() {});
 
                                 break;
@@ -513,7 +528,8 @@ class _PostState extends State<Post> {
                               .then((value) {
                             switch (value.statusCode) {
                               case 200:
-                                print('게시글 스크랩');
+                                Get.snackbar("스크랩 성공", "스크랩 성공",
+                                    snackPosition: SnackPosition.BOTTOM);
                                 setState(() {});
                                 break;
                               case 403:
@@ -541,13 +557,20 @@ class _PostState extends State<Post> {
                           Session()
                               .deleteX('/board/bid/${body['item']['bid']}')
                               .then((value) {
+                            print(value.statusCode);
                             switch (value.statusCode) {
                               case 200:
-                                print('게시글 삭제');
+                                print("ㅁㄴㅇㄹ");
+                                print("ㅁㄴㅇㄹ");
+                                print("ㅁㄴㅇㄹ");
                                 Get.back();
+                                Get.snackbar("게시글 삭제 성공", "게시글 삭제 성공",
+                                    snackPosition: SnackPosition.BOTTOM);
 
                                 break;
                               default:
+                                Get.snackbar("게시글 삭제 실패", "게시글 삭제 실패",
+                                    snackPosition: SnackPosition.BOTTOM);
                             }
                           });
                         }
@@ -559,7 +582,8 @@ class _PostState extends State<Post> {
                             print(value.statusCode);
                             switch (value.statusCode) {
                               case 200:
-                                print('게시글 신고');
+                                Get.snackbar("게시글 신고 성공", "게시글 신고 성공",
+                                    snackPosition: SnackPosition.BOTTOM);
 
                                 break;
                               case 403:
@@ -630,7 +654,8 @@ class _PostState extends State<Post> {
                             .then((value) {
                           switch (value.statusCode) {
                             case 200:
-                              print('게시글 좋아요');
+                              Get.snackbar("좋아요 성공", "좋아요 실패",
+                                  snackPosition: SnackPosition.BOTTOM);
                               setState(() {});
 
                               break;
@@ -675,7 +700,8 @@ class _PostState extends State<Post> {
                           .then((value) {
                         switch (value.statusCode) {
                           case 200:
-                            print('게시글 스크랩');
+                            Get.snackbar("게시글 스크랩 성공", "게시글 스크랩 성공",
+                                snackPosition: SnackPosition.BOTTOM);
                             setState(() {});
 
                             break;
@@ -794,6 +820,7 @@ class _PostState extends State<Post> {
                     'content': commentWriteController.text,
                     'unnamed': c.anonymousCheck.value ? '1' : '0'
                   };
+
                   String postUrl;
                   if (c.isCcomment.value) {
                     postUrl = c.ccommentUrl.value;

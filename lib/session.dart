@@ -21,29 +21,69 @@ class Session extends GetConnect {
   Future<http.Response> getX(String url) =>
       http.get(Uri.parse(_basicUrl + url), headers: headers).then((value) {
         switch (value.statusCode) {
+          case 401:
+            Get.toNamed("/login");
+            return value;
           default:
             return value;
         }
       });
 
-  Future<http.Response> postX(String url, Map data) => http.post(
+  Future<http.Response> postX(String url, Map data) => http
+          .post(
         Uri.parse(_basicUrl + url),
         body: data,
         headers: headers,
-      );
+      )
+          .then((value) {
+        switch (value.statusCode) {
+          case 401:
+            Get.toNamed("/login");
+            return value;
+          default:
+            return value;
+        }
+      });
 
   Future putX(String url, Map data) => put(
         _basicUrl + url,
         data,
         headers: headers,
-      );
-  Future<http.Response> patchX(String url, Map data) => http.patch(
+      ).then((value) {
+        switch (value.statusCode) {
+          case 401:
+            Get.toNamed("/login");
+            return value;
+          default:
+            return value;
+        }
+      });
+  Future<http.Response> patchX(String url, Map data) => http
+          .patch(
         Uri.parse(_basicUrl + url),
         body: data,
         headers: headers,
-      );
+      )
+          .then((value) {
+        switch (value.statusCode) {
+          case 401:
+            Get.toNamed("/login");
+            return value;
+          default:
+            return value;
+        }
+      });
 
-  Future deleteX(String url) => delete(_basicUrl + url, headers: headers);
+  Future deleteX(String url) =>
+      delete(_basicUrl + url, headers: headers).then((value) {
+        switch (value.statusCode) {
+          case 401:
+            Get.toNamed("/login");
+            return value;
+          default:
+            return value;
+        }
+      });
 
   // 왜 안되는지 모르겠음
   // Future<Response> getQuery(String url, Map query) => get(

@@ -66,10 +66,13 @@ class LoginInputs extends StatelessWidget {
             await box.write('isLoggined', true);
             await box.write('token', Session.headers['Cookie']);
             await box.write('tokenFCM', token);
+
+            print(token);
           } else {
             await box.remove('id');
             await box.remove('isLoggined');
             await box.remove('token');
+            await box.remove('tokenFCM');
           }
           Get.offAndToNamed('/mainPage');
           break;
