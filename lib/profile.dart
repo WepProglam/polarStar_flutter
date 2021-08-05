@@ -14,7 +14,6 @@ class Mypage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userController = Get.put(UserController());
-    List<String> postName = ["내가 쓴 글", "좋아요 누른 글", "저장한 글"];
 
     return Scaffold(
         appBar: AppBar(
@@ -26,15 +25,15 @@ class Mypage extends StatelessWidget {
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               List<dynamic> userPost = [
-                userController.userProfile.value.bids,
-                userController.userProfile.value.likes,
-                userController.userProfile.value.scrap
+                snapshot.data["bids"],
+                snapshot.data["likes"],
+                snapshot.data["scrap"],
               ];
 
               List<int> userPostLength = [
-                userController.userProfile.value.bids.length,
-                userController.userProfile.value.likes.length,
-                userController.userProfile.value.scrap.length
+                snapshot.data["bids"].length,
+                snapshot.data["likes"].length,
+                snapshot.data["scrap"].length,
               ];
               return Column(
                 children: [
@@ -50,30 +49,29 @@ class Mypage extends StatelessWidget {
                         ),
                         Expanded(
                           flex: 80,
-                          child: InkWell(
-                              onTap: () {
-                                Get.toNamed('/profile/setting');
+                          child: InkWell(onTap: () {
+                            Get.toNamed('/myPage/profile');
+                          }, child: Obx(() {
+                            return Image.network(
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                              fit: BoxFit.fill,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes
+                                        : null,
+                                  ),
+                                );
                               },
-                              child: Image.network(
-                                'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
-                                fit: BoxFit.fill,
-                                loadingBuilder: (BuildContext context,
-                                    Widget child,
-                                    ImageChunkEvent loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value: loadingProgress
-                                                  .expectedTotalBytes !=
-                                              null
-                                          ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress.expectedTotalBytes
-                                          : null,
-                                    ),
-                                  );
-                                },
-                              ) //수정해야함
+                            );
+                          }) //수정해야함
                               ),
                         ),
                         Spacer(
@@ -89,7 +87,7 @@ class Mypage extends StatelessWidget {
                                     flex: 20,
                                     child: Obx(() {
                                       return Text(
-                                        '${userController.userProfile.value.nickname} | ${userController.userProfile.value.profilemsg}',
+                                        '${userController.profileNickname.value} | ${userController.profileProfilemsg.value}',
                                         textScaleFactor: 0.8,
                                       );
                                     })),
@@ -259,8 +257,10 @@ class Mypage extends StatelessWidget {
                                     i++)
                                   Container(
                                       height: 120,
-                                      child: getPosts(userPost[userController
-                                          .profilePostIndex.value][i]))
+                                      child: getPosts(
+                                          userPost[userController
+                                              .profilePostIndex.value][i],
+                                          userController))
                               ],
                             );
                           })))
@@ -276,7 +276,7 @@ class Mypage extends StatelessWidget {
   }
 }
 
-Widget getPosts(json) {
+Widget getPosts(json, userController) {
   return InkWell(
     onTap: () {
       String boardUrl = '/board/${json["type"]}/read/${json["bid"]}';
@@ -301,22 +301,25 @@ Widget getPosts(json) {
                   ),
                   Expanded(
                       flex: 20,
-                      child: Image.network(
-                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}',
-                        fit: BoxFit.fill,
-                        loadingBuilder: (BuildContext context, Widget child,
-                            ImageChunkEvent loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes
-                                  : null,
-                            ),
-                          );
-                        },
-                      )),
+                      child: Obx(() {
+                        return Image.network(
+                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${userController.profileImagePath.value.substring(7)}',
+                          fit: BoxFit.fill,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes
+                                    : null,
+                              ),
+                            );
+                          },
+                        );
+                      })),
                   Spacer(
                     flex: 5,
                   ),
@@ -479,16 +482,17 @@ class Profile extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
-              if (pastNickName == userController.nickName.value.trim() &&
-                  pastprofileMsg == userController.profileMsg.value.trim()) {
+              if (pastNickName == userController.profileNickname.value.trim() &&
+                  pastprofileMsg ==
+                      userController.profileProfilemsg.value.trim()) {
                 Get.snackbar("UPDATE ERROR", "변경된 사항이 없습니다.",
                     snackPosition: SnackPosition.BOTTOM);
                 return;
               }
 
               Map modifyData = {
-                'nickname': userController.nickName.value.trim(),
-                'profilemsg': userController.profileMsg.value.trim()
+                'nickname': userController.profileNickname.value.trim(),
+                'profilemsg': userController.profileProfilemsg.value.trim()
               };
               Session().patchX("/info/modify", modifyData).then((value) {
                 if (value.statusCode == 401) {
@@ -501,8 +505,9 @@ class Profile extends StatelessWidget {
 
                   print(modifyData);
 
-                  pastNickName = userController.nickName.value.trim();
-                  pastprofileMsg = userController.profileMsg.value.trim();
+                  pastNickName = userController.profileNickname.value.trim();
+                  pastprofileMsg =
+                      userController.profileProfilemsg.value.trim();
 
                   box.write("nickname", pastNickName);
                   box.write("profilemsg", pastprofileMsg);
@@ -543,9 +548,10 @@ class Profile extends StatelessWidget {
                                       confirm: ElevatedButton(
                                           onPressed: () async {
                                             print("confirm!");
+                                            Get.back();
+
                                             await getGalleryImage(
                                                 userController);
-                                            Get.back();
 
                                             upload(userController.image.value,
                                                 userController);
@@ -648,7 +654,7 @@ class Profile extends StatelessWidget {
                                   initialValue: userController
                                       .userProfile.value.profilemsg,
                                   onChanged: (text) {
-                                    userController.setProfileMessage(text);
+                                    userController.setProfilemsg(text);
                                   },
                                   validator: (value) {
                                     if (value.trim().isEmpty) {
@@ -679,7 +685,7 @@ class Profile extends StatelessWidget {
                                   initialValue:
                                       userController.userProfile.value.nickname,
                                   onChanged: (text) {
-                                    userController.setNickName(text);
+                                    userController.setProfileNickname(text);
                                   },
                                   validator: (value) {
                                     if (value.trim().isEmpty) {
