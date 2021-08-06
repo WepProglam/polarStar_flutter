@@ -16,7 +16,7 @@ import 'package:polarstar_flutter/post.dart';
 import 'package:polarstar_flutter/writePost.dart';
 import 'package:polarstar_flutter/searchBoard.dart';
 import 'package:polarstar_flutter/mailBox.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'getXController.dart';
 
 void main() async {
@@ -24,15 +24,17 @@ void main() async {
   if (GetStorage().hasData('token')) {
     Session.headers['Cookie'] = await GetStorage().read('token');
   }
+
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   final box = GetStorage();
+  final notiController = Get.put(NotiController());
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final notiController = Get.put(NotiController());
     return GetMaterialApp(
       title: 'polarStar',
       theme: ThemeData(
