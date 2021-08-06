@@ -260,9 +260,12 @@ class _BoardState extends State<Board> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: pageButtons,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: pageButtons,
+                  ),
                 ),
               ),
             )

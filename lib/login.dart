@@ -63,6 +63,7 @@ class LoginInputs extends StatelessWidget {
           Session.session = Session().updateCookie(value, 'connect.sid');
           if (loginController.isAutoLogin.value) {
             await box.write('id', data['id']);
+            await box.write('pw', data['pw']);
             await box.write('isLoggined', true);
             await box.write('token', Session.headers['Cookie']);
             await box.write('tokenFCM', token);
@@ -70,6 +71,7 @@ class LoginInputs extends StatelessWidget {
             print(token);
           } else {
             await box.remove('id');
+            await box.remove('pw');
             await box.remove('isLoggined');
             await box.remove('token');
             await box.remove('tokenFCM');
