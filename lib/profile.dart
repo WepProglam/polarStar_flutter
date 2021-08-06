@@ -172,7 +172,30 @@ class Mypage extends StatelessWidget {
                             flex: 80,
                           ),
                           Spacer(
-                            flex: 182,
+                            flex: 8,
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 1, color: Colors.black),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(25))),
+                                child: Text(
+                                  "쪽지함",
+                                  textScaleFactor: 0.8,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              onTap: () async {
+                                Get.toNamed("/mailBox");
+                              },
+                            ),
+                            flex: 80,
+                          ),
+                          Spacer(
+                            flex: 94,
                           )
                         ],
                       )),

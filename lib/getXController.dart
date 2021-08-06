@@ -148,6 +148,25 @@ class UserController extends GetxController {
   }
 }
 
+class MailController extends GetxController {
+  Future<List<dynamic>> getMailBox() async {
+    var response = await Session().getX("/message");
+    var mailBox = jsonDecode(response.body)["messageBox"];
+    int mailLength = mailBox.length;
+    return mailBox;
+  }
+
+  Future<Map<String, dynamic>> getMail(String url) async {
+    var response = await Session().getX(url);
+    print(url);
+    print(response);
+
+    //var mailBox = jsonDecode(response.body)["messageBox"];
+    //int mailLength = mailBox.length;
+    return jsonDecode(response.body);
+  }
+}
+
 class NotiController extends GetxController {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 

@@ -600,6 +600,34 @@ class _PostState extends State<Post> {
                           : Icon(Icons.report),
                     ),
                   ),
+                  //쪽지
+                  body['myself']
+                      ? Container()
+                      : Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: InkWell(
+                              onTap: () {
+                                Get.defaultDialog(
+                                    title: "익명으로 보내겠습니까?",
+                                    content: Text("익명으로 보내겠습니까?"),
+                                    textConfirm: "네",
+                                    textCancel: "아니오",
+                                    confirm: ElevatedButton(
+                                        onPressed: () async {
+                                          Get.offAndToNamed("/mailBox",
+                                              arguments: {"unnamed": 1});
+                                        },
+                                        child: Text("네")),
+                                    cancel: ElevatedButton(
+                                        onPressed: () {
+                                          Get.offAndToNamed("/mailBox",
+                                              arguments: {"unnamed": 0});
+                                        },
+                                        child: Text("아니오")));
+                              },
+                              child:
+                                  body['myself'] ? Spacer() : Icon(Icons.mail)),
+                        ),
                 ],
               ),
             ),
