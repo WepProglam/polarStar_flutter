@@ -33,7 +33,7 @@ class _MainPageState extends State<MainPage> {
                   Session().getX('/logout');
                   Session.cookies = {};
                   Session.headers['Cookie'] = '';
-                  box.remove('id');
+                  box.remove('pw');
                   box.remove('isloggined');
                   box.remove('token');
                   // Navigator.pushNamedAndRemoveUntil(

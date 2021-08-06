@@ -46,6 +46,12 @@ class LoginInputs extends StatelessWidget {
       'token': token,
     };
 
+    Session.user_id = user_id;
+    Session.user_pw = user_pw;
+
+    await box.write('id', data['id']);
+    await box.write('pw', data['pw']);
+
     var response_get = await Session().getX('/login');
 
     var getHeaders = response_get.headers;
@@ -62,8 +68,6 @@ class LoginInputs extends StatelessWidget {
         case 200:
           Session.session = Session().updateCookie(value, 'connect.sid');
           if (loginController.isAutoLogin.value) {
-            await box.write('id', data['id']);
-            await box.write('pw', data['pw']);
             await box.write('isLoggined', true);
             await box.write('token', Session.headers['Cookie']);
             await box.write('tokenFCM', token);

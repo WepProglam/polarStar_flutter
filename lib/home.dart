@@ -10,9 +10,9 @@ class MainPageScroll extends StatelessWidget {
     var deviceWidth = MediaQuery.of(context).size.width;
     var deviceheight = MediaQuery.of(context).size.height;
 
-    Future<String> getBoardInfo() async {
+    Future getBoardInfo() async {
       var getResponse = await Session().getX('/');
-      var body = utf8.decode(getResponse.bodyBytes);
+      var body = getResponse.body;
 
       return body;
     }
@@ -144,7 +144,7 @@ class MainPageScroll extends StatelessWidget {
                             padding: const EdgeInsets.all(2.0),
                             child: Container(
                               child: billboardContent(
-                                  jsonDecode(snapshot.data)['hotboard'][0]),
+                                  json.decode(snapshot.data)['hotboard'][0]),
                               width: deviceWidth,
                               height: 50,
                               decoration: BoxDecoration(color: Colors.orange),
@@ -154,7 +154,7 @@ class MainPageScroll extends StatelessWidget {
                             padding: const EdgeInsets.all(2.0),
                             child: Container(
                               child: billboardContent(
-                                  jsonDecode(snapshot.data)['hotboard'][1]),
+                                  json.decode(snapshot.data)['hotboard'][1]),
                               width: deviceWidth,
                               height: 50,
                               decoration: BoxDecoration(color: Colors.orange),
@@ -164,7 +164,7 @@ class MainPageScroll extends StatelessWidget {
                             padding: const EdgeInsets.all(2.0),
                             child: Container(
                               child: billboardContent(
-                                  jsonDecode(snapshot.data)['hotboard'][2]),
+                                  json.decode(snapshot.data)['hotboard'][2]),
                               width: deviceWidth,
                               height: 50,
                               decoration: BoxDecoration(color: Colors.orange),
@@ -200,11 +200,11 @@ class MainPageScroll extends StatelessWidget {
                           if (snapshot.hasData == false) {
                             return CircularProgressIndicator();
                           } else if (snapshot.hasError) {
-                            return boards(jsonDecode(snapshot.data)['board']);
+                            return boards(json.decode(snapshot.data)['board']);
                           } else {
                             return Container(
-                                child:
-                                    boards(jsonDecode(snapshot.data)['board']));
+                                child: boards(
+                                    json.decode(snapshot.data)['board']));
                           }
                         }),
                   ],

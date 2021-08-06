@@ -20,36 +20,42 @@ class Session extends GetConnect {
   static String session;
   static String salt;
 
+  static String user_id;
+  static String user_pw;
+
   final String _basicUrl =
       'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000';
 
-  reLogin() async {
-    String id = await box.read('id');
-    String pw = await box.read('pw');
+  Future reLogin() async {
+    Session.cookies = {};
+    Session.headers['Cookie'] = '';
 
     print('relogin...');
+    print('id: $user_id\npw: $user_pw');
 
     Map<String, String> data = {
-      'id': id,
-      'pw': pw,
+      'id': user_id,
+      'pw': user_pw,
       'token': notiController.tokenFCM.value,
     };
-
-    Session().getX('/login').then((value) {
+    getX('/login').then((value) {
       switch (value.statusCode) {
         case 200: // 정상
-          Session.salt = Session().updateCookie(value, 'salt');
-          data['pw'] = crypto_login(id, pw);
-          Session().postX('/login', data).then((value) async {
-            switch (value.statusCode) {
+          Session.salt = updateCookie(value, 'salt');
+          data['pw'] = crypto_login(user_id, user_pw);
+          postX('/login', data).then((val) {
+            switch (val.statusCode) {
               case 200:
-                Session.session = Session().updateCookie(value, 'connect.sid');
-
+                Session.session = updateCookie(val, 'connect.sid');
+                Get.back();
+                // Get.reloadAll();
+                Get.snackbar('다시 로그인 됐습니다.', '다시 로그인 됐습니다');
+                return val;
                 break;
               default:
+                return val;
             }
           });
-
           break;
         case 401:
           break;
@@ -62,11 +68,10 @@ class Session extends GetConnect {
       http.get(Uri.parse(_basicUrl + url), headers: headers).then((value) {
         switch (value.statusCode) {
           case 401: // login error
-            Get.toNamed("/login");
-            // reLogin()
-            //     .then(http.get(Uri.parse(_basicUrl + url), headers: headers));
-
+            // Get.toNamed("/login");
+            reLogin();
             return value;
+            break;
           default:
             return value;
         }
@@ -81,13 +86,10 @@ class Session extends GetConnect {
           .then((value) {
         switch (value.statusCode) {
           case 401: // login error
-            Get.toNamed("/login");
-            // reLogin().then(http.post(
-            //   Uri.parse(_basicUrl + url),
-            //   body: data,
-            //   headers: headers,
-            // ));
+            // Get.toNamed("/login");
+            reLogin();
             return value;
+            break;
           default:
             return value;
         }
@@ -97,7 +99,7 @@ class Session extends GetConnect {
         _basicUrl + url,
         data,
         headers: headers,
-      ).then((value) {
+      ).then((value) async {
         switch (value.statusCode) {
           case 401:
             // Get.toNamed("/login");
