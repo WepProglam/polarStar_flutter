@@ -122,8 +122,6 @@ class MailController extends GetxController {
 }
 
 class NotiController extends GetxController {
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
   Rx<Map<String, dynamic>> notiObs = Rx<Map<String, dynamic>>({
     "notification": {"title": "제목", "body": "텍스트"}
   });
@@ -133,6 +131,10 @@ class NotiController extends GetxController {
   void onInit() async {
     print("ON INIT");
     super.onInit();
+    var firebaseMessaging = FirebaseMessaging.instance;
+
+    var firstToken = await firebaseMessaging.getToken();
+    tokenFCM.value = firstToken;
     firebaseCloudMessaging_Listeners();
 
     //메세지 스낵바에 띄움
@@ -145,36 +147,30 @@ class NotiController extends GetxController {
 
   // ignore: non_constant_identifier_names
   void firebaseCloudMessaging_Listeners() {
-    if (Platform.isIOS) iOS_Permission();
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      print("message recieved");
+      print(event.notification.body);
+      print(event.notification.body);
+      Get.snackbar(event.notification.body.toString(),
+          event.notification.body.toString(),
+          snackPosition: SnackPosition.TOP);
 
-    _firebaseMessaging.getToken().then((token) {
-      tokenFCM.value = token;
-      print('token:' + tokenFCM.value);
+      notiObs.value = event as Map<String, dynamic>;
+      print(notiObs.value);
     });
-
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        notiObs.value = message;
-        print(notiObs.value);
-        print('on message $message');
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print('on resume $message');
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print('on launch $message');
-      },
-    );
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      print('Message clicked!');
+    });
   }
 
-  void iOS_Permission() {
+  /*void iOS_Permission() {
     _firebaseMessaging.requestNotificationPermissions(
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
-  }
+  }*/
 }
 
 class PostController extends GetxController {

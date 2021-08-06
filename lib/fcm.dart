@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+//final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
 void main() => runApp(MyApp());
 
@@ -37,7 +37,7 @@ class _MyHomePage extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    firebaseCloudMessaging_Listeners();
+    //firebaseCloudMessaging_Listeners();
   }
 
   @override
@@ -50,7 +50,7 @@ class _MyHomePage extends State<MyHomePage> {
   }
 
   // ignore: non_constant_identifier_names
-  void firebaseCloudMessaging_Listeners() {
+  /*void firebaseCloudMessaging_Listeners() {
     if (Platform.isIOS) iOS_Permission();
 
     _firebaseMessaging.getToken().then((token) {
@@ -78,5 +78,5 @@ class _MyHomePage extends State<MyHomePage> {
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
-  }
+  }*/
 }
