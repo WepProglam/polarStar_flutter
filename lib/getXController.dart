@@ -57,6 +57,8 @@ class UserController extends GetxController {
     print(json["bids"][0]);
 
     profileImagePath.value = json["photo"];
+    profileNickname.value = json["nickname"];
+    profileProfilemsg.value = json["profilemsg"];
 
     userProfile.value = User(
       pid: json["pid"],
@@ -88,6 +90,8 @@ class UserController extends GetxController {
     print(json["bids"][0]);
 
     profileImagePath.value = json["photo"];
+    profileNickname.value = json["nickname"];
+    profileProfilemsg.value = json["profilemsg"];
 
     userProfile.value = User(
         pid: json["pid"],
@@ -141,6 +145,25 @@ class UserController extends GetxController {
     ever(profilePostIndex, (_) {
       print('$_이/가 변경되었습니다.');
     });
+  }
+}
+
+class MailController extends GetxController {
+  Future<List<dynamic>> getMailBox() async {
+    var response = await Session().getX("/message");
+    var mailBox = jsonDecode(response.body)["messageBox"];
+    int mailLength = mailBox.length;
+    return mailBox;
+  }
+
+  Future<Map<String, dynamic>> getMail(String url) async {
+    var response = await Session().getX(url);
+    print(url);
+    print(response);
+
+    //var mailBox = jsonDecode(response.body)["messageBox"];
+    //int mailLength = mailBox.length;
+    return jsonDecode(response.body);
   }
 }
 

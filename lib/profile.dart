@@ -172,7 +172,30 @@ class Mypage extends StatelessWidget {
                             flex: 80,
                           ),
                           Spacer(
-                            flex: 182,
+                            flex: 8,
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 1, color: Colors.black),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(25))),
+                                child: Text(
+                                  "쪽지함",
+                                  textScaleFactor: 0.8,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              onTap: () async {
+                                Get.toNamed("/mailBox");
+                              },
+                            ),
+                            flex: 80,
+                          ),
+                          Spacer(
+                            flex: 94,
                           )
                         ],
                       )),
@@ -456,6 +479,17 @@ class Profile extends StatelessWidget {
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
     print(response.statusCode);
+    switch (response.statusCode) {
+      case 200:
+        Get.snackbar("사진 변경 성공", "사진 변경 성공",
+            snackPosition: SnackPosition.BOTTOM);
+        break;
+      case 500:
+        Get.snackbar("사진 변경 실패", "사진 변경 실패",
+            snackPosition: SnackPosition.BOTTOM);
+        break;
+      default:
+    }
     print(response.body);
     userController
         .setProfileImagePath("uploads/" + jsonDecode(response.body)["src"]);
@@ -482,13 +516,13 @@ class Profile extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
-              if (pastNickName == userController.profileNickname.value.trim() &&
+              /*if (pastNickName == userController.profileNickname.value.trim() &&
                   pastprofileMsg ==
                       userController.profileProfilemsg.value.trim()) {
                 Get.snackbar("UPDATE ERROR", "변경된 사항이 없습니다.",
                     snackPosition: SnackPosition.BOTTOM);
                 return;
-              }
+              }*/
 
               Map modifyData = {
                 'nickname': userController.profileNickname.value.trim(),
