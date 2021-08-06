@@ -151,13 +151,10 @@ class NotiController extends GetxController {
       print("message recieved");
       print(event.notification.body);
       print(event.notification.body);
-      Get.snackbar(event.notification.body.toString(),
-          event.notification.body.toString(),
+      Get.snackbar(event.notification.body, event.notification.body,
           snackPosition: SnackPosition.TOP);
-
-      notiObs.value = event as Map<String, dynamic>;
-      print(notiObs.value);
     });
+
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       print('Message clicked!');
     });
