@@ -57,6 +57,8 @@ class UserController extends GetxController {
     print(json["bids"][0]);
 
     profileImagePath.value = json["photo"];
+    profileNickname.value = json["nickname"];
+    profileProfilemsg.value = json["profilemsg"];
 
     userProfile.value = User(
       pid: json["pid"],
@@ -88,6 +90,8 @@ class UserController extends GetxController {
     print(json["bids"][0]);
 
     profileImagePath.value = json["photo"];
+    profileNickname.value = json["nickname"];
+    profileProfilemsg.value = json["profilemsg"];
 
     userProfile.value = User(
         pid: json["pid"],
