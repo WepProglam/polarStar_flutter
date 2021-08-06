@@ -29,8 +29,11 @@ class Controller extends GetxController {
 
 class UserController extends GetxController {
   Rx<User> userProfile = new User().obs;
+  Rx<User> userPage = new User().obs;
   Rx<int> profilePostIndex = 0.obs;
   Rx<Post> postPreview = new Post().obs;
+
+  var _dataAvailableMypage = false.obs;
 
   var image = Rx<XFile>(null);
 
@@ -40,68 +43,29 @@ class UserController extends GetxController {
 
   final box = GetStorage();
 
-  //var user = User().obs;
-  Future<Map<String, dynamic>> getUserPage() async {
+  Future<void> getUserPage() async {
     print("get user page");
     var response = await Session().getX("/info");
     var responseBody = utf8.decode(response.bodyBytes);
     var json = jsonDecode(responseBody)["profile"];
-    await box.write("nickname", json["nickname"]);
-    await box.write("profilemsg", json["profilemsg"]);
-
-    print(box.read("nickname"));
-    print(box.read("profilemsg"));
-
-    print(json["profilemsg"]);
-
-    print(json["bids"][0]);
 
     profileImagePath.value = json["photo"];
     profileNickname.value = json["nickname"];
     profileProfilemsg.value = json["profilemsg"];
 
-    userProfile.value = User(
-      pid: json["pid"],
-      uid: json["uid"],
-      deleted: json["deleted"],
-      school: json["school"],
-      friends: json["friends"],
-      buffer: json["buffer"],
-      arrest: json["arrest"],
-    );
-
-    return {
-      "likes": json["likes"],
-      "bids": json["bids"],
-      "scrap": json["scrap"]
-    };
-  }
-
-  Future<String> getUserProfile() async {
-    print("get user profile");
-    var response = await Session().getX("/info");
-    var responseBody = utf8.decode(response.bodyBytes);
-    var json = jsonDecode(responseBody)["profile"];
-    await box.write("nickname", json["nickname"]);
-    await box.write("profilemsg", json["profilemsg"]);
-
-    print(box.read("nickname"));
-
-    print(json["bids"][0]);
-
-    profileImagePath.value = json["photo"];
-    profileNickname.value = json["nickname"];
-    profileProfilemsg.value = json["profilemsg"];
-
-    userProfile.value = User(
+    userPage.value = User(
         pid: json["pid"],
         uid: json["uid"],
-        nickname: json["nickname"],
+        deleted: json["deleted"],
         school: json["school"],
-        photo: json["photo"],
-        profilemsg: json["profilemsg"]);
+        friends: json["friends"],
+        buffer: json["buffer"],
+        arrest: json["arrest"],
+        bids: json["bids"],
+        likes: json["likes"],
+        scrap: json["scrap"]);
 
-    return "a";
+    _dataAvailableMypage.value = true;
   }
 
   void setProfileNickname(nickname) {
@@ -114,7 +78,6 @@ class UserController extends GetxController {
 
   void setProfileImagePath(path) async {
     profileImagePath.value = path;
-    print("updated!!!");
   }
 
   void setProfilePostIndex(index) {
@@ -127,28 +90,18 @@ class UserController extends GetxController {
 
   @override
   void onInit() async {
-    print("object");
     super.onInit();
+    getUserPage();
     profilePostIndex.value = 0;
-    ever(profileImagePath, (_) {
-      print("변경 됬다고 시발");
-    });
-
-    ever(image, (_) {
-      print("사진 변경됨");
-    });
-
-    ever(profileNickname, (_) {
-      print("$_이/가 변경되었습니다.");
-    });
-
-    ever(profilePostIndex, (_) {
-      print('$_이/가 변경되었습니다.');
-    });
   }
+
+  bool get dataAvailableMypage => _dataAvailableMypage.value;
 }
 
 class MailController extends GetxController {
+  var mailData = Rx<Map<String, dynamic>>(null);
+  var mailSendingData = Rx<List<dynamic>>(null);
+
   Future<List<dynamic>> getMailBox() async {
     var response = await Session().getX("/message");
     var mailBox = jsonDecode(response.body)["messageBox"];
@@ -158,8 +111,9 @@ class MailController extends GetxController {
 
   Future<Map<String, dynamic>> getMail(String url) async {
     var response = await Session().getX(url);
-    print(url);
     print(response);
+    mailData.value = jsonDecode(response.body);
+    mailSendingData.value = mailData.value["messages"];
 
     //var mailBox = jsonDecode(response.body)["messageBox"];
     //int mailLength = mailBox.length;

@@ -103,45 +103,54 @@ class SendMail extends StatelessWidget {
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               print(snapshot.data["messages"]);
+              print(mailController.mailData.value);
+              print(mailController.mailData.value);
+              print(mailController.mailData.value);
+              print(mailController.mailData.value);
+              print(mailController.mailData.value);
               /**/
-              return ListView.builder(
-                itemCount: snapshot.data["messages"].length,
-                shrinkWrap: true,
-                padding: EdgeInsets.only(top: 10, bottom: 10),
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return Container(
-                      padding: EdgeInsets.only(
-                          left: 14, right: 14, top: 10, bottom: 10),
-                      child: Align(
-                        alignment: (snapshot.data["messages"][index]
-                                    ["sentMessage"] ==
-                                0
-                            ? Alignment.topLeft
-                            : Alignment.topRight),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: (snapshot.data["messages"][index]
-                                        ["sentMessage"] ==
+              return Obx(() {
+                return ListView.builder(
+                  itemCount: mailController.mailSendingData.value.length,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                  //physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Obx(() {
+                      return Container(
+                          padding:
+                              EdgeInsets.only(left: 14, right: 14, top: 10),
+                          child: Align(
+                            alignment: (mailController.mailSendingData
+                                        .value[index]["sentMessage"] ==
                                     0
-                                ? Colors.grey.shade400
-                                : Colors.blue[200]),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          child: (snapshot.data["messages"][index]
-                                      ["sentMessage"] ==
-                                  0
-                              ? Text(
-                                  '${snapshot.data["profile"]["nickname"]} : ${snapshot.data["messages"][index]["content"]}',
-                                  style: TextStyle(fontSize: 15))
-                              : Text(
-                                  '${snapshot.data["messages"][index]["content"]} :  Me(${snapshot.data["profile"]["nickname"]})',
-                                  style: TextStyle(fontSize: 15))),
-                        ),
-                      ));
-                },
-              );
+                                ? Alignment.topLeft
+                                : Alignment.topRight),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: (mailController.mailSendingData
+                                            .value[index]["sentMessage"] ==
+                                        0
+                                    ? Colors.grey.shade400
+                                    : Colors.blue[200]),
+                              ),
+                              padding: EdgeInsets.all(16),
+                              child: (mailController.mailSendingData
+                                          .value[index]["sentMessage"] ==
+                                      0
+                                  ? Text(
+                                      '${mailController.mailData.value["profile"]["nickname"]} : ${mailController.mailSendingData.value[index]["content"]}',
+                                      style: TextStyle(fontSize: 15))
+                                  : Text(
+                                      '${mailController.mailSendingData.value[index]["content"]} :  Me(${mailController.mailData.value["profile"]["nickname"]})',
+                                      style: TextStyle(fontSize: 15))),
+                            ),
+                          ));
+                    });
+                  },
+                );
+              });
             } else if (snapshot.hasError) {
               print(snapshot.error);
               return Text("snapshot.error");
@@ -157,6 +166,11 @@ class SendMail extends StatelessWidget {
               () => TextFormField(
                 controller: commentWriteController,
                 autofocus: c.autoFocusTextForm.value,
+                onFieldSubmitted: (value) {
+                  print(value);
+                  commentWriteController.clear();
+                },
+                textInputAction: TextInputAction.send,
                 decoration: InputDecoration(
                     hintText: "쪽지 보내기", border: OutlineInputBorder()),
               ),
@@ -176,8 +190,15 @@ class SendMail extends StatelessWidget {
                   String postUrl = "/message";
 
                   var response = await Session().postX(postUrl, messageData);
+
+                  //{sentMessage: 0, content: sent from your post/comment: asdfagd, creation_date: 2021-08-06T10:11:55.457Z}
+                  mailController.mailSendingData.value.add({
+                    "sentMessage": 0,
+                    "content": commentWriteController.text,
+                    "creation_date": "2021-08-06T10:11:55.457Z"
+                  });
+
                   print(response.statusCode);
-                  print(jsonDecode(response.body));
                   /*if (c.isCcomment.value) {
                     postUrl = c.ccommentUrl.value;
                   } else {
