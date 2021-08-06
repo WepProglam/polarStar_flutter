@@ -12,7 +12,7 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  Map arg = Get.arguments;
+  dynamic arg = Get.arguments;
   Future getPostData(String url) async {
     String getUrl;
     // print(url);

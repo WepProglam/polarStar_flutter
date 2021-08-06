@@ -108,7 +108,8 @@ class _SearchBoardState extends State<SearchBoard> {
           onPressed: () {
             // print('url: ${data['url']}');
             String boardUrl = '/board/${data['type']}/read/${data['bid']}';
-            Get.toNamed('/post', arguments: boardUrl);
+            Map postArg = {'boardUrl': boardUrl};
+            Get.toNamed('/post', arguments: postArg);
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
