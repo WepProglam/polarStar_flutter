@@ -20,278 +20,289 @@ class Mypage extends StatelessWidget {
           title: Text('polarStar'),
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
         ),
-        body: Obx(
-          () {
-            if (userController.dataAvailableMypage) {
-              List<dynamic> userPost = [
-                userController.userPage.value.bids,
-                userController.userPage.value.likes,
-                userController.userPage.value.scrap,
-              ];
+        body: RefreshIndicator(
+          onRefresh: userController.getUserPage,
+          child: Stack(
+            children: [
+              ListView(),
+              Obx(
+                () {
+                  if (userController.dataAvailableMypage) {
+                    List<dynamic> userPost = [
+                      userController.userPage.value.bids,
+                      userController.userPage.value.likes,
+                      userController.userPage.value.scrap,
+                    ];
 
-              List<int> userPostLength = [
-                userController.userPage.value.bids.length,
-                userController.userPage.value.likes.length,
-                userController.userPage.value.scrap.length,
-              ];
-              return Column(
-                children: [
-                  Spacer(
-                    flex: 10,
-                  ),
-                  Expanded(
-                    flex: 80,
-                    child: Row(
+                    List<int> userPostLength = [
+                      userController.userPage.value.bids.length,
+                      userController.userPage.value.likes.length,
+                      userController.userPage.value.scrap.length,
+                    ];
+                    return Column(
                       children: [
                         Spacer(
                           flex: 10,
                         ),
                         Expanded(
                           flex: 80,
-                          child: InkWell(onTap: () {
-                            Get.toNamed('/myPage/profile');
-                          }, child: Obx(() {
-                            return Image.network(
-                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
-                              fit: BoxFit.fill,
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes
-                                        : null,
-                                  ),
-                                );
-                              },
-                            );
-                          }) //수정해야함
+                          child: Row(
+                            children: [
+                              Spacer(
+                                flex: 10,
                               ),
+                              Expanded(
+                                flex: 80,
+                                child: InkWell(onTap: () {
+                                  Get.toNamed('/myPage/profile');
+                                }, child: Obx(() {
+                                  return Image.network(
+                                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                    fit: BoxFit.fill,
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }) //수정해야함
+                                    ),
+                              ),
+                              Spacer(
+                                flex: 20,
+                              ),
+                              Expanded(
+                                flex: 250,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Spacer(flex: 12),
+                                      Expanded(
+                                          flex: 20,
+                                          child: Obx(() {
+                                            return Text(
+                                              '${userController.profileNickname.value} | ${userController.profileProfilemsg.value}',
+                                              textScaleFactor: 0.8,
+                                            );
+                                          })),
+                                      Spacer(
+                                        flex: 10,
+                                      ),
+                                      Expanded(
+                                          flex: 12,
+                                          child: Obx(() {
+                                            return Text(
+                                              '${userController.userPage.value.uid}',
+                                              textScaleFactor: 0.8,
+                                            );
+                                          })),
+                                      Spacer(
+                                        flex: 6,
+                                      ),
+                                      Expanded(
+                                          flex: 12,
+                                          child: Obx(() {
+                                            return Text(
+                                              '${userController.userPage.value.school}',
+                                              textScaleFactor: 0.8,
+                                            );
+                                          })),
+                                      Spacer(
+                                        flex: 8,
+                                      )
+                                    ]),
+                              )
+                            ],
+                          ),
                         ),
                         Spacer(
-                          flex: 20,
+                          flex: 18,
                         ),
                         Expanded(
-                          flex: 250,
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            flex: 24,
+                            child: Row(
                               children: [
-                                Spacer(flex: 12),
-                                Expanded(
-                                    flex: 20,
-                                    child: Obx(() {
-                                      return Text(
-                                        '${userController.profileNickname.value} | ${userController.profileProfilemsg.value}',
-                                        textScaleFactor: 0.8,
-                                      );
-                                    })),
                                 Spacer(
                                   flex: 10,
                                 ),
                                 Expanded(
-                                    flex: 12,
-                                    child: Obx(() {
-                                      return Text(
-                                        '${userController.userPage.value.uid}',
-                                        textScaleFactor: 0.8,
-                                      );
-                                    })),
-                                Spacer(
-                                  flex: 6,
-                                ),
-                                Expanded(
-                                    flex: 12,
-                                    child: Obx(() {
-                                      return Text(
-                                        '${userController.userPage.value.school}',
-                                        textScaleFactor: 0.8,
-                                      );
-                                    })),
+                                    flex: 80,
+                                    child: InkWell(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                width: 1, color: Colors.black),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(25))),
+                                        child: Text(
+                                          "profile",
+                                          textScaleFactor: 0.8,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        Get.toNamed('/myPage/profile');
+                                      },
+                                    )),
                                 Spacer(
                                   flex: 8,
-                                )
-                              ]),
-                        )
-                      ],
-                    ),
-                  ),
-                  Spacer(
-                    flex: 18,
-                  ),
-                  Expanded(
-                      flex: 24,
-                      child: Row(
-                        children: [
-                          Spacer(
-                            flex: 10,
-                          ),
-                          Expanded(
-                              flex: 80,
-                              child: InkWell(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1, color: Colors.black),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(25))),
-                                  child: Text(
-                                    "profile",
-                                    textScaleFactor: 0.8,
-                                    textAlign: TextAlign.center,
+                                ),
+                                Expanded(
+                                  child: InkWell(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: 1, color: Colors.black),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(25))),
+                                      child: Text(
+                                        "setting",
+                                        textScaleFactor: 0.8,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    onTap: () => {print("text")},
                                   ),
+                                  flex: 80,
                                 ),
-                                onTap: () {
-                                  Get.toNamed('/myPage/profile');
-                                },
-                              )),
-                          Spacer(
-                            flex: 8,
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        width: 1, color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(25))),
-                                child: Text(
-                                  "setting",
-                                  textScaleFactor: 0.8,
-                                  textAlign: TextAlign.center,
+                                Spacer(
+                                  flex: 8,
                                 ),
-                              ),
-                              onTap: () => {print("text")},
-                            ),
-                            flex: 80,
-                          ),
-                          Spacer(
-                            flex: 8,
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        width: 1, color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(25))),
-                                child: Text(
-                                  "쪽지함",
-                                  textScaleFactor: 0.8,
-                                  textAlign: TextAlign.center,
+                                Expanded(
+                                  child: InkWell(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: 1, color: Colors.black),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(25))),
+                                      child: Text(
+                                        "쪽지함",
+                                        textScaleFactor: 0.8,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    onTap: () async {
+                                      Get.toNamed("/mailBox");
+                                    },
+                                  ),
+                                  flex: 80,
                                 ),
-                              ),
-                              onTap: () async {
-                                Get.toNamed("/mailBox");
-                              },
-                            ),
-                            flex: 80,
-                          ),
-                          Spacer(
-                            flex: 94,
-                          )
-                        ],
-                      )),
-                  Spacer(
-                    flex: 26,
-                  ),
-                  Expanded(
-                    flex: 16,
-                    child: Row(
-                      children: [
-                        Spacer(
-                          flex: 27,
-                        ),
-                        Expanded(
-                          flex: 61,
-                          child: InkWell(
-                            child: Text(
-                              "내가 쓴 글",
-                              textScaleFactor: 0.8,
-                            ),
-                            onTap: () {
-                              userController.setProfilePostIndex(0);
-                            },
-                          ),
-                        ),
-                        Spacer(
-                          flex: 63,
-                        ),
-                        Expanded(
-                          flex: 70,
-                          child: InkWell(
-                            child: Text(
-                              "좋아요 누른 글",
-                              textScaleFactor: 0.8,
-                            ),
-                            onTap: () {
-                              userController.setProfilePostIndex(1);
-                            },
-                          ),
-                        ),
-                        Spacer(
-                          flex: 45,
-                        ),
-                        Expanded(
-                          flex: 54,
-                          child: InkWell(
-                            child: Text(
-                              "저장한 글",
-                              textScaleFactor: 0.8,
-                            ),
-                            onTap: () {
-                              userController.setProfilePostIndex(2);
-                            },
-                          ),
-                        ),
-                        Spacer(
-                          flex: 40,
-                        )
-                      ],
-                    ),
-                  ),
-                  Spacer(
-                    flex: 4,
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      color: Colors.purple,
-                    ),
-                  ), //userController.profilePostIndex.value
-                  Expanded(
-                      flex: 412,
-                      child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Obx(() {
-                            return Column(
-                              children: [
-                                for (var i = 0;
-                                    i <
-                                        userPostLength[userController
-                                            .profilePostIndex.value];
-                                    i++)
-                                  Container(
-                                      height: 120,
-                                      child: getPosts(
-                                          userPost[userController
-                                              .profilePostIndex.value][i],
-                                          userController))
+                                Spacer(
+                                  flex: 94,
+                                )
                               ],
-                            );
-                          })))
-                ],
-              );
-            } else {
-              return CircularProgressIndicator();
-            }
-          },
+                            )),
+                        Spacer(
+                          flex: 26,
+                        ),
+                        Expanded(
+                          flex: 16,
+                          child: Row(
+                            children: [
+                              Spacer(
+                                flex: 27,
+                              ),
+                              Expanded(
+                                flex: 61,
+                                child: InkWell(
+                                  child: Text(
+                                    "내가 쓴 글",
+                                    textScaleFactor: 0.8,
+                                  ),
+                                  onTap: () {
+                                    userController.setProfilePostIndex(0);
+                                  },
+                                ),
+                              ),
+                              Spacer(
+                                flex: 63,
+                              ),
+                              Expanded(
+                                flex: 70,
+                                child: InkWell(
+                                  child: Text(
+                                    "좋아요 누른 글",
+                                    textScaleFactor: 0.8,
+                                  ),
+                                  onTap: () {
+                                    userController.setProfilePostIndex(1);
+                                  },
+                                ),
+                              ),
+                              Spacer(
+                                flex: 45,
+                              ),
+                              Expanded(
+                                flex: 54,
+                                child: InkWell(
+                                  child: Text(
+                                    "저장한 글",
+                                    textScaleFactor: 0.8,
+                                  ),
+                                  onTap: () {
+                                    userController.setProfilePostIndex(2);
+                                  },
+                                ),
+                              ),
+                              Spacer(
+                                flex: 40,
+                              )
+                            ],
+                          ),
+                        ),
+                        Spacer(
+                          flex: 4,
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            color: Colors.purple,
+                          ),
+                        ), //userController.profilePostIndex.value
+                        Expanded(
+                            flex: 412,
+                            child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: Obx(() {
+                                  return Column(
+                                    children: [
+                                      for (var i = 0;
+                                          i <
+                                              userPostLength[userController
+                                                  .profilePostIndex.value];
+                                          i++)
+                                        Container(
+                                            height: 120,
+                                            child: getPosts(
+                                                userPost[userController
+                                                    .profilePostIndex.value][i],
+                                                userController))
+                                    ],
+                                  );
+                                })))
+                      ],
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
+              )
+            ],
+          ),
         ));
   }
 }
@@ -447,12 +458,8 @@ Widget getPosts(json, userController) {
   );
 }
 
-class Profile extends StatefulWidget {
-  @override
-  _ProfileState createState() => _ProfileState();
-}
-
-class _ProfileState extends State<Profile> {
+class Profile extends StatelessWidget {
+  //아직 안 죽은 controller라면 put보단 find로
   final UserController userController = Get.find();
 
   final ImagePicker _picker = ImagePicker();
@@ -522,316 +529,342 @@ class _ProfileState extends State<Profile> {
           title: Text('polarStar'),
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
         ),
+        //새로 고침 방법 : RefreshIndicator로 감싸고, onrefresh 함수에 Future형을 리턴하는 함수 할당. 기존에 listview로 안되어있으면 STACK으로 감싼 뒤에 listview 위에 추가
         body: RefreshIndicator(
           onRefresh: userController.getUserPage,
-          child: Obx(
-            () {
-              if (userController.dataAvailableMypage) {
-                return Row(children: [
-                  Spacer(
-                    flex: 80,
-                  ),
-                  Expanded(
-                      flex: 280,
-                      child: Column(children: [
+          child: Stack(
+            children: [
+              ListView(),
+              Obx(
+                () {
+                  if (userController.dataAvailableMypage) {
+                    return Row(
+                      children: [
                         Spacer(
-                          flex: 56,
+                          flex: 80,
                         ),
                         Expanded(
-                            flex: 200,
+                            flex: 280,
                             child: Column(children: [
-                              ElevatedButton(
-                                  onPressed: () {
-                                    Get.defaultDialog(
-                                        title: "프로필 사진을 변경하시겠습니까?",
-                                        textConfirm: "네",
-                                        textCancel: "아니오",
-                                        confirm: ElevatedButton(
-                                            onPressed: () async {
-                                              print("confirm!");
-                                              Get.back();
+                              Spacer(
+                                flex: 56,
+                              ),
+                              Expanded(
+                                  flex: 200,
+                                  child: Column(children: [
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          Get.defaultDialog(
+                                              title: "프로필 사진을 변경하시겠습니까?",
+                                              textConfirm: "네",
+                                              textCancel: "아니오",
+                                              confirm: ElevatedButton(
+                                                  onPressed: () async {
+                                                    print("confirm!");
+                                                    Get.back();
 
-                                              await getGalleryImage(
-                                                  userController);
+                                                    await getGalleryImage(
+                                                        userController);
 
-                                              upload(userController.image.value,
-                                                  userController);
-                                            },
-                                            child: Text("네")),
-                                        cancel: ElevatedButton(
-                                            onPressed: () {
-                                              print("cancle!");
-                                              Get.back();
-                                            },
-                                            child: Text("아니오")));
-                                  },
-                                  child: Image.network(
-                                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
-                                    fit: BoxFit.fill,
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes
-                                              : null,
-                                        ),
-                                      );
-                                    },
-                                  )),
+                                                    upload(
+                                                        userController
+                                                            .image.value,
+                                                        userController);
+                                                  },
+                                                  child: Text("네")),
+                                              cancel: ElevatedButton(
+                                                  onPressed: () {
+                                                    print("cancle!");
+                                                    Get.back();
+                                                  },
+                                                  child: Text("아니오")));
+                                        },
+                                        child: Image.network(
+                                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                          fit: BoxFit.fill,
+                                          loadingBuilder: (BuildContext context,
+                                              Widget child,
+                                              ImageChunkEvent loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes
+                                                    : null,
+                                              ),
+                                            );
+                                          },
+                                        )),
+                                  ])),
+                              Spacer(
+                                flex: 60,
+                              ),
+                              Expanded(
+                                flex: 50,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "아이디",
+                                      textScaleFactor: 1.5,
+                                    ),
+                                    Expanded(
+                                        child: Text(
+                                      "${userController.userPage.value.uid}",
+                                      style: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.center,
+                                    ))
+                                  ],
+                                ),
+                              ),
+                              Spacer(
+                                flex: 20,
+                              ),
+                              Expanded(
+                                flex: 50,
+                                child: Row(children: [
+                                  Text(
+                                    "학교",
+                                    style: TextStyle(fontSize: 30),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      "${userController.userPage.value.school}",
+                                      style: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )
+                                ]),
+                              ),
+                              Spacer(
+                                flex: 20,
+                              ),
+                              Expanded(
+                                flex: 50,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "프로필 메시지",
+                                      textScaleFactor: 1.5,
+                                    ),
+                                    Expanded(
+                                        child: Text(
+                                      "${userController.profileProfilemsg.value}",
+                                      style: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.center,
+                                    )),
+                                    InkWell(
+                                      child: Icon(Icons.edit),
+                                      onTap: () {
+                                        Get.defaultDialog(
+                                          title: "프로필 메세지 변경",
+                                          barrierDismissible: true,
+                                          content: Column(
+                                            children: [
+                                              TextFormField(
+                                                controller:
+                                                    profilemessageController,
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                maxLines: 1,
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                  "기존 프로필 메시지 : ${userController.profileProfilemsg.value}"),
+                                              SizedBox(
+                                                height: 30,
+                                              ),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    String tempProfileMsg =
+                                                        profilemessageController
+                                                            .text;
+
+                                                    tempProfileMsg =
+                                                        tempProfileMsg.trim();
+                                                    if (tempProfileMsg
+                                                        .isNotEmpty) {
+                                                      if (tempProfileMsg ==
+                                                          userController
+                                                              .profileProfilemsg
+                                                              .value) {
+                                                        Get.snackbar(
+                                                            "프로필 메세지가 동일합니다.",
+                                                            "프로필 메세지가 동일합니다.");
+                                                      } else {
+                                                        Map modifyData = {
+                                                          'profilemsg':
+                                                              tempProfileMsg,
+                                                          'nickname':
+                                                              userController
+                                                                  .profileNickname
+                                                                  .value
+                                                        };
+                                                        Session()
+                                                            .patchX(
+                                                                "/info/modify",
+                                                                modifyData)
+                                                            .then((value) {
+                                                          switch (value
+                                                              .statusCode) {
+                                                            case 200:
+                                                              userController
+                                                                  .setProfilemsg(
+                                                                      tempProfileMsg);
+                                                              Get.back();
+                                                              Get.snackbar(
+                                                                  "프로필 메세지 변경",
+                                                                  tempProfileMsg);
+
+                                                              break;
+
+                                                            default:
+                                                              Get.snackbar(
+                                                                  "프로필 메세지 실패",
+                                                                  tempProfileMsg);
+                                                          }
+                                                        });
+                                                      }
+                                                      print(
+                                                          profilemessageController
+                                                              .text);
+                                                    }
+                                                  },
+                                                  child: Text("수정하기"))
+                                            ],
+                                          ),
+                                        );
+                                        print("수정하기");
+                                      },
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Spacer(
+                                flex: 20,
+                              ),
+                              Expanded(
+                                flex: 50,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "닉네임",
+                                      textScaleFactor: 1.5,
+                                    ),
+                                    Expanded(
+                                        child: Text(
+                                      "${userController.profileNickname.value}",
+                                      style: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.center,
+                                    )),
+                                    InkWell(
+                                      child: Icon(Icons.edit),
+                                      onTap: () {
+                                        Get.defaultDialog(
+                                          title: "닉네임 변경",
+                                          content: Column(
+                                            children: [
+                                              TextFormField(
+                                                controller: nicknameController,
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                maxLines: 1,
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                  "기존 닉네임 : ${userController.profileNickname.value}"),
+                                              SizedBox(
+                                                height: 30,
+                                              ),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    String tempNickName =
+                                                        nicknameController.text;
+
+                                                    tempNickName =
+                                                        tempNickName.trim();
+                                                    if (tempNickName
+                                                        .isNotEmpty) {
+                                                      if (tempNickName ==
+                                                          userController
+                                                              .profileProfilemsg
+                                                              .value) {
+                                                        Get.snackbar(
+                                                            "기존 닉네임과 동일합니다.",
+                                                            "기존 닉네임과 동일합니다.");
+                                                      } else {
+                                                        Map modifyData = {
+                                                          "profilemsg":
+                                                              userController
+                                                                  .profileProfilemsg
+                                                                  .value,
+                                                          'nickname':
+                                                              tempNickName
+                                                        };
+                                                        Session()
+                                                            .patchX(
+                                                                "/info/modify",
+                                                                modifyData)
+                                                            .then((value) {
+                                                          switch (value
+                                                              .statusCode) {
+                                                            case 200:
+                                                              userController
+                                                                  .setProfileNickname(
+                                                                      tempNickName);
+                                                              Get.back();
+                                                              Get.snackbar(
+                                                                  "닉네임 변경",
+                                                                  tempNickName);
+
+                                                              break;
+
+                                                            default:
+                                                              Get.snackbar(
+                                                                  "프로필 메세지 실패",
+                                                                  tempNickName);
+                                                          }
+                                                        });
+                                                      }
+                                                      print(
+                                                          profilemessageController
+                                                              .text);
+                                                    }
+                                                  },
+                                                  child: Text("수정하기"))
+                                            ],
+                                          ),
+                                        );
+                                        print("수정하기");
+                                      },
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Spacer(
+                                flex: 20,
+                              ),
                             ])),
                         Spacer(
-                          flex: 60,
+                          flex: 80,
                         ),
-                        Expanded(
-                          flex: 50,
-                          child: Row(
-                            children: [
-                              Text(
-                                "아이디",
-                                textScaleFactor: 1.5,
-                              ),
-                              Expanded(
-                                  child: TextFormField(
-                                enabled: false,
-                                initialValue: userController.userPage.value.uid,
-                                style: TextStyle(fontSize: 20),
-                                textAlign: TextAlign.center,
-                              ))
-                            ],
-                          ),
-                        ),
-                        Spacer(
-                          flex: 20,
-                        ),
-                        Expanded(
-                          flex: 50,
-                          child: Row(children: [
-                            Text(
-                              "학교",
-                              style: TextStyle(fontSize: 30),
-                            ),
-                            Expanded(
-                              child: TextFormField(
-                                enabled: false,
-                                initialValue:
-                                    userController.userPage.value.school,
-                                style: TextStyle(fontSize: 20),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          ]),
-                        ),
-                        Spacer(
-                          flex: 20,
-                        ),
-                        Expanded(
-                          flex: 50,
-                          child: Row(
-                            children: [
-                              Text(
-                                "프로필 메시지",
-                                textScaleFactor: 1.5,
-                              ),
-                              Expanded(
-                                  child: Text(
-                                "${userController.profileProfilemsg.value}",
-                                style: TextStyle(fontSize: 20),
-                                textAlign: TextAlign.center,
-                              )),
-                              InkWell(
-                                child: Icon(Icons.edit),
-                                onTap: () {
-                                  Get.defaultDialog(
-                                    title: "프로필 메세지 변경",
-                                    barrierDismissible: true,
-                                    content: Column(
-                                      children: [
-                                        TextFormField(
-                                          controller: profilemessageController,
-                                          keyboardType: TextInputType.text,
-                                          maxLines: 1,
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        Text(
-                                            "기존 프로필 메시지 : ${userController.profileProfilemsg.value}"),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              String tempProfileMsg =
-                                                  profilemessageController.text;
-
-                                              tempProfileMsg =
-                                                  tempProfileMsg.trim();
-                                              if (tempProfileMsg.isNotEmpty) {
-                                                if (tempProfileMsg ==
-                                                    userController
-                                                        .profileProfilemsg
-                                                        .value) {
-                                                  Get.snackbar(
-                                                      "프로필 메세지가 동일합니다.",
-                                                      "프로필 메세지가 동일합니다.");
-                                                } else {
-                                                  Map modifyData = {
-                                                    'profilemsg':
-                                                        tempProfileMsg,
-                                                    'nickname': userController
-                                                        .profileNickname.value
-                                                  };
-                                                  Session()
-                                                      .patchX("/info/modify",
-                                                          modifyData)
-                                                      .then((value) {
-                                                    switch (value.statusCode) {
-                                                      case 200:
-                                                        userController
-                                                            .setProfilemsg(
-                                                                tempProfileMsg);
-                                                        Get.back();
-                                                        Get.snackbar(
-                                                            "프로필 메세지 변경",
-                                                            tempProfileMsg);
-
-                                                        break;
-
-                                                      default:
-                                                        Get.snackbar(
-                                                            "프로필 메세지 실패",
-                                                            tempProfileMsg);
-                                                    }
-                                                  });
-                                                }
-                                                print(profilemessageController
-                                                    .text);
-                                              }
-                                            },
-                                            child: Text("수정하기"))
-                                      ],
-                                    ),
-                                  );
-                                  print("수정하기");
-                                },
-                              )
-                            ],
-                          ),
-                        ),
-                        Spacer(
-                          flex: 20,
-                        ),
-                        Expanded(
-                          flex: 50,
-                          child: Row(
-                            children: [
-                              Text(
-                                "닉네임",
-                                textScaleFactor: 1.5,
-                              ),
-                              Expanded(
-                                  child: Text(
-                                "${userController.profileNickname.value}",
-                                style: TextStyle(fontSize: 20),
-                                textAlign: TextAlign.center,
-                              )),
-                              InkWell(
-                                child: Icon(Icons.edit),
-                                onTap: () {
-                                  Get.defaultDialog(
-                                    title: "닉네임 변경",
-                                    content: Column(
-                                      children: [
-                                        TextFormField(
-                                          controller: nicknameController,
-                                          keyboardType: TextInputType.text,
-                                          maxLines: 1,
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        Text(
-                                            "기존 닉네임 : ${userController.profileNickname.value}"),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              String tempNickName =
-                                                  nicknameController.text;
-
-                                              tempNickName =
-                                                  tempNickName.trim();
-                                              if (tempNickName.isNotEmpty) {
-                                                if (tempNickName ==
-                                                    userController
-                                                        .profileProfilemsg
-                                                        .value) {
-                                                  Get.snackbar("기존 닉네임과 동일합니다.",
-                                                      "기존 닉네임과 동일합니다.");
-                                                } else {
-                                                  Map modifyData = {
-                                                    "profilemsg": userController
-                                                        .profileProfilemsg
-                                                        .value,
-                                                    'nickname': tempNickName
-                                                  };
-                                                  Session()
-                                                      .patchX("/info/modify",
-                                                          modifyData)
-                                                      .then((value) {
-                                                    switch (value.statusCode) {
-                                                      case 200:
-                                                        userController
-                                                            .setProfileNickname(
-                                                                tempNickName);
-                                                        Get.back();
-                                                        Get.snackbar("닉네임 변경",
-                                                            tempNickName);
-
-                                                        break;
-
-                                                      default:
-                                                        Get.snackbar(
-                                                            "프로필 메세지 실패",
-                                                            tempNickName);
-                                                    }
-                                                  });
-                                                }
-                                                print(profilemessageController
-                                                    .text);
-                                              }
-                                            },
-                                            child: Text("수정하기"))
-                                      ],
-                                    ),
-                                  );
-                                  print("수정하기");
-                                },
-                              )
-                            ],
-                          ),
-                        ),
-                        Spacer(
-                          flex: 20,
-                        ),
-                      ])),
-                  Spacer(
-                    flex: 80,
-                  ),
-                ]);
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
+                      ],
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
+              )
+            ],
           ),
         ));
   }
