@@ -13,6 +13,8 @@ class Post extends StatefulWidget {
 
 class _PostState extends State<Post> {
   dynamic arg = Get.arguments;
+  final mailWriteController = TextEditingController();
+  final mailController = Get.put(MailController());
   Future getPostData(String url) async {
     String getUrl;
     // print(url);
@@ -608,22 +610,113 @@ class _PostState extends State<Post> {
                           child: InkWell(
                               onTap: () {
                                 Get.defaultDialog(
-                                    title: "익명으로 보내겠습니까?",
-                                    content: Text("익명으로 보내겠습니까?"),
-                                    textConfirm: "네",
-                                    textCancel: "아니오",
-                                    confirm: ElevatedButton(
-                                        onPressed: () async {
-                                          Get.offAndToNamed("/mailBox",
-                                              arguments: {"unnamed": 1});
-                                        },
-                                        child: Text("네")),
-                                    cancel: ElevatedButton(
-                                        onPressed: () {
-                                          Get.offAndToNamed("/mailBox",
-                                              arguments: {"unnamed": 0});
-                                        },
-                                        child: Text("아니오")));
+                                  title: "쪽지 보내기",
+                                  barrierDismissible: true,
+                                  content: Column(
+                                    children: [
+                                      TextFormField(
+                                        controller: mailWriteController,
+                                        keyboardType: TextInputType.text,
+                                        maxLines: 1,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      SizedBox(
+                                        height: 30,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              height: 20,
+                                              width: 20,
+                                              child: Transform.scale(
+                                                scale: 1,
+                                                child: Obx(() {
+                                                  return Checkbox(
+                                                    value:
+                                                        c.mailAnonymous.value,
+                                                    onChanged: (value) {
+                                                      c.mailAnonymous.value =
+                                                          value;
+                                                    },
+                                                  );
+                                                }),
+                                              ),
+                                            ),
+                                            Text(' 익명'),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            String content =
+                                                mailWriteController.text;
+                                            if (content.trim().isEmpty) {
+                                              Get.snackbar(
+                                                  "텍스트를 작성해주세요", "텍스트를 작성해주세요");
+                                              return;
+                                            }
+
+                                            Map mailData = {
+                                              "target_mem_id": '${item["pid"]}',
+                                              "bid": '${item["bid"]}',
+                                              "cid": '0',
+                                              "ccid": '0',
+                                              "mem_unnamed":
+                                                  c.mailAnonymous.value
+                                                      ? '1'
+                                                      : '0',
+                                              "target_mem_unnamed":
+                                                  '${item["unnamed"]}',
+                                              "content": '${content.trim()}',
+                                              "title": '${item["title"]}'
+                                            };
+
+                                            print(mailData);
+                                            var response = await Session()
+                                                .postX("/message", mailData);
+                                            switch (response.statusCode) {
+                                              case 200:
+                                                Get.back();
+                                                Get.snackbar(
+                                                    "쪽지 전송 완료", "쪽지 전송 완료",
+                                                    snackPosition:
+                                                        SnackPosition.BOTTOM);
+                                                int targetMessageBoxID =
+                                                    jsonDecode(response.body)[
+                                                        "message_box_id"];
+                                                mailController.message_box_id
+                                                    .value = targetMessageBoxID;
+                                                await mailController.getMail();
+                                                Get.toNamed(
+                                                    "/mailBox/sendMail");
+
+                                                break;
+                                              case 403:
+                                                Get.snackbar("다른 사람의 쪽지함입니다.",
+                                                    "다른 사람의 쪽지함입니다.",
+                                                    snackPosition:
+                                                        SnackPosition.BOTTOM);
+                                                break;
+
+                                              default:
+                                                Get.snackbar("업데이트 되지 않았습니다.",
+                                                    "업데이트 되지 않았습니다.",
+                                                    snackPosition:
+                                                        SnackPosition.BOTTOM);
+                                            }
+
+                                            print(c.mailAnonymous.value);
+                                            /*Get.offAndToNamed("/mailBox",
+                                                arguments: {"unnamed": 1});*/
+                                          },
+                                          child: Text("발송"))
+                                    ],
+                                  ),
+                                );
                               },
                               child:
                                   body['myself'] ? Spacer() : Icon(Icons.mail)),

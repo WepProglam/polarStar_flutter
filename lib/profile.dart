@@ -561,8 +561,6 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final box = GetStorage();
-    String pastNickName = box.read("nickname");
-    String pastprofileMsg = box.read("profilemsg");
 
     return Scaffold(
         resizeToAvoidBottomInset: false,

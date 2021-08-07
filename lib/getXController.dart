@@ -53,6 +53,7 @@ class UserController extends GetxController {
   //내가 쓴 글 목록 불러옴
   Future<void> getMineWrite() async {
     print("get mine write");
+    _dataAvailableMypageWrite.value = false;
     var response = await Session().getX("/info");
     var responseBody = utf8.decode(response.bodyBytes);
     var json = jsonDecode(responseBody)["profile"];
@@ -131,6 +132,9 @@ class UserController extends GetxController {
 
   //한번에 세트로 다 불러오는 함수
   Future<void> fetchAll() async {
+    // _dataAvailableMypageWrite.value = false;
+    // _dataAvailableMypageLike.value = false;
+    // _dataAvailableMypageScrap.value = false;
     getMineWrite();
     getMineLike();
     getMineScrap();
@@ -143,26 +147,46 @@ class UserController extends GetxController {
 }
 
 class MailController extends GetxController {
-  var mailData = Rx<Map<String, dynamic>>(null);
-  var mailSendingData = Rx<List<dynamic>>(null);
+  RxList mailBox = [].obs; //쪽지함
+  RxInt message_box_id = 0.obs; //쪽지함 id
+  RxList mailSendData = [].obs; //쪽지내역
+  RxMap opponentProfile = {}.obs; //쪽지 상대방 프로필
 
-  Future<List<dynamic>> getMailBox() async {
+  var _dataAvailableMailPage = false.obs; //쪽지함 데이터가 가능한지 여부
+  var _dataAvailableMailSendPage = false.obs; //쪽지 보내는 페이지 데이터 가능한지 여부
+
+  @override
+  void onInit() async {
+    super.onInit();
+    getMailBox(); //mailcontroller가 처음 생성될 때가 쪽지함 볼때라 init에 넣어둠
+  }
+
+  Future<void> getMailBox() async {
+    //쪽지함 보기
     var response = await Session().getX("/message");
-    var mailBox = jsonDecode(response.body)["messageBox"];
-    int mailLength = mailBox.length;
-    return mailBox;
+    mailBox.value = jsonDecode(response.body)["messageBox"];
+    _dataAvailableMailPage.value = true;
   }
 
-  Future<Map<String, dynamic>> getMail(String url) async {
-    var response = await Session().getX(url);
-    print(response);
-    mailData.value = jsonDecode(response.body);
-    mailSendingData.value = mailData.value["messages"];
-
-    //var mailBox = jsonDecode(response.body)["messageBox"];
-    //int mailLength = mailBox.length;
-    return jsonDecode(response.body);
+  void setDataAvailableMailSendPageFalse() {
+    /**
+     * 쪽지 페이지가 항상 true면 1번 쪽지함 후 2번 쪽지함 봐도 1번으로 나옴
+     * => 매번 뒤로가기 누를때마다 이 함수로 불가능으로 바꿈
+     */
+    _dataAvailableMailSendPage.value = false;
   }
+
+  Future<void> getMail() async {
+    //쪽지 내역 보기
+    var response = await Session().getX("/message/${message_box_id.value}");
+    var json = jsonDecode(response.body);
+    mailSendData.value = json["messages"];
+    opponentProfile.value = json["profile"];
+    _dataAvailableMailSendPage.value = true;
+  }
+
+  bool get dataAvailableMailPage => _dataAvailableMailPage.value;
+  bool get dataAvailableMailSendPage => _dataAvailableMailSendPage.value;
 }
 
 class NotiController extends GetxController {
@@ -176,7 +200,6 @@ class NotiController extends GetxController {
     print("ON INIT");
     super.onInit();
     var firebaseMessaging = FirebaseMessaging.instance;
-
     var firstToken = await firebaseMessaging.getToken();
     tokenFCM.value = firstToken;
     firebaseCloudMessaging_Listeners();
@@ -210,8 +233,17 @@ class NotiController extends GetxController {
 class PostController extends GetxController {
   // Post
   var anonymousCheck = true.obs;
+  Rx<bool> mailAnonymous = true.obs;
   var isCcomment = false.obs;
   var ccommentUrl = '/board/cid'.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(mailAnonymous, (_) {
+      print(mailAnonymous.value);
+    });
+  }
 
   changeAnonymous(bool value) {
     anonymousCheck.value = value;
