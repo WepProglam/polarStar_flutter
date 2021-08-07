@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'session.dart';
 import 'getXController.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Post extends StatefulWidget {
   const Post({Key key}) : super(key: key);
@@ -97,10 +98,10 @@ class _PostState extends State<Post> {
                   "cid": '$cid',
                   "ccid": '$ccid',
                   "mem_unnamed": c.mailAnonymous.value ? '1' : '0',
-                  "target_mem_unnamed": '${item["unnamed"]}',
                   "content": '${content.trim()}',
                   "title": '${item["title"]}'
                 };
+                //"target_mem_unnamed": '${item["unnamed"]}',
 
                 print(mailData);
                 var response = await Session().postX("/message", mailData);
@@ -108,7 +109,7 @@ class _PostState extends State<Post> {
                   case 200:
                     Get.back();
                     Get.snackbar("쪽지 전송 완료", "쪽지 전송 완료",
-                        snackPosition: SnackPosition.BOTTOM);
+                        snackPosition: SnackPosition.TOP);
                     int targetMessageBoxID =
                         jsonDecode(response.body)["message_box_id"];
                     mailController.message_box_id.value = targetMessageBoxID;
@@ -118,12 +119,12 @@ class _PostState extends State<Post> {
                     break;
                   case 403:
                     Get.snackbar("다른 사람의 쪽지함입니다.", "다른 사람의 쪽지함입니다.",
-                        snackPosition: SnackPosition.BOTTOM);
+                        snackPosition: SnackPosition.TOP);
                     break;
 
                   default:
                     Get.snackbar("업데이트 되지 않았습니다.", "업데이트 되지 않았습니다.",
-                        snackPosition: SnackPosition.BOTTOM);
+                        snackPosition: SnackPosition.TOP);
                 }
 
                 print(c.mailAnonymous.value);

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -102,7 +103,7 @@ class _BoardState extends State<Board> {
     List<Widget> boardContentList = [];
 
     for (Map<String, dynamic> item in body['rows']) {
-      boardContentList.add(boardContent(item));
+      boardContentList.add(getPosts(item));
     }
 
     return Column(
@@ -111,6 +112,7 @@ class _BoardState extends State<Board> {
   }
 
   Widget boardContent(Map<String, dynamic> data) {
+    print(data);
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Container(
@@ -271,5 +273,174 @@ class _BoardState extends State<Board> {
             )
           ],
         ));
+  }
+
+  Widget getPosts(json) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Container(
+        height: 200,
+        child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            primary: Colors.black,
+          ),
+          onPressed: () {
+            String boardUrl = '/board/${json["type"]}/read/${json["bid"]}';
+            Map argument = {'boardUrl': boardUrl};
+            Get.toNamed('/post', arguments: argument);
+          },
+          child: Row(
+            children: [
+              Spacer(
+                flex: 6,
+              ),
+              Expanded(
+                  flex: 40,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Spacer(
+                        flex: 7,
+                      ),
+                      Expanded(
+                          flex: 20,
+                          child: CircleAvatar(
+                            radius: 100,
+                            backgroundColor: Colors.white,
+                            child: Image.network(
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}',
+                              fit: BoxFit.fill,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes
+                                        : null,
+                                  ),
+                                );
+                              },
+                            ),
+                          )),
+                      Spacer(
+                        flex: 5,
+                      ),
+                      Expanded(
+                        flex: 9,
+                        child: Text(
+                          "${json["nickname"]}",
+                          textScaleFactor: 0.8,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 9,
+                        child: Text(
+                          "${json["type"]} 게시판",
+                          textScaleFactor: 0.5,
+                        ),
+                      ),
+                      Spacer(
+                        flex: 8,
+                      )
+                    ],
+                  )),
+              Spacer(
+                flex: 10,
+              ),
+              Expanded(
+                  flex: 200,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Spacer(
+                        flex: 11,
+                      ),
+                      Expanded(
+                          flex: 18,
+                          child: Text(
+                            json["title"],
+                            textScaleFactor: 1.5,
+                          )),
+                      Spacer(
+                        flex: 11,
+                      ),
+                      Expanded(
+                          flex: 12,
+                          child: Text(
+                            json["content"],
+                            textScaleFactor: 1.0,
+                          )),
+                      Spacer(
+                        flex: 7,
+                      )
+                    ],
+                  )),
+              json["photo"] == "" //빈 문자열 처리해야함
+                  ? Expanded(
+                      flex: 80,
+                      child: Column(children: [
+                        Spacer(
+                          flex: 40,
+                        ),
+                        Expanded(
+                          child: Text(
+                            "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                            textScaleFactor: 0.5,
+                          ),
+                          flex: 9,
+                        )
+                      ]))
+                  : Expanded(
+                      flex: 80,
+                      child: Column(children: [
+                        Expanded(
+                          flex: 40,
+                          child: CachedNetworkImage(
+                              imageUrl:
+                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}',
+                              fadeInDuration: Duration(milliseconds: 0),
+                              progressIndicatorBuilder: (context, url,
+                                      downloadProgress) =>
+                                  Image(image: AssetImage('image/spinner.gif')),
+                              errorWidget: (context, url, error) {
+                                print(error);
+                                return Icon(Icons.error);
+                              }),
+                        ),
+                        /*loadingBuilder: (BuildContext context, Widget child,
+                                  ImageChunkEvent loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes
+                                        : null,
+                                  ),
+                                );
+                              }*/
+
+                        Expanded(
+                          child: Text(
+                            "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                            textScaleFactor: 0.5,
+                          ),
+                          flex: 9,
+                        )
+                      ])),
+              Spacer(
+                flex: 4,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

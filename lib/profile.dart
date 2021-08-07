@@ -47,31 +47,22 @@ class Mypage extends StatelessWidget {
                                   Get.toNamed('/myPage/profile');
                                 }, child: Obx(() {
                                   return CircleAvatar(
-                                    radius: 100,
-                                    backgroundColor: Colors.white,
-                                    child: Image.network(
-                                      'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
-                                      fit: BoxFit.fill,
-                                      loadingBuilder: (BuildContext context,
-                                          Widget child,
-                                          ImageChunkEvent loadingProgress) {
-                                        if (loadingProgress == null)
-                                          return child;
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress
-                                                        .expectedTotalBytes !=
-                                                    null
-                                                ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    loadingProgress
-                                                        .expectedTotalBytes
-                                                : null,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
+                                      radius: 100,
+                                      backgroundColor: Colors.white,
+                                      child: CachedNetworkImage(
+                                          imageUrl:
+                                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                          fadeInDuration:
+                                              Duration(milliseconds: 0),
+                                          progressIndicatorBuilder: (context,
+                                                  url, downloadProgress) =>
+                                              Image(
+                                                  image: AssetImage(
+                                                      'image/spinner.gif')),
+                                          errorWidget: (context, url, error) {
+                                            print(error);
+                                            return Icon(Icons.error);
+                                          }));
                                 }) //수정해야함
                                     ),
                               ),
@@ -360,43 +351,31 @@ Widget getPosts(json, userController) {
                   ),
                   Expanded(
                       flex: 20,
-                      child: Obx(() {
-                        return CircleAvatar(
-                          radius: 100,
-                          backgroundColor: Colors.white,
-                          child: Image.network(
-                            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${userController.profileImagePath.value.substring(7)}',
-                            fit: BoxFit.fill,
-                            loadingBuilder: (BuildContext context, Widget child,
-                                ImageChunkEvent loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes
-                                      : null,
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      })),
+                      child: CachedNetworkImage(
+                          imageUrl:
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}',
+                          fadeInDuration: Duration(milliseconds: 0),
+                          progressIndicatorBuilder:
+                              (context, url, downloadProgress) =>
+                                  Image(image: AssetImage('image/spinner.gif')),
+                          errorWidget: (context, url, error) {
+                            print(error);
+                            return Icon(Icons.error);
+                          })),
                   Spacer(
                     flex: 5,
                   ),
                   Expanded(
                     flex: 9,
                     child: Text(
-                      "익명",
+                      "${json["nickname"]}",
                       textScaleFactor: 0.8,
                     ),
                   ),
                   Expanded(
                     flex: 9,
                     child: Text(
-                      "학교 게시판",
+                      "${json["type"]} 게시판",
                       textScaleFactor: 0.5,
                     ),
                   ),
