@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -8,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'session.dart';
 import 'getXController.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Mypage extends StatelessWidget {
   final userController = Get.put(UserController());
@@ -21,24 +22,13 @@ class Mypage extends StatelessWidget {
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
         ),
         body: RefreshIndicator(
-          onRefresh: userController.getUserPage,
+          onRefresh: userController.fetchAll,
           child: Stack(
             children: [
               ListView(),
               Obx(
                 () {
                   if (userController.dataAvailableMypage) {
-                    List<dynamic> userPost = [
-                      userController.userPage.value.bids,
-                      userController.userPage.value.likes,
-                      userController.userPage.value.scrap,
-                    ];
-
-                    List<int> userPostLength = [
-                      userController.userPage.value.bids.length,
-                      userController.userPage.value.likes.length,
-                      userController.userPage.value.scrap.length,
-                    ];
                     return Column(
                       children: [
                         Spacer(
@@ -56,26 +46,31 @@ class Mypage extends StatelessWidget {
                                 child: InkWell(onTap: () {
                                   Get.toNamed('/myPage/profile');
                                 }, child: Obx(() {
-                                  return Image.network(
-                                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
-                                    fit: BoxFit.fill,
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes
-                                              : null,
-                                        ),
-                                      );
-                                    },
+                                  return CircleAvatar(
+                                    radius: 100,
+                                    backgroundColor: Colors.white,
+                                    child: Image.network(
+                                      'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                      fit: BoxFit.fill,
+                                      loadingBuilder: (BuildContext context,
+                                          Widget child,
+                                          ImageChunkEvent loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   );
                                 }) //수정해야함
                                     ),
@@ -224,6 +219,9 @@ class Mypage extends StatelessWidget {
                                     textScaleFactor: 0.8,
                                   ),
                                   onTap: () {
+                                    userController.dataAvailableMypageWrite
+                                        ? print("already downloaded")
+                                        : userController.getMineWrite();
                                     userController.setProfilePostIndex(0);
                                   },
                                 ),
@@ -239,6 +237,9 @@ class Mypage extends StatelessWidget {
                                     textScaleFactor: 0.8,
                                   ),
                                   onTap: () {
+                                    userController.dataAvailableMypageLike
+                                        ? print("already downloaded")
+                                        : userController.getMineLike();
                                     userController.setProfilePostIndex(1);
                                   },
                                 ),
@@ -254,6 +255,9 @@ class Mypage extends StatelessWidget {
                                     textScaleFactor: 0.8,
                                   ),
                                   onTap: () {
+                                    userController.dataAvailableMypageScrap
+                                        ? print("already downloaded")
+                                        : userController.getMineScrap();
                                     userController.setProfilePostIndex(2);
                                   },
                                 ),
@@ -278,21 +282,45 @@ class Mypage extends StatelessWidget {
                             child: SingleChildScrollView(
                                 scrollDirection: Axis.vertical,
                                 child: Obx(() {
-                                  return Column(
-                                    children: [
-                                      for (var i = 0;
-                                          i <
-                                              userPostLength[userController
-                                                  .profilePostIndex.value];
-                                          i++)
-                                        Container(
-                                            height: 120,
-                                            child: getPosts(
-                                                userPost[userController
-                                                    .profilePostIndex.value][i],
-                                                userController))
-                                    ],
-                                  );
+                                  List<bool> dataAvailable = [
+                                    userController.dataAvailableMypageWrite,
+                                    userController.dataAvailableMypageLike,
+                                    userController.dataAvailableMypageScrap
+                                  ];
+
+                                  List<dynamic> userPost = [
+                                    userController.userWriteBid,
+                                    userController.userLikeBid,
+                                    userController.userScrapBid,
+                                  ];
+
+                                  List<int> userPostLength = [
+                                    userController.userWriteBid.length,
+                                    userController.userLikeBid.length,
+                                    userController.userScrapBid.length,
+                                  ];
+
+                                  if (dataAvailable[
+                                      userController.profilePostIndex.value]) {
+                                    return Column(
+                                      children: [
+                                        for (var i = 0;
+                                            i <
+                                                userPostLength[userController
+                                                    .profilePostIndex.value];
+                                            i++)
+                                          Container(
+                                              height: 120,
+                                              child: getPosts(
+                                                  userPost[userController
+                                                      .profilePostIndex
+                                                      .value][i],
+                                                  userController))
+                                      ],
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
                                 })))
                       ],
                     );
@@ -333,22 +361,26 @@ Widget getPosts(json, userController) {
                   Expanded(
                       flex: 20,
                       child: Obx(() {
-                        return Image.network(
-                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${userController.profileImagePath.value.substring(7)}',
-                          fit: BoxFit.fill,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes
-                                    : null,
-                              ),
-                            );
-                          },
+                        return CircleAvatar(
+                          radius: 100,
+                          backgroundColor: Colors.white,
+                          child: Image.network(
+                            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${userController.profileImagePath.value.substring(7)}',
+                            fit: BoxFit.fill,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes
+                                      : null,
+                                ),
+                              );
+                            },
+                          ),
                         );
                       })),
                   Spacer(
@@ -423,11 +455,20 @@ Widget getPosts(json, userController) {
                   flex: 80,
                   child: Column(children: [
                     Expanded(
-                        flex: 40,
-                        child: Image.network(
-                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}',
-                          fit: BoxFit.fill,
-                          loadingBuilder: (BuildContext context, Widget child,
+                      flex: 40,
+                      child: CachedNetworkImage(
+                          imageUrl:
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}',
+                          fadeInDuration: Duration(milliseconds: 0),
+                          progressIndicatorBuilder:
+                              (context, url, downloadProgress) =>
+                                  Image(image: AssetImage('image/spinner.gif')),
+                          errorWidget: (context, url, error) {
+                            print(error);
+                            return Icon(Icons.error);
+                          }),
+                    ),
+                    /*loadingBuilder: (BuildContext context, Widget child,
                               ImageChunkEvent loadingProgress) {
                             if (loadingProgress == null) return child;
                             return Center(
@@ -439,8 +480,8 @@ Widget getPosts(json, userController) {
                                     : null,
                               ),
                             );
-                          },
-                        )),
+                          }*/
+
                     Expanded(
                       child: Text(
                         "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
@@ -531,7 +572,7 @@ class Profile extends StatelessWidget {
         ),
         //새로 고침 방법 : RefreshIndicator로 감싸고, onrefresh 함수에 Future형을 리턴하는 함수 할당. 기존에 listview로 안되어있으면 STACK으로 감싼 뒤에 listview 위에 추가
         body: RefreshIndicator(
-          onRefresh: userController.getUserPage,
+          onRefresh: userController.getMineWrite,
           child: Stack(
             children: [
               ListView(),
@@ -553,54 +594,47 @@ class Profile extends StatelessWidget {
                                   flex: 200,
                                   child: Column(children: [
                                     ElevatedButton(
-                                        onPressed: () {
-                                          Get.defaultDialog(
-                                              title: "프로필 사진을 변경하시겠습니까?",
-                                              textConfirm: "네",
-                                              textCancel: "아니오",
-                                              confirm: ElevatedButton(
-                                                  onPressed: () async {
-                                                    print("confirm!");
-                                                    Get.back();
+                                      onPressed: () {
+                                        Get.defaultDialog(
+                                            title: "프로필 사진을 변경하시겠습니까?",
+                                            textConfirm: "네",
+                                            textCancel: "아니오",
+                                            confirm: ElevatedButton(
+                                                onPressed: () async {
+                                                  print("confirm!");
+                                                  Get.back();
 
-                                                    await getGalleryImage(
-                                                        userController);
+                                                  await getGalleryImage(
+                                                      userController);
 
-                                                    upload(
-                                                        userController
-                                                            .image.value,
-                                                        userController);
-                                                  },
-                                                  child: Text("네")),
-                                              cancel: ElevatedButton(
-                                                  onPressed: () {
-                                                    print("cancle!");
-                                                    Get.back();
-                                                  },
-                                                  child: Text("아니오")));
-                                        },
-                                        child: Image.network(
-                                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
-                                          fit: BoxFit.fill,
-                                          loadingBuilder: (BuildContext context,
-                                              Widget child,
-                                              ImageChunkEvent loadingProgress) {
-                                            if (loadingProgress == null)
-                                              return child;
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes
-                                                    : null,
-                                              ),
-                                            );
-                                          },
-                                        )),
+                                                  upload(
+                                                      userController
+                                                          .image.value,
+                                                      userController);
+                                                },
+                                                child: Text("네")),
+                                            cancel: ElevatedButton(
+                                                onPressed: () {
+                                                  print("cancle!");
+                                                  Get.back();
+                                                },
+                                                child: Text("아니오")));
+                                      },
+                                      child: CachedNetworkImage(
+                                          imageUrl:
+                                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                          fadeInDuration:
+                                              Duration(milliseconds: 0),
+                                          progressIndicatorBuilder: (context,
+                                                  url, downloadProgress) =>
+                                              Image(
+                                                  image: AssetImage(
+                                                      'image/spinner.gif')),
+                                          errorWidget: (context, url, error) {
+                                            print(error);
+                                            return Icon(Icons.error);
+                                          }),
+                                    ),
                                   ])),
                               Spacer(
                                 flex: 60,
@@ -615,7 +649,7 @@ class Profile extends StatelessWidget {
                                     ),
                                     Expanded(
                                         child: Text(
-                                      "${userController.userPage.value.uid}",
+                                      "${userController.userProfile["uid"]}",
                                       style: TextStyle(fontSize: 20),
                                       textAlign: TextAlign.center,
                                     ))
@@ -634,7 +668,7 @@ class Profile extends StatelessWidget {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      "${userController.userPage.value.school}",
+                                      "${userController.userProfile["school"]}",
                                       style: TextStyle(fontSize: 20),
                                       textAlign: TextAlign.center,
                                     ),

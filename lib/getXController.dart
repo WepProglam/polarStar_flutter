@@ -28,14 +28,21 @@ class Controller extends GetxController {
 }
 
 class UserController extends GetxController {
-  Rx<User> userProfile = new User().obs;
   Rx<User> userPage = new User().obs;
   Rx<int> profilePostIndex = 0.obs;
   Rx<Post> postPreview = new Post().obs;
 
-  var _dataAvailableMypage = false.obs;
+  Map<dynamic, dynamic> userProfile = {}.obs; //유저 기본 정보
+  List<dynamic> userWriteBid = [].obs; //유저 작성 글
+  List<dynamic> userLikeBid = [].obs; //유저 좋아요 글
+  List<dynamic> userScrapBid = [].obs; //유저 스크랩 글
 
-  var image = Rx<XFile>(null);
+  var _dataAvailableMypage = false.obs;
+  var _dataAvailableMypageWrite = false.obs;
+  var _dataAvailableMypageLike = false.obs;
+  var _dataAvailableMypageScrap = false.obs;
+
+  var image = Rx<XFile>(null); //프사 바꿀때 쓰는 Obs
 
   var profileImagePath = Rx<String>('');
   var profileNickname = Rx<String>('');
@@ -43,29 +50,53 @@ class UserController extends GetxController {
 
   final box = GetStorage();
 
-  Future<void> getUserPage() async {
-    print("get user page");
+  //내가 쓴 글 목록 불러옴
+  Future<void> getMineWrite() async {
+    print("get mine write");
     var response = await Session().getX("/info");
     var responseBody = utf8.decode(response.bodyBytes);
     var json = jsonDecode(responseBody)["profile"];
+    userWriteBid = json["bids"];
+    //첫 화면에 유저 정보랑 쓴 글 같이 띄워야 되서 같이 유저 정보랑 같이 불러옴
+    userProfile = {
+      "pid": json["pid"],
+      "uid": json["uid"],
+      "deleted": json["deleted"],
+      "nickname": json["nickname"],
+      "school": json["school"],
+      "photo": json["photo"],
+      "profilemsg": json["profilemsg"],
+      "friends": json["friends"],
+      "buffer": json["buffer"],
+      "arrest": json["arrest"],
+      "userType": json["userType"]
+    };
 
-    profileImagePath.value = json["photo"];
-    profileNickname.value = json["nickname"];
-    profileProfilemsg.value = json["profilemsg"];
-
-    userPage.value = User(
-        pid: json["pid"],
-        uid: json["uid"],
-        deleted: json["deleted"],
-        school: json["school"],
-        friends: json["friends"],
-        buffer: json["buffer"],
-        arrest: json["arrest"],
-        bids: json["bids"],
-        likes: json["likes"],
-        scrap: json["scrap"]);
-
+    profileImagePath.value = json["photo"]; //프사 경로
+    profileNickname.value = json["nickname"]; //닉네임 경로
+    profileProfilemsg.value = json["profilemsg"]; //프메 경로
     _dataAvailableMypage.value = true;
+    _dataAvailableMypageWrite.value = true;
+  }
+
+  //유저 좋아요 글
+  Future<void> getMineLike() async {
+    print("get mine like");
+    var response = await Session().getX("/info/like");
+    var responseBody = utf8.decode(response.bodyBytes);
+    var json = jsonDecode(responseBody);
+    userLikeBid = json["likes"];
+    _dataAvailableMypageLike.value = true;
+  }
+
+  //유저 스크랩 글
+  Future<void> getMineScrap() async {
+    print("get mine scrap");
+    var response = await Session().getX("/info/scrap");
+    var responseBody = utf8.decode(response.bodyBytes);
+    var json = jsonDecode(responseBody);
+    userScrapBid = json["scrap"];
+    _dataAvailableMypageScrap.value = true;
   }
 
   void setProfileNickname(nickname) {
@@ -76,7 +107,7 @@ class UserController extends GetxController {
     profileProfilemsg.value = profilemsg;
   }
 
-  void setProfileImagePath(path) async {
+  void setProfileImagePath(path) {
     profileImagePath.value = path;
   }
 
@@ -88,14 +119,27 @@ class UserController extends GetxController {
     image.value = img;
   }
 
+  //따로따로 하니깐 화면이 뚝뚝 끊겨서 일단은 한번에 다 불러옴
   @override
   void onInit() async {
     super.onInit();
-    getUserPage();
+    getMineWrite();
+    getMineLike();
+    getMineScrap();
     profilePostIndex.value = 0;
   }
 
+  //한번에 세트로 다 불러오는 함수
+  Future<void> fetchAll() async {
+    getMineWrite();
+    getMineLike();
+    getMineScrap();
+  }
+
   bool get dataAvailableMypage => _dataAvailableMypage.value;
+  bool get dataAvailableMypageWrite => _dataAvailableMypageWrite.value;
+  bool get dataAvailableMypageLike => _dataAvailableMypageLike.value;
+  bool get dataAvailableMypageScrap => _dataAvailableMypageScrap.value;
 }
 
 class MailController extends GetxController {
@@ -136,13 +180,6 @@ class NotiController extends GetxController {
     var firstToken = await firebaseMessaging.getToken();
     tokenFCM.value = firstToken;
     firebaseCloudMessaging_Listeners();
-
-    //메세지 스낵바에 띄움
-    ever(notiObs, (_) {
-      Get.snackbar(notiObs.value["notification"]["title"],
-          notiObs.value["notification"]["body"],
-          snackPosition: SnackPosition.TOP);
-    });
   }
 
   // ignore: non_constant_identifier_names
