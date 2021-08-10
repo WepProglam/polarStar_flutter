@@ -6,6 +6,8 @@ import 'home.dart';
 import 'session.dart';
 import 'getXController.dart';
 
+import 'recruit_information/recruit_board.dart';
+
 class MainPage extends StatefulWidget {
   @override
   _MainPageState createState() => _MainPageState();
@@ -17,7 +19,7 @@ class _MainPageState extends State<MainPage> {
     MainPageScroll(),
     Boards(),
     Boards(),
-    Boards(),
+    RecruitBoard()
   ];
 
   @override

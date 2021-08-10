@@ -16,6 +16,8 @@ import 'package:polarstar_flutter/post.dart';
 import 'package:polarstar_flutter/writePost.dart';
 import 'package:polarstar_flutter/searchBoard.dart';
 import 'package:polarstar_flutter/mailBox.dart';
+import 'recruit_information/recruit_board.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'getXController.dart';
 
@@ -56,7 +58,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/post', page: () => Post()),
         GetPage(name: '/writePost', page: () => WritePost()),
         GetPage(name: '/mailBox', page: () => MailBox()),
-        GetPage(name: '/mailBox/sendMail', page: () => SendMail())
+        GetPage(name: '/mailBox/sendMail', page: () => SendMail()),
+        GetPage(name: '/recruit', page: () => RecruitBoard())
       ],
 
       // routes: {

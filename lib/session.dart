@@ -69,7 +69,7 @@ class Session extends GetConnect {
         switch (value.statusCode) {
           case 401: // login error
             // Get.toNamed("/login");
-            //reLogin();
+            reLogin();
             return value;
             break;
           default:
@@ -87,7 +87,7 @@ class Session extends GetConnect {
         switch (value.statusCode) {
           case 401: // login error
             // Get.toNamed("/login");
-            //reLogin();
+            reLogin();
             return value;
             break;
           default:
@@ -103,7 +103,7 @@ class Session extends GetConnect {
         switch (value.statusCode) {
           case 401:
             // Get.toNamed("/login");
-            //reLogin();
+            reLogin();
             return value;
           default:
             return value;
