@@ -59,7 +59,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/writePost', page: () => WritePost()),
         GetPage(name: '/mailBox', page: () => MailBox()),
         GetPage(name: '/mailBox/sendMail', page: () => SendMail()),
-        GetPage(name: '/recruit', page: () => RecruitBoard())
+        GetPage(name: '/recruit/:type/page/:page', page: () => RecruitBoard())
+        // GetPage(name: '/recruit/:type/read/:bid', page: () => RecruitPost())
       ],
 
       // routes: {
