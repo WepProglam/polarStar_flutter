@@ -11,7 +11,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'recruit_board.dart';
 
 class RecruitController extends GetxController {
-  RxString type = '1'.obs, page = '1'.obs, bid = '1'.obs;
+  RxString type = '1'.obs, page = '1'.obs;
 
   RxBool canBuildRecruitBoard = false.obs;
 
@@ -19,21 +19,21 @@ class RecruitController extends GetxController {
 
   // RxList<Map> pageBodyList = <Map>[].obs;
 
-  RxList<Widget> postPreviewList = <Widget>[].obs;
+  RxList<Map> postBody = <Map>[].obs;
 
   var scrollController = ScrollController().obs;
 
   Future<void> refreshPage() async {
     page('1');
     // pageBodyList = <Map>[].obs;
-    postPreviewList = <Widget>[].obs;
+    postBody.clear();
     // pageBodyList.refresh();
-    postPreviewList.refresh();
-    getRecruitBoard();
+    postBody.refresh();
+    getRecruitBoard().then((value) => postBody.refresh());
   }
 
   Future<void> getRecruitBoard() async {
-    Session().getX('/outside/$type/page/$page').then((value) {
+    var res = Session().getX('/outside/$type/page/$page').then((value) {
       switch (value.statusCode) {
         case 200:
           recruitBoardBody(json.decode(value.body));
@@ -42,28 +42,26 @@ class RecruitController extends GetxController {
           canBuildRecruitBoard(true);
 
           for (int i = 0; i < json.decode(value.body)['rows'].length; i++) {
-            postPreviewList.add(RecruitPostPreview(
-              index: i,
-              body: json.decode(value.body),
-            ));
-            postPreviewList.refresh();
-            // print(postPreviewList.length);
+            postBody.add(json.decode(value.body)['rows'][i]);
+            // print(postBody.length);
+
           }
+
+          print(postBody.length);
+
+          return value;
 
           break;
 
         default:
           recruitBoardBody(json.decode(value.body));
+          return value;
       }
     });
+
     await Future.delayed(Duration(seconds: 1));
 
     update();
-  }
-
-  Future<void> getRecruitPost() async {
-    var res = await Session().getX('/outside/$type/read/$bid');
-    print(json.decode(res.body));
   }
 
   @override
@@ -92,8 +90,11 @@ class RecruitPostController extends GetxController {
 
   RxBool isReady = false.obs;
 
+  RxList<Widget> commentList = <Widget>[].obs;
+
   Future<void> refreshPost() async {
     getPostData();
+    update();
   }
 
   Future getPostData() async {
@@ -108,7 +109,7 @@ class RecruitPostController extends GetxController {
           Map resBody = json.decode(value.body);
           postBody(resBody);
           postBody.refresh();
-          print(postBody);
+          print(postBody['comments']);
           isReady(true);
           isReady.refresh();
           break;
