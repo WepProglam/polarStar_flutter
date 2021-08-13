@@ -17,9 +17,9 @@ class _MainPageState extends State<MainPage> {
   final box = GetStorage();
   List<Widget> mainPageWidget = [
     MainPageScroll(),
+    RecruitBoard(),
     Boards(),
     Boards(),
-    RecruitBoard()
   ];
 
   @override
@@ -68,6 +68,11 @@ class _MainPageState extends State<MainPage> {
                 // backgroundColor: Colors.black
               ),
               BottomNavigationBarItem(
+                icon: Icon(Icons.work_outlined),
+                label: 'work',
+                // backgroundColor: Colors.black
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.dashboard),
                 label: 'boards',
                 // backgroundColor: Colors.black
@@ -75,11 +80,6 @@ class _MainPageState extends State<MainPage> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.map_outlined),
                 label: 'unity',
-                // backgroundColor: Colors.black
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.work_outlined),
-                label: 'work',
                 // backgroundColor: Colors.black
               ),
             ],
