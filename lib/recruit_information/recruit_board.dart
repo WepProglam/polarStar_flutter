@@ -17,60 +17,63 @@ class RecruitBoard extends GetView<RecruitController> {
     final recruitController = Get.put(RecruitController());
     final searchText = TextEditingController();
 
-    return RefreshIndicator(
-      onRefresh: recruitController.refreshPage,
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                height: 60,
-                width: Get.mediaQuery.size.width,
-              ),
-              Expanded(
-                child: Obx(() {
-                  if (recruitController.canBuildRecruitBoard.value) {
-                    // return Obx(() => ListView(
-                    //       physics: AlwaysScrollableScrollPhysics(),
-                    //       controller: recruitController.scrollController.value,
-                    //       children: recruitController.postPreviewList,
-                    //     ));
-                    return Obx(() => ListView.builder(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        controller: recruitController.scrollController.value,
-                        itemCount: recruitController.postBody.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return RecruitPostPreview(
-                              body: recruitController.postBody[index]);
-                        }));
-                  } else {
-                    // navigate로 왔는지
-                    // if (Get.parameters.isEmpty) {
-                    //   recruitController.type('1');
-                    //   recruitController.page('1');
-                    // } else {
-                    //   recruitController.type(Get.parameters['type']);
-                    //   recruitController.page(Get.parameters['page']);
-                    // }
-                    recruitController.getRecruitBoard();
-                    return ListView();
-                  }
-                }),
-              ),
-            ],
-          ),
-          // recruitController.postPreviewList.length < 8
-          //     ? ListView(
-          //         // controller: recruitController.subScrollController.value,
-          //         )
-          //     : Container(child: null),
-          SearchBar(searchText: searchText),
-        ],
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: recruitController.refreshPage,
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Container(
+                  height: 60,
+                  width: Get.mediaQuery.size.width,
+                ),
+                Expanded(
+                  child: Obx(() {
+                    if (recruitController.canBuildRecruitBoard.value) {
+                      // return Obx(() => ListView(
+                      //       physics: AlwaysScrollableScrollPhysics(),
+                      //       controller: recruitController.scrollController.value,
+                      //       children: recruitController.postPreviewList,
+                      //     ));
+                      return Obx(() => ListView.builder(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          controller: recruitController.scrollController.value,
+                          itemCount: recruitController.postBody.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return RecruitPostPreview(
+                                body: recruitController.postBody[index]);
+                          }));
+                    } else {
+                      // navigate로 왔는지
+                      if (Get.parameters.isEmpty) {
+                        recruitController.type('1');
+                        recruitController.page('1');
+                      } else {
+                        recruitController.type(Get.parameters['type']);
+                        recruitController.page(Get.parameters['page']);
+                      }
+                      // recruitController.getRecruitBoard();
+                      return CircularProgressIndicator();
+                    }
+                  }),
+                ),
+              ],
+            ),
+            // recruitController.postPreviewList.length < 8
+            //     ? ListView(
+            //         // controller: recruitController.subScrollController.value,
+            //         )
+            //     : Container(child: null),
+            SearchBar(searchText: searchText),
+          ],
+        ),
       ),
     );
   }
 }
 
+// 게시글 프리뷰 위젯
 class RecruitPostPreview extends StatelessWidget {
   const RecruitPostPreview({Key key, @required this.body}) : super(key: key);
   final Map<String, dynamic> body;
@@ -98,7 +101,7 @@ class RecruitPostPreview extends StatelessWidget {
         Get.toNamed('/recruit/${body['type']}/read/${body['bid']}');
       },
       child: Padding(
-        padding: const EdgeInsets.only(top: 2, bottom: 2),
+        padding: const EdgeInsets.only(bottom: 4),
         child: Container(
           // height: 200,
           decoration: BoxDecoration(
@@ -282,8 +285,8 @@ class SearchBar extends StatelessWidget {
                 child: Container(
                     child: InkWell(
                   onTap: () {
-                    Map arg = {'search': searchText.text, 'from': 'home'};
-                    Get.toNamed('/searchBoard', arguments: arg);
+                    // Map arg = {'search': searchText.text, 'from': 'home'};
+                    // Get.toNamed('/searchBoard', arguments: arg);
                   },
                   child: Icon(Icons.search_outlined),
                 )),

@@ -260,8 +260,8 @@ class PostController extends GetxController {
     update();
   }
 
-  makeCcommentUrl(String cid) {
-    ccommentUrl.value = '/board/cid/$cid';
+  makeCcommentUrl(String where, String cid) {
+    ccommentUrl.value = '/$where/cid/$cid';
     update();
   }
 

@@ -31,7 +31,29 @@ class _BoardsState extends State<Boards> {
           child: Container(
             child: Column(
               children: [
+                // Hot
                 Container(child: hotBoard()),
+                // Recruit
+                Padding(
+                  padding: const EdgeInsets.all(1),
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.lightBlue[100]),
+                    width: Get.mediaQuery.size.width - 18,
+                    height: 100,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        primary: Colors.black,
+                      ),
+                      onPressed: () {
+                        Get.toNamed('/recruit/1/page/1');
+                      },
+                      child: Text(
+                        'RECRUIT',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8),
                   child: Row(

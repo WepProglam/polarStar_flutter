@@ -419,7 +419,7 @@ class _PostState extends State<Post> {
                     child: InkWell(
                         onTap: () {
                           c.changeCcomment(ccommentCidUrl);
-                          c.makeCcommentUrl(comment['comment']['cid']);
+                          c.makeCcommentUrl('board', comment['comment']['cid']);
                           c.updateAutoFocusTextForm(false);
                         },
                         child: Obx(

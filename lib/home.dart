@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'session.dart';
 import 'getXController.dart';
 
+import 'recruit_information/recruit_board.dart';
+
 class MainPageScroll extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -13,6 +15,8 @@ class MainPageScroll extends StatelessWidget {
     Future getBoardInfo() async {
       var getResponse = await Session().getX('/');
       var body = getResponse.body;
+
+      print(json.decode(body));
 
       return body;
     }
@@ -71,13 +75,16 @@ class MainPageScroll extends StatelessWidget {
                   physics: PageScrollPhysics(), // 하나씩 스크롤 되게 해줌
                   itemCount: 5,
                   itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      width: deviceWidth - 16,
-                      color: Colors.amber[600],
-                      child: Center(
-                        child: Text("취업 정보$index"),
+                    return InkWell(
+                      child: Container(
+                        width: deviceWidth - 16,
+                        color: Colors.amber[600],
+                        child: Center(
+                          child: Text("취업 정보$index"),
+                        ),
                       ),
                     );
+                    // return RecruitPostPreview(body: );
                   },
                 ),
               ),

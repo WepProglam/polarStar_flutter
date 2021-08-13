@@ -8,8 +8,6 @@ import 'package:polarstar_flutter/session.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'recruit_board.dart';
-
 class RecruitController extends GetxController {
   RxString type = '1'.obs, page = '1'.obs;
 
@@ -70,7 +68,7 @@ class RecruitController extends GetxController {
 
     scrollController.value.addListener(() {
       if (scrollController.value.position.pixels ==
-              scrollController.value.position.maxScrollExtent ||
+              scrollController.value.position.maxScrollExtent / 10 * 9 ||
           !scrollController.value.position.hasPixels) {
         int curPage = int.parse(page.value);
         if (curPage < recruitBoardBody['pageAmount']) {
@@ -87,10 +85,11 @@ class RecruitController extends GetxController {
 
 class RecruitPostController extends GetxController {
   RxMap postBody = {}.obs;
+  RxMap testComment = {}.obs;
 
   RxBool isReady = false.obs;
 
-  RxList<Widget> commentList = <Widget>[].obs;
+  RxList<Map> commentList = <Map>[].obs;
 
   Future<void> refreshPost() async {
     getPostData();
@@ -109,7 +108,15 @@ class RecruitPostController extends GetxController {
           Map resBody = json.decode(value.body);
           postBody(resBody);
           postBody.refresh();
+
+          // 나중 대비 해놓은거
+          for (var item in resBody['comments'].entries) {
+            commentList.addNonNull(item.value['comment']);
+          }
+
+          // testComment(resBody['comments']['4']['comment']);
           print(postBody['comments']);
+
           isReady(true);
           isReady.refresh();
           break;
