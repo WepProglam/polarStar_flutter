@@ -12,12 +12,9 @@ class MainPageScroll extends StatelessWidget {
     var deviceWidth = MediaQuery.of(context).size.width;
     var deviceheight = MediaQuery.of(context).size.height;
 
-    Future getBoardInfo() async {
+    Future<List<dynamic>> getBoardInfo() async {
       var getResponse = await Session().getX('/');
-      var body = getResponse.body;
-
-      print(json.decode(body));
-
+      var body = jsonDecode(getResponse.body);
       return body;
     }
 
@@ -99,6 +96,8 @@ class MainPageScroll extends StatelessWidget {
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData == false) {
                       return CircularProgressIndicator();
+                    } else if (snapshot.data.isEmpty) {
+                      return Text("아직 데이터가 없음");
                     }
                     //error가 발생하게 될 경우 반환하게 되는 부분
                     else if (snapshot.hasError) {
@@ -206,6 +205,8 @@ class MainPageScroll extends StatelessWidget {
                             (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasData == false) {
                             return CircularProgressIndicator();
+                          } else if (snapshot.data.isEmpty) {
+                            return Text("아직 데이터가 없음");
                           } else if (snapshot.hasError) {
                             return boards(json.decode(snapshot.data)['board']);
                           } else {

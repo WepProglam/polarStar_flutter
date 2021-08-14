@@ -55,27 +55,24 @@ class UserController extends GetxController {
     print("get mine write");
     _dataAvailableMypageWrite.value = false;
     var response = await Session().getX("/info");
-    var responseBody = utf8.decode(response.bodyBytes);
-    var json = jsonDecode(responseBody)["profile"];
-    userWriteBid = json["bids"];
+    var responseBody = jsonDecode(response.body);
+    var dataResponse = responseBody["PROFILE"];
+
+    var userWriteBid = responseBody["WritePost"];
     //첫 화면에 유저 정보랑 쓴 글 같이 띄워야 되서 같이 유저 정보랑 같이 불러옴
     userProfile = {
-      "pid": json["pid"],
-      "uid": json["uid"],
-      "deleted": json["deleted"],
-      "nickname": json["nickname"],
-      "school": json["school"],
-      "photo": json["photo"],
-      "profilemsg": json["profilemsg"],
-      "friends": json["friends"],
-      "buffer": json["buffer"],
-      "arrest": json["arrest"],
-      "userType": json["userType"]
+      "PROFILE_ID": dataResponse["PROFILE_ID"],
+      "uid": "곧 삭제할 예정",
+      "IS_DELETED": dataResponse["IS_DELETED"],
+      "PROFILE_SCHOOL": dataResponse["PROFILE_SCHOOL"],
+      "ACCUSES": dataResponse["ACCUSES"],
+      "userType": 0
     };
 
-    profileImagePath.value = json["photo"]; //프사 경로
-    profileNickname.value = json["nickname"]; //닉네임 경로
-    profileProfilemsg.value = json["profilemsg"]; //프메 경로
+    profileImagePath.value = "uploads/" + dataResponse["PROFILE_PHOTO"]; //프사 경로
+    profileNickname.value = dataResponse["PROFILE_NICKNAME"]; //닉네임 경로
+    profileProfilemsg.value = dataResponse["PROFILE_MESSAGE"]; //프메 경로
+
     _dataAvailableMypage.value = true;
     _dataAvailableMypageWrite.value = true;
   }
@@ -84,9 +81,14 @@ class UserController extends GetxController {
   Future<void> getMineLike() async {
     print("get mine like");
     var response = await Session().getX("/info/like");
-    var responseBody = utf8.decode(response.bodyBytes);
-    var json = jsonDecode(responseBody);
-    userLikeBid = json["likes"];
+
+    if (response.statusCode == 404) {
+      userLikeBid = [];
+    } else {
+      var responseBody = jsonDecode(response.body);
+      userLikeBid = responseBody["LIKE"];
+    }
+
     _dataAvailableMypageLike.value = true;
   }
 
@@ -94,9 +96,14 @@ class UserController extends GetxController {
   Future<void> getMineScrap() async {
     print("get mine scrap");
     var response = await Session().getX("/info/scrap");
-    var responseBody = utf8.decode(response.bodyBytes);
-    var json = jsonDecode(responseBody);
-    userScrapBid = json["scrap"];
+
+    if (response.statusCode == 404) {
+      userScrapBid = [];
+    } else {
+      var responseBody = jsonDecode(response.body);
+      userScrapBid = responseBody["SCRAP"];
+    }
+
     _dataAvailableMypageScrap.value = true;
   }
 
@@ -164,7 +171,12 @@ class MailController extends GetxController {
   Future<void> getMailBox() async {
     //쪽지함 보기
     var response = await Session().getX("/message");
-    mailBox.value = jsonDecode(response.body)["messageBox"];
+    var json = jsonDecode(response.body);
+    if (json.isEmpty) {
+      mailBox.value = [];
+    } else {
+      mailBox.value = json["messageBox"];
+    }
     _dataAvailableMailPage.value = true;
   }
 

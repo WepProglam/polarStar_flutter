@@ -14,10 +14,7 @@ class Boards extends StatefulWidget {
 class _BoardsState extends State<Boards> {
   Future<dynamic> getBoardInfo() async {
     var getResponse = await Session().getX('/');
-    var body = json.decode(getResponse.body);
-
-    // print(body);
-
+    var body = jsonDecode(getResponse.body);
     return body;
   }
 
@@ -100,6 +97,7 @@ class _BoardsState extends State<Boards> {
                 FutureBuilder(
                     future: getBoardInfo(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      print(snapshot.data);
                       if (snapshot.hasData == false) {
                         return CircularProgressIndicator();
                       } else if (snapshot.hasError) {
@@ -117,12 +115,12 @@ class _BoardsState extends State<Boards> {
   }
 }
 
-Widget boards(Map<String, dynamic> data) {
+Widget boards(List<dynamic> data) {
   List<Widget> boardList = [];
 
-  data.forEach((key, value) {
-    boardList.add(board(key, value));
-    // boardList.add(getPosts(value));
+  data.forEach((element) {
+    boardList.add(
+        board(element["COMMUNITY_ID"].toString(), element["COMMUNITY_NAME"]));
   });
 
   return Column(

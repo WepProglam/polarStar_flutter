@@ -41,12 +41,12 @@ class _WritePostState extends State<WritePost> {
   }
 
   Future postPost(Map arg, Map data) async {
-    if (arg['myself'] != null && arg['myself']) {
-      String url = '/board/bid/${arg['item']['bid']}';
+    if (arg['MYSELF'] != null && arg['MYSELF']) {
+      String url = '/board/${arg['COMMUNITY_ID']}/bid/${arg['UNIQUE_ID']}';
 
       return await Session().putX(url, data);
     } else {
-      String url = '/board/${arg['type']}';
+      String url = '/board/${arg['COMMUNITY_ID']}';
       return await Session().postX(url, data);
     }
   }
