@@ -35,9 +35,18 @@ class _PostState extends State<Post> {
     }
   }
 
-  String commentPostUrl(String arg) {
+  String ccommentPostUrl(String arg) {
+    print(arg);
     List<String> argList = arg.split('/');
-    String commentWriteUrl = '/board/bid/${argList[4]}';
+    String commentWriteUrl = '/board/${argList[2]}/cid/${argList[4]}';
+
+    return commentWriteUrl;
+  }
+
+  String commentPostUrl(String arg) {
+    print(arg);
+    List<String> argList = arg.split('/');
+    String commentWriteUrl = '/board/${argList[2]}/bid/${argList[4]}';
 
     return commentWriteUrl;
   }
@@ -101,7 +110,6 @@ class _PostState extends State<Post> {
                 };
                 //"target_mem_unnamed": '${item["unnamed"]}',
 
-                print(mailData);
                 var response = await Session().postX("/message", mailData);
                 switch (response.statusCode) {
                   case 200:
@@ -139,11 +147,7 @@ class _PostState extends State<Post> {
 
   Widget commentWidget(List<dynamic> comment) {
     List<Widget> ccommentWidgetList = [];
-    print(comment[0]);
 
-    print("sdflksdahkgldsjglkgadsg");
-    print(comment[1]);
-    print("sdflksdahkgldsjglkgadsg");
     // List<Map> ccommentList = [];
 
     // String ccommentCidUrl = '/board/cid/${comment['comment']['cid']}';
@@ -157,9 +161,6 @@ class _PostState extends State<Post> {
         itemCount: comment.length,
         itemBuilder: (BuildContext context, int index) {
           var item = comment[index];
-          print(item);
-          print("sdlfksadkfldjafakhdgsasdkglakdghkaldsjglkdsjgkldsajgldsfds");
-          print("sdlfksadkfldjafakhdgsasdkglakdghkaldsjglkdsjgkldsajgldsfds");
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [Text("시발!!!")],
@@ -172,7 +173,7 @@ class _PostState extends State<Post> {
     var postItem = itemList[0];
 
     print("=================================");
-    print(postItem);
+    // print(postItem);
     print("=================================");
 
     var TITLE = postItem['TITLE'];
@@ -192,7 +193,7 @@ class _PostState extends State<Post> {
         itemCount: itemList.length,
         itemBuilder: (BuildContext context, int index) {
           var item = itemList[index];
-          print(item);
+          // print(item);
           return index == 0
               ? Column(
                   children: [
@@ -230,11 +231,11 @@ class _PostState extends State<Post> {
                               padding: const EdgeInsets.all(0.0),
                               child: InkWell(
                                 onTap: () {
-                                  if (postItem['myself']) {
+                                  if (postItem['MYSELF']) {
                                   } else {
                                     Session()
                                         .getX(
-                                            '/board/like/${postItem['COMMUNITY_ID']}/bid/${postItem['UNIQUE_ID']}')
+                                            '/board/like/${postItem['COMMUNITY_ID']}/id/${postItem['UNIQUE_ID']}')
                                         .then((value) {
                                       switch (value.statusCode) {
                                         case 200:
@@ -271,7 +272,7 @@ class _PostState extends State<Post> {
                                   } else {
                                     Session()
                                         .getX(
-                                            '/board/scrap/${postItem['COMMUNITY_ID']}/bid/${postItem['UNIQUE_ID']}')
+                                            '/board/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['UNIQUE_ID']}')
                                         .then((value) {
                                       switch (value.statusCode) {
                                         case 200:
@@ -300,12 +301,12 @@ class _PostState extends State<Post> {
                             Padding(
                               padding: const EdgeInsets.only(right: 8.0),
                               child: InkWell(
-                                onTap: () {
+                                onTap: () async {
                                   // 게시글 삭제
                                   if (postItem['MYSELF']) {
                                     Session()
                                         .deleteX(
-                                            '/board/${postItem['COMMUNITY_ID']}/bid/${postItem['UNIQUE_ID']}')
+                                            '/board/${postItem['COMMUNITY_ID']}/id/${postItem['UNIQUE_ID']}')
                                         .then((value) {
                                       print(value.statusCode);
                                       switch (value.statusCode) {
@@ -325,9 +326,58 @@ class _PostState extends State<Post> {
                                   }
                                   // 게시글 신고
                                   else {
+                                    var ARREST_TYPE = await Get.defaultDialog(
+                                        title: "신고 사유 선택",
+                                        content: Column(
+                                          children: [
+                                            InkWell(
+                                              child: Text("게시판 성격에 안맞는 글"),
+                                              onTap: () {
+                                                Get.back(result: 0);
+                                              },
+                                            ),
+                                            InkWell(
+                                              child: Text("선정적인 글"),
+                                              onTap: () {
+                                                Get.back(result: 1);
+                                              },
+                                            ),
+                                            InkWell(
+                                              child: Text("거짓 선동"),
+                                              onTap: () {
+                                                Get.back(result: 2);
+                                              },
+                                            ),
+                                            InkWell(
+                                              child: Text("비윤리적인 글"),
+                                              onTap: () {
+                                                Get.back(result: 3);
+                                              },
+                                            ),
+                                            InkWell(
+                                              child: Text("사기"),
+                                              onTap: () {
+                                                Get.back(result: 4);
+                                              },
+                                            ),
+                                            InkWell(
+                                              child: Text("광고"),
+                                              onTap: () {
+                                                Get.back(result: 5);
+                                              },
+                                            ),
+                                            InkWell(
+                                              child: Text("혐오스러운 글"),
+                                              onTap: () {
+                                                Get.back(result: 6);
+                                              },
+                                            ),
+                                          ],
+                                        ));
+
                                     Session()
                                         .getX(
-                                            '/board/arrest/${postItem['COMMUNITY_ID']}/bid/${postItem['UNIQUE_ID']}')
+                                            '/board/arrest/${postItem['COMMUNITY_ID']}/id/${postItem['UNIQUE_ID']}?ARREST_TYPE=${ARREST_TYPE}')
                                         .then((value) {
                                       print(value.statusCode);
                                       switch (value.statusCode) {
@@ -419,7 +469,7 @@ class _PostState extends State<Post> {
                                 } else {
                                   Session()
                                       .getX(
-                                          '/board/like/bid/${postItem['UNIQUE_ID']}')
+                                          '/board/like/${postItem['COMMUNITY_ID']}/id/${postItem['UNIQUE_ID']}')
                                       .then((value) {
                                     switch (value.statusCode) {
                                       case 200:
@@ -470,7 +520,7 @@ class _PostState extends State<Post> {
                               onPressed: () {
                                 Session()
                                     .getX(
-                                        '/board/scrap/${postItem['COMMUNITY_ID']}/bid/${postItem['UNIQUE_ID']}')
+                                        '/board/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['UNIQUE_ID']}')
                                     .then((value) {
                                   switch (value.statusCode) {
                                     case 200:
@@ -560,7 +610,10 @@ class _PostState extends State<Post> {
                                 onTap: () {
                                   c.changeCcomment(
                                       'board/${item["COMMUNITY_ID"]}/cid/${item["UNIQUE_ID"]}');
-                                  c.makeCcommentUrl('board', item["UNIQUE_ID"]);
+                                  c.makeCcommentUrl(
+                                      'board',
+                                      item["COMMUNITY_ID"].toString(),
+                                      item["UNIQUE_ID"].toString());
                                   c.updateAutoFocusTextForm(false);
                                 },
                                 child: Obx(
@@ -592,7 +645,7 @@ class _PostState extends State<Post> {
                                 } else {
                                   Session()
                                       .getX(
-                                          '/board/like/${item['COMMUNITY_ID']}/cid/${item['UNIQUE_ID']}')
+                                          '/board/like/${postItem['COMMUNITY_ID']}/id/${postItem['UNIQUE_ID']}')
                                       .then((value) {
                                     print(value.statusCode);
                                     switch (value.statusCode) {
@@ -652,7 +705,7 @@ class _PostState extends State<Post> {
                                 } else {
                                   Session()
                                       .getX(
-                                          '/board/arrest/${item['COMMUNITY_ID']}/cid/${item['UNIQUE_ID']}')
+                                          '/board/arrest/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}')
                                       .then((value) {
                                     switch (value.statusCode) {
                                       case 200:
@@ -796,10 +849,18 @@ class _PostState extends State<Post> {
 
                   String postUrl;
                   if (c.isCcomment.value) {
+                    print(c.ccommentUrl);
+                    print("1");
+
                     postUrl = c.ccommentUrl.value;
                   } else {
+                    print("2");
+                    print(
+                        "-==-=-==-=-===============================================================");
                     postUrl = commentPostUrl(arg['boardUrl']);
                   }
+
+                  print(postUrl);
 
                   if (c.autoFocusTextForm.value) {
                     Session()

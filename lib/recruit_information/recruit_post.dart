@@ -679,7 +679,8 @@ class CommentWidget extends StatelessWidget {
                   child: InkWell(
                       onTap: () {
                         c.changeCcomment(cidUrl);
-                        c.makeCcommentUrl(where, comment['cid']);
+                        c.makeCcommentUrl(where, comment["COMMUNITY_ID"],
+                            comment['UNIQUE_ID']);
                         c.updateAutoFocusTextForm(false);
                       },
                       child: Obx(

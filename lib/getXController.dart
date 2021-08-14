@@ -255,6 +255,10 @@ class PostController extends GetxController {
     ever(mailAnonymous, (_) {
       print(mailAnonymous.value);
     });
+
+    ever(ccommentUrl, (_) {
+      print(ccommentUrl.value + " changed!");
+    });
   }
 
   changeAnonymous(bool value) {
@@ -272,8 +276,9 @@ class PostController extends GetxController {
     update();
   }
 
-  makeCcommentUrl(String where, String cid) {
-    ccommentUrl.value = '/$where/cid/$cid';
+  makeCcommentUrl(String where, String COMMUNITY_ID, String cid) {
+    print("adfsdfaf");
+    ccommentUrl.value = '/$where/$COMMUNITY_ID/cid/$cid';
     update();
   }
 

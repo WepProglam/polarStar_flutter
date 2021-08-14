@@ -113,6 +113,7 @@ class _SearchBoardState extends State<SearchBoard> {
             primary: Colors.black,
           ),
           onPressed: () {
+            print("pressed ir!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             // print('url: ${data['url']}');
             String boardUrl =
                 '/board/${data['COMMUNITY_ID']}/read/${data['UNIQUE_ID']}';
