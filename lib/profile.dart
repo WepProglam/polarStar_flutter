@@ -78,34 +78,28 @@ class Mypage extends StatelessWidget {
                                       Spacer(flex: 12),
                                       Expanded(
                                           flex: 20,
-                                          child: Obx(() {
-                                            return Text(
-                                              '${userController.profileNickname.value} | ${userController.profileProfilemsg.value}',
-                                              textScaleFactor: 0.8,
-                                            );
-                                          })),
+                                          child: Text(
+                                            '닉네임 : ${userController.profileNickname.value}',
+                                            textScaleFactor: 0.7,
+                                          )),
                                       Spacer(
-                                        flex: 10,
+                                        flex: 2,
                                       ),
                                       Expanded(
                                           flex: 12,
-                                          child: Obx(() {
-                                            return Text(
-                                              '${userController.userPage.value.uid}',
-                                              textScaleFactor: 0.8,
-                                            );
-                                          })),
+                                          child: Text(
+                                            '프로필 메시지 : ${userController.profileProfilemsg.value}',
+                                            textScaleFactor: 0.7,
+                                          )),
                                       Spacer(
-                                        flex: 6,
+                                        flex: 2,
                                       ),
                                       Expanded(
                                           flex: 12,
-                                          child: Obx(() {
-                                            return Text(
-                                              '${userController.userPage.value.school}',
-                                              textScaleFactor: 0.8,
-                                            );
-                                          })),
+                                          child: Text(
+                                            '학교 : ${userController.userProfile["PROFILE_SCHOOL"]}',
+                                            textScaleFactor: 0.8,
+                                          )),
                                       Spacer(
                                         flex: 8,
                                       )
@@ -645,7 +639,7 @@ class Profile extends StatelessWidget {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      "${userController.userProfile["school"]}",
+                                      "${userController.userProfile["PROFILE_SCHOOL"]}",
                                       style: TextStyle(fontSize: 20),
                                       textAlign: TextAlign.center,
                                     ),
@@ -665,7 +659,7 @@ class Profile extends StatelessWidget {
                                     ),
                                     Expanded(
                                         child: Text(
-                                      "${userController.profileProfilemsg.value}",
+                                      userController.profileProfilemsg.value,
                                       style: TextStyle(fontSize: 20),
                                       textAlign: TextAlign.center,
                                     )),
@@ -711,11 +705,11 @@ class Profile extends StatelessWidget {
                                                             "프로필 메세지가 동일합니다.");
                                                       } else {
                                                         Map modifyData = {
-                                                          'profilemsg':
+                                                          'PROFILE_MESSAGE':
                                                               tempProfileMsg,
-                                                          'nickname':
+                                                          'PROFILE_NICKNAME':
                                                               userController
-                                                                  .profileNickname
+                                                                  .profileProfilemsg
                                                                   .value
                                                         };
                                                         Session()
@@ -771,7 +765,7 @@ class Profile extends StatelessWidget {
                                     ),
                                     Expanded(
                                         child: Text(
-                                      "${userController.profileNickname.value}",
+                                      userController.profileNickname.value,
                                       style: TextStyle(fontSize: 20),
                                       textAlign: TextAlign.center,
                                     )),
@@ -807,18 +801,18 @@ class Profile extends StatelessWidget {
                                                         .isNotEmpty) {
                                                       if (tempNickName ==
                                                           userController
-                                                              .profileProfilemsg
+                                                              .profileNickname
                                                               .value) {
                                                         Get.snackbar(
                                                             "기존 닉네임과 동일합니다.",
                                                             "기존 닉네임과 동일합니다.");
                                                       } else {
                                                         Map modifyData = {
-                                                          "profilemsg":
+                                                          'PROFILE_MESSAGE':
                                                               userController
                                                                   .profileProfilemsg
                                                                   .value,
-                                                          'nickname':
+                                                          'PROFILE_NICKNAME':
                                                               tempNickName
                                                         };
                                                         Session()

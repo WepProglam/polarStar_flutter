@@ -16,6 +16,7 @@ class _SearchBoardState extends State<SearchBoard> {
   List<Widget> pageButtons = [];
   var response;
   dynamic arg = Get.arguments;
+  bool DID_FETCHED = false;
 
   TextEditingController searchText = TextEditingController();
 
@@ -32,14 +33,16 @@ class _SearchBoardState extends State<SearchBoard> {
         getUrl = '/board/searchAll/page/$page?search=${arg['search']}';
       } else if (arg['from'] == 'board') {
         getUrl =
-            '/board/${arg['type']}/search/page/$page?search=${arg['search']}';
+            '/board/${arg['COMMUNITY_ID']}/search/page/$page?search=${arg['search']}';
       }
     } else {
       if (arg != '') {
         getUrl = '/board/$arg/page/$page';
       }
     }
+
     var res = await Session().getX(getUrl).then((value) {
+      // print(jsonDecode(value.body));
       if (value.statusCode == 404) {
         c.changeIsBoardEmpty(true);
         buttons = [pageButton(1)];
@@ -48,18 +51,21 @@ class _SearchBoardState extends State<SearchBoard> {
         return value;
       } else {
         c.changeIsBoardEmpty(false);
+        print(value);
         return value;
       }
     });
 
-    for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {
-      buttons.add(pageButton(i + 1));
+    // for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {
+    //   buttons.add(pageButton(i + 1));
+    // }
+    if (!DID_FETCHED) {
+      setState(() {
+        response = res;
+        // pageButtons = buttons;
+      });
+      DID_FETCHED = true;
     }
-
-    setState(() {
-      response = res;
-      pageButtons = buttons;
-    });
 
     return res;
   }
@@ -84,10 +90,11 @@ class _SearchBoardState extends State<SearchBoard> {
     );
   }
 
-  Widget boardContents(Map<String, dynamic> body) {
+  Widget boardContents(List<dynamic> body) {
+    print('boardContentsboardContentsboardContentsboardContentsboardContents');
     List<Widget> boardContentList = [];
 
-    for (Map<String, dynamic> item in body['rows']) {
+    for (var item in body) {
       boardContentList.add(boardContent(item));
     }
 
@@ -96,7 +103,7 @@ class _SearchBoardState extends State<SearchBoard> {
     );
   }
 
-  Widget boardContent(Map<String, dynamic> data) {
+  Widget boardContent(Map<dynamic, dynamic> data) {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Container(
@@ -106,8 +113,10 @@ class _SearchBoardState extends State<SearchBoard> {
             primary: Colors.black,
           ),
           onPressed: () {
+            print("pressed ir!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             // print('url: ${data['url']}');
-            String boardUrl = '/board/${data['type']}/read/${data['bid']}';
+            String boardUrl =
+                '/board/${data['COMMUNITY_ID']}/read/${data['UNIQUE_ID']}';
             Map postArg = {'boardUrl': boardUrl};
             Get.toNamed('/post', arguments: postArg);
           },
@@ -123,14 +132,14 @@ class _SearchBoardState extends State<SearchBoard> {
                     Container(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        data['title'],
+                        data['TITLE'],
                         textAlign: TextAlign.left,
                       ),
                     ),
                     Container(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        data['content'],
+                        data['CONTENT'],
                         textAlign: TextAlign.left,
                         maxLines: 1,
                       ),
@@ -169,12 +178,14 @@ class _SearchBoardState extends State<SearchBoard> {
         body: FutureBuilder(
           future: getBoardData(arg, pageIndex),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
+            print(snapshot.data);
+
             if (snapshot.hasData == false) {
               return Column(
                 children: [
-                  Container(
-                      // child: boardContents(json.decode(response.body)),
-                      ),
+                  // Container(
+                  //     // child: boardContents(json.decode(response.body)),
+                  //     ),
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -193,7 +204,7 @@ class _SearchBoardState extends State<SearchBoard> {
               return Column(
                 children: [
                   Container(
-                    child: boardContents(json.decode(response.body)),
+                    child: boardContents(jsonDecode(response.body)),
                   ),
                   Spacer(),
                   Padding(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'dart:convert';
 import 'session.dart';
 import 'getXController.dart';
@@ -7,17 +8,16 @@ import 'getXController.dart';
 import 'recruit_information/recruit_board.dart';
 
 class MainPageScroll extends StatelessWidget {
+  // final box = GetStorage();
   @override
   Widget build(BuildContext context) {
     var deviceWidth = MediaQuery.of(context).size.width;
     var deviceheight = MediaQuery.of(context).size.height;
 
-    Future getBoardInfo() async {
+    Future<Map> getBoardInfo() async {
       var getResponse = await Session().getX('/');
-      var body = getResponse.body;
-
-      print(json.decode(body));
-
+      var body = jsonDecode(getResponse.body);
+      // box.write("boardInfo", body["board"]);
       return body;
     }
 
@@ -99,6 +99,8 @@ class MainPageScroll extends StatelessWidget {
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData == false) {
                       return CircularProgressIndicator();
+                    } else if (snapshot.data.isEmpty) {
+                      return Text("아직 데이터가 없음");
                     }
                     //error가 발생하게 될 경우 반환하게 되는 부분
                     else if (snapshot.hasError) {
@@ -109,7 +111,7 @@ class MainPageScroll extends StatelessWidget {
                             child: Container(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                '빌보드',
+                                '핫보드',
                               ),
                             ),
                           ),
@@ -144,39 +146,19 @@ class MainPageScroll extends StatelessWidget {
                             child: Container(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  '빌보드',
+                                  '핫보드',
                                 )),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Container(
-                              child: billboardContent(
-                                  json.decode(snapshot.data)['hotboard'][0]),
-                              width: deviceWidth,
-                              height: 50,
-                              decoration: BoxDecoration(color: Colors.orange),
+                          for (var item in snapshot.data["HotBoard"])
+                            Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Container(
+                                child: billboardContent(item),
+                                width: deviceWidth,
+                                height: 50,
+                                decoration: BoxDecoration(color: Colors.orange),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Container(
-                              child: billboardContent(
-                                  json.decode(snapshot.data)['hotboard'][1]),
-                              width: deviceWidth,
-                              height: 50,
-                              decoration: BoxDecoration(color: Colors.orange),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Container(
-                              child: billboardContent(
-                                  json.decode(snapshot.data)['hotboard'][2]),
-                              width: deviceWidth,
-                              height: 50,
-                              decoration: BoxDecoration(color: Colors.orange),
-                            ),
-                          ),
                         ],
                       );
                     }
@@ -206,12 +188,13 @@ class MainPageScroll extends StatelessWidget {
                             (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasData == false) {
                             return CircularProgressIndicator();
+                          } else if (snapshot.data.isEmpty) {
+                            return Text("아직 데이터가 없음");
                           } else if (snapshot.hasError) {
-                            return boards(json.decode(snapshot.data)['board']);
+                            return boards(snapshot.data['board']);
                           } else {
                             return Container(
-                                child: boards(
-                                    json.decode(snapshot.data)['board']));
+                                child: boards(snapshot.data['board']));
                           }
                         }),
                   ],
@@ -276,20 +259,24 @@ class MainPageScroll extends StatelessWidget {
 }
 
 // 핫게 위젯
-Widget billboardContent(Map<String, dynamic> data) {
+Widget billboardContent(var data) {
   return OutlinedButton(
     style: OutlinedButton.styleFrom(
       primary: Colors.black,
     ),
     onPressed: () {
       // print('url: ${data['url']}');
-      Map argument = {'boardUrl': '/board/${data['type']}/read/${data['bid']}'};
+      Map argument = {
+        'boardUrl': '/board/${data['COMMUNITY_ID']}/read/${data['BOARD_ID']}'
+      };
+      print(argument);
+      print(argument);
       Get.toNamed('/post', arguments: argument);
     },
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Expanded(flex: 2, child: Text(data['boardName'].toString())),
+        Expanded(flex: 2, child: Text(data['COMMUNITY_NAME'].toString())),
         Spacer(),
         Container(
           width: 200,
@@ -300,14 +287,14 @@ Widget billboardContent(Map<String, dynamic> data) {
               Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  data['title'],
+                  data['TITLE'],
                   textAlign: TextAlign.left,
                 ),
               ),
               Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  data['content'],
+                  data['CONTENT'],
                   textAlign: TextAlign.left,
                   maxLines: 1,
                 ),
@@ -322,11 +309,13 @@ Widget billboardContent(Map<String, dynamic> data) {
 }
 
 // 게시판 목록 위젯
-Widget boards(Map<String, dynamic> data) {
+Widget boards(List<dynamic> data) {
+  print(data);
   List<Widget> boardList = [];
 
-  data.forEach((key, value) {
-    boardList.add(board(key, value));
+  data.forEach((value) {
+    boardList
+        .add(board(value["COMMUNITY_ID"].toString(), value["COMMUNITY_NAME"]));
   });
 
   return Column(

@@ -10,13 +10,12 @@ import 'package:polarstar_flutter/getXController.dart';
 import 'recruit_controller.dart';
 
 class RecruitBoard extends GetView<RecruitController> {
-  const RecruitBoard({Key key}) : super(key: key);
+  RecruitBoard({Key key}) : super(key: key);
+  final recruitController = Get.put(RecruitController());
+  final searchText = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final recruitController = Get.put(RecruitController());
-    final searchText = TextEditingController();
-
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: recruitController.refreshPage,
@@ -28,6 +27,38 @@ class RecruitBoard extends GetView<RecruitController> {
                   height: 60,
                   width: Get.mediaQuery.size.width,
                 ),
+                Container(
+                  height: 50,
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              recruitController.boardIndex.value = 0;
+                              // print(recruitController.boardIndex.value);
+                            },
+                            child: Text("취업")),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              recruitController.boardIndex.value = 1;
+                            },
+                            child: Text("알바")),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              recruitController.boardIndex.value = 2;
+                            },
+                            child: Text("공모전")),
+                      )
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: Obx(() {
                     if (recruitController.canBuildRecruitBoard.value) {
@@ -36,21 +67,21 @@ class RecruitBoard extends GetView<RecruitController> {
                       //       controller: recruitController.scrollController.value,
                       //       children: recruitController.postPreviewList,
                       //     ));
-                      return Obx(() => ListView.builder(
+                      return ListView.builder(
                           physics: AlwaysScrollableScrollPhysics(),
                           controller: recruitController.scrollController.value,
                           itemCount: recruitController.postBody.length,
                           itemBuilder: (BuildContext context, int index) {
                             return RecruitPostPreview(
                                 body: recruitController.postBody[index]);
-                          }));
+                          });
                     } else {
                       // navigate로 왔는지
                       if (Get.parameters.isEmpty) {
                         recruitController.type('1');
                         recruitController.page('1');
                       } else {
-                        recruitController.type(Get.parameters['type']);
+                        recruitController.type(Get.parameters['COMMUNITY_ID']);
                         recruitController.page(Get.parameters['page']);
                       }
                       // recruitController.getRecruitBoard();
@@ -76,10 +107,10 @@ class RecruitBoard extends GetView<RecruitController> {
 // 게시글 프리뷰 위젯
 class RecruitPostPreview extends StatelessWidget {
   const RecruitPostPreview({Key key, @required this.body}) : super(key: key);
-  final Map<String, dynamic> body;
+  final Map<dynamic, dynamic> body;
 
-  String boardName(int bid) {
-    switch (bid) {
+  String boardName(int COMMUNITY_ID) {
+    switch (COMMUNITY_ID) {
       case 1:
         return '취업';
         break;
@@ -98,7 +129,8 @@ class RecruitPostPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed('/recruit/${body['type']}/read/${body['bid']}');
+        Get.toNamed(
+            '/recruit/${body['COMMUNITY_ID']}/read/${body['BOARD_ID']}');
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 4),
@@ -127,7 +159,7 @@ class RecruitPostPreview extends StatelessWidget {
                             width: 30,
                             child: CachedNetworkImage(
                                 imageUrl:
-                                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${body['profile_photo']}',
+                                    'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${body['PROFILE_PHOTO']}',
                                 fit: BoxFit.fill,
                                 fadeInDuration: Duration(milliseconds: 0),
                                 progressIndicatorBuilder:
@@ -139,7 +171,7 @@ class RecruitPostPreview extends StatelessWidget {
                                 }),
                           ),
                         ),
-                        Text(body['nickname']),
+                        Text(body['PROFILE_NICKNAME']),
                       ],
                     ),
                   ),
@@ -152,13 +184,13 @@ class RecruitPostPreview extends StatelessWidget {
                         children: [
                           // 제목
                           Text(
-                            body['title'],
+                            body['TITLE'],
                             textScaleFactor: 1.5,
                             maxLines: 1,
                           ),
                           // 내용
                           Text(
-                            body['content'],
+                            body['CONTENT'],
                             maxLines: 2,
                           )
                         ],
@@ -173,11 +205,11 @@ class RecruitPostPreview extends StatelessWidget {
                       // decoration: BoxDecoration(border: Border.all()),
                       height: 50,
                       width: 50,
-                      child: body['photo'] == ''
+                      child: body['PHOTO'] == ''
                           ? Container()
                           : CachedNetworkImage(
                               imageUrl:
-                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/outside/${body['photo']}',
+                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/outside/${body['PHOTO']}',
                               fit: BoxFit.fill,
                               fadeInDuration: Duration(milliseconds: 0),
                               progressIndicatorBuilder: (context, url,
@@ -200,7 +232,7 @@ class RecruitPostPreview extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(boardName(body['bid']) + '게시판'),
+                    Text(boardName(body['BOARD_ID']) + '게시판'),
                     Spacer(),
                     Row(
                       children: [
@@ -211,7 +243,7 @@ class RecruitPostPreview extends StatelessWidget {
                             size: 15,
                           ),
                         ),
-                        Text(body['like'].toString()),
+                        Text(body['LIKES'].toString()),
                       ],
                     ),
                     Row(
@@ -223,7 +255,7 @@ class RecruitPostPreview extends StatelessWidget {
                             size: 15,
                           ),
                         ),
-                        Text(body['comments'].toString()),
+                        Text(body['COMMENTS'].toString()),
                       ],
                     ),
                     Row(
@@ -235,7 +267,7 @@ class RecruitPostPreview extends StatelessWidget {
                             size: 15,
                           ),
                         ),
-                        Text(body['scrap'].toString()),
+                        Text(body['SCRAPS'].toString()),
                       ],
                     ),
                   ],

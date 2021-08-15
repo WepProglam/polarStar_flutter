@@ -23,10 +23,11 @@ class _BoardState extends State<Board> {
   final Controller c = Get.put(Controller());
 
   int pageIndex = 1;
+  bool getData = false;
 
   Future getBoardData(dynamic arg, int page) async {
     String getUrl;
-    List<Widget> buttons = [];
+    // List<Widget> buttons = [];
 
     if (arg is Map) {
       // 검색한경우
@@ -55,8 +56,8 @@ class _BoardState extends State<Board> {
           break;
         case 404:
           c.changeIsBoardEmpty(true);
-          buttons = [pageButton(1)];
-          pageButtons = buttons;
+          // buttons = [pageButton(1)];
+          // pageButtons = buttons;
           setState(() {});
 
           break;
@@ -67,14 +68,17 @@ class _BoardState extends State<Board> {
       return value;
     });
 
-    for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {
-      buttons.add(pageButton(i + 1));
-    }
+    // for (int i = 0; i < json.decode(res.body)['pageAmount']; i++) {
+    //   buttons.add(pageButton(i + 1));
+    // }
     //여기때메 계속 정보 받아옴
-    setState(() {
-      response = res;
-      pageButtons = buttons;
-    });
+    if (!getData) {
+      setState(() {
+        response = res;
+        // pageButtons = buttons;
+      });
+      getData = true;
+    }
 
     return res;
   }
@@ -99,10 +103,11 @@ class _BoardState extends State<Board> {
     );
   }
 
-  Widget boardContents(Map<String, dynamic> body) {
+  Widget boardContents(List<dynamic> body) {
     List<Widget> boardContentList = [];
+    // print(body);
 
-    for (Map<String, dynamic> item in body['rows']) {
+    for (Map<String, dynamic> item in body) {
       boardContentList.add(getPosts(item));
     }
 
@@ -112,7 +117,7 @@ class _BoardState extends State<Board> {
   }
 
   Widget boardContent(Map<String, dynamic> data) {
-    print(data);
+    // print(data);
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Container(
@@ -124,7 +129,8 @@ class _BoardState extends State<Board> {
           onPressed: () {
             // print('url: ${data['url']}');
             Map argument = {
-              'boardUrl': '/board/${data['type']}/read/${data['bid']}'
+              'boardUrl':
+                  '/board/${data['COMMUNITY_ID']}/read/${data['UNIQUE_ID']}'
             };
             Get.toNamed('/post', arguments: argument);
           },
@@ -175,7 +181,7 @@ class _BoardState extends State<Board> {
                   ? InkWell(
                       onTap: () {
                         Get.toNamed('/writePost',
-                            arguments: {'type': arg.toString()});
+                            arguments: {'COMMUNITY_ID': arg.toString()});
                       },
                       child: Icon(
                         Icons.add,
@@ -236,8 +242,9 @@ class _BoardState extends State<Board> {
                                       Map argument = {
                                         'search': searchText.text,
                                         'from': 'board',
-                                        'type':
-                                            json.decode(response.body)['type']
+                                        'COMMUNITY_ID':
+                                            jsonDecode(response.body)[0]
+                                                ['COMMUNITY_ID']
                                       };
 
                                       Get.toNamed('/searchBoard',
@@ -285,8 +292,11 @@ class _BoardState extends State<Board> {
             primary: Colors.black,
           ),
           onPressed: () {
-            String boardUrl = '/board/${json["type"]}/read/${json["bid"]}';
+            String boardUrl =
+                '/board/${json["COMMUNITY_ID"]}/read/${json["BOARD_ID"]}';
             Map argument = {'boardUrl': boardUrl};
+            print(
+                "pressd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             Get.toNamed('/post', arguments: argument);
           },
           child: Row(
@@ -308,7 +318,7 @@ class _BoardState extends State<Board> {
                             radius: 100,
                             backgroundColor: Colors.white,
                             child: Image.network(
-                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}',
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["PROFILE_PHOTO"]}',
                               fit: BoxFit.fill,
                               loadingBuilder: (BuildContext context,
                                   Widget child,
@@ -333,14 +343,14 @@ class _BoardState extends State<Board> {
                       Expanded(
                         flex: 9,
                         child: Text(
-                          "${json["nickname"]}",
+                          "${json["PROFILE_NICKNAME"]}",
                           textScaleFactor: 0.8,
                         ),
                       ),
                       Expanded(
                         flex: 9,
                         child: Text(
-                          "${json["type"]} 게시판",
+                          "${json["COMMUNITY_ID"]} 게시판",
                           textScaleFactor: 0.5,
                         ),
                       ),
@@ -363,7 +373,7 @@ class _BoardState extends State<Board> {
                       Expanded(
                           flex: 18,
                           child: Text(
-                            json["title"],
+                            json["TITLE"],
                             textScaleFactor: 1.5,
                           )),
                       Spacer(
@@ -372,7 +382,7 @@ class _BoardState extends State<Board> {
                       Expanded(
                           flex: 12,
                           child: Text(
-                            json["content"],
+                            json["CONTENT"],
                             textScaleFactor: 1.0,
                           )),
                       Spacer(
@@ -380,7 +390,7 @@ class _BoardState extends State<Board> {
                       )
                     ],
                   )),
-              json["photo"] == "" //빈 문자열 처리해야함
+              json["PHOTO"] == "" || json["PHOTO"] == null //빈 문자열 처리해야함
                   ? Expanded(
                       flex: 80,
                       child: Column(children: [
@@ -389,7 +399,7 @@ class _BoardState extends State<Board> {
                         ),
                         Expanded(
                           child: Text(
-                            "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                            "좋아요${json["LIKES"]} 댓글${json["COMMENTS"]} 스크랩${json["SCRAPS"]}",
                             textScaleFactor: 0.5,
                           ),
                           flex: 9,
@@ -402,7 +412,7 @@ class _BoardState extends State<Board> {
                           flex: 40,
                           child: CachedNetworkImage(
                               imageUrl:
-                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}',
+                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["PHOTO"]}',
                               fadeInDuration: Duration(milliseconds: 0),
                               progressIndicatorBuilder: (context, url,
                                       downloadProgress) =>
@@ -428,7 +438,7 @@ class _BoardState extends State<Board> {
 
                         Expanded(
                           child: Text(
-                            "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                            "좋아요${json["LIKES"]} 댓글${json["COMMENTS"]} 스크랩${json["SCRAPS"]}",
                             textScaleFactor: 0.5,
                           ),
                           flex: 9,

@@ -15,6 +15,13 @@ class RecruitController extends GetxController {
 
   RxMap recruitBoardBody = {}.obs;
 
+  Rx<int> boardIndex = 0.obs;
+
+  void setBoardIndex(boardIndexVal) {
+    boardIndex.value = boardIndexVal;
+    print(boardIndex);
+  }
+
   // RxList<Map> pageBodyList = <Map>[].obs;
 
   RxList<Map> postBody = <Map>[].obs;
@@ -22,10 +29,7 @@ class RecruitController extends GetxController {
   var scrollController = ScrollController().obs;
 
   Future<void> refreshPage() async {
-    page('1');
-    // pageBodyList = <Map>[].obs;
     postBody.clear();
-    // pageBodyList.refresh();
     postBody.refresh();
     getRecruitBoard().then((value) => postBody.refresh());
   }
@@ -34,18 +38,11 @@ class RecruitController extends GetxController {
     var res = Session().getX('/outside/$type/page/$page').then((value) {
       switch (value.statusCode) {
         case 200:
-          recruitBoardBody(json.decode(value.body));
-          // pageBodyList.add(json.decode(value.body));
-          print(json.decode(value.body));
           canBuildRecruitBoard(true);
 
-          for (int i = 0; i < json.decode(value.body)['rows'].length; i++) {
-            postBody.add(json.decode(value.body)['rows'][i]);
-            // print(postBody.length);
-
+          for (int i = 0; i < jsonDecode(value.body).length; i++) {
+            postBody.add(jsonDecode(value.body)[i]);
           }
-
-          print(postBody.length);
 
           return value;
 
@@ -58,14 +55,14 @@ class RecruitController extends GetxController {
     });
 
     await Future.delayed(Duration(seconds: 1));
-
-    update();
   }
 
   @override
-  void onInit() {
-    once(type, (_) => getRecruitBoard());
+  void onInit() async {
+    super.onInit();
+    boardIndex.value = 0;
 
+    once(type, (_) => getRecruitBoard());
     scrollController.value.addListener(() {
       if (scrollController.value.position.pixels ==
               scrollController.value.position.maxScrollExtent / 10 * 9 ||
@@ -79,7 +76,7 @@ class RecruitController extends GetxController {
       }
     });
 
-    super.onInit();
+    ever(boardIndex, (_) => {print("changed!")});
   }
 }
 
@@ -88,40 +85,49 @@ class RecruitPostController extends GetxController {
   RxMap testComment = {}.obs;
 
   RxBool isReady = false.obs;
+  RxBool _dataAvailableRecruitPost = false.obs;
 
   RxList<Map> commentList = <Map>[].obs;
 
+  @override
+  void onInit() async {
+    super.onInit();
+    await getPostData();
+  }
+
   Future<void> refreshPost() async {
     getPostData();
-    update();
   }
 
   Future getPostData() async {
     print(Get.parameters);
 
-    Session()
+    await Session()
         .getX(
             '/outside/${Get.parameters['type']}/read/${Get.parameters['bid']}')
         .then((value) {
       switch (value.statusCode) {
         case 200:
-          Map resBody = json.decode(value.body);
-          postBody(resBody);
-          postBody.refresh();
+          print(value.body);
+          List resBody = jsonDecode(value.body);
+          resBody[0]["MYSELF"] = false;
+          postBody.value = resBody[0];
 
           // 나중 대비 해놓은거
-          for (var item in resBody['comments'].entries) {
-            commentList.addNonNull(item.value['comment']);
-          }
+          // for (var item in resBody['comments'].entries) {
+          //   commentList.addNonNull(item.value['comment']);
+          // }
 
           // testComment(resBody['comments']['4']['comment']);
-          print(postBody['comments']);
 
-          isReady(true);
-          isReady.refresh();
+          _dataAvailableRecruitPost.value = true;
           break;
         default:
+          _dataAvailableRecruitPost.value = false;
+          break;
       }
     });
   }
+
+  bool get dataAvailableRecruitPost => _dataAvailableRecruitPost.value;
 }

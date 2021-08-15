@@ -35,7 +35,8 @@ class _SignUpInputState extends State<SignUpInput> {
   final studentIDController = TextEditingController();
 
   Future userSignUp() async {
-    var url = 'http://10.0.2.2:3000/admin';
+    var url =
+        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/admin';
 
     String sign_id = idController.text;
     String sign_pw = pwController.text;
