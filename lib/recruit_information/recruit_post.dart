@@ -10,15 +10,14 @@ import 'recruit_controller.dart';
 import 'package:polarstar_flutter/getXController.dart';
 
 class RecruitPost extends GetView<RecruitPostController> {
-  const RecruitPost({Key key}) : super(key: key);
+  RecruitPost({Key key}) : super(key: key);
+  final recruitPostController = Get.put(RecruitPostController());
 
   @override
   Widget build(BuildContext context) {
-    final recruitPostController = Get.put(RecruitPostController());
     // final mailController = Get.put(MailController());
     // final mailWriteController = TextEditingController();
     // final c = Get.put(PostController());
-    recruitPostController.getPostData();
 
     return Scaffold(
         appBar: AppBar(title: Text('polarStar')),
@@ -31,7 +30,7 @@ class RecruitPost extends GetView<RecruitPostController> {
                   if (recruitPostController.dataAvailableRecruitPost) {
                     return PostContent();
                   } else {
-                    recruitPostController.getPostData();
+                    // recruitPostController.getPostData();
                     return CircularProgressIndicator();
                   }
                 }),

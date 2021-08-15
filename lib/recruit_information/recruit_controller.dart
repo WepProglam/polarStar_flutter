@@ -15,6 +15,13 @@ class RecruitController extends GetxController {
 
   RxMap recruitBoardBody = {}.obs;
 
+  Rx<int> boardIndex = 0.obs;
+
+  void setBoardIndex(boardIndexVal) {
+    boardIndex.value = boardIndexVal;
+    print(boardIndex);
+  }
+
   // RxList<Map> pageBodyList = <Map>[].obs;
 
   RxList<Map> postBody = <Map>[].obs;
@@ -28,9 +35,6 @@ class RecruitController extends GetxController {
   }
 
   Future<void> getRecruitBoard() async {
-    print("asdfasdfsadfsad");
-    print("asdfasdfsadfsad");
-    print("asdfasdfsadfsad");
     var res = Session().getX('/outside/$type/page/$page').then((value) {
       switch (value.statusCode) {
         case 200:
@@ -39,8 +43,6 @@ class RecruitController extends GetxController {
           for (int i = 0; i < jsonDecode(value.body).length; i++) {
             postBody.add(jsonDecode(value.body)[i]);
           }
-
-          print(postBody.length);
 
           return value;
 
@@ -53,14 +55,14 @@ class RecruitController extends GetxController {
     });
 
     await Future.delayed(Duration(seconds: 1));
-
-    update();
   }
 
   @override
-  void onInit() {
-    once(type, (_) => getRecruitBoard());
+  void onInit() async {
+    super.onInit();
+    boardIndex.value = 0;
 
+    once(type, (_) => getRecruitBoard());
     scrollController.value.addListener(() {
       if (scrollController.value.position.pixels ==
               scrollController.value.position.maxScrollExtent / 10 * 9 ||
@@ -74,7 +76,7 @@ class RecruitController extends GetxController {
       }
     });
 
-    super.onInit();
+    ever(boardIndex, (_) => {print("changed!")});
   }
 }
 
@@ -87,15 +89,20 @@ class RecruitPostController extends GetxController {
 
   RxList<Map> commentList = <Map>[].obs;
 
+  @override
+  void onInit() async {
+    super.onInit();
+    await getPostData();
+  }
+
   Future<void> refreshPost() async {
     getPostData();
-    update();
   }
 
   Future getPostData() async {
     print(Get.parameters);
 
-    Session()
+    await Session()
         .getX(
             '/outside/${Get.parameters['type']}/read/${Get.parameters['bid']}')
         .then((value) {
@@ -104,8 +111,7 @@ class RecruitPostController extends GetxController {
           print(value.body);
           List resBody = jsonDecode(value.body);
           resBody[0]["MYSELF"] = false;
-          postBody(resBody[0]);
-          postBody.refresh();
+          postBody.value = resBody[0];
 
           // 나중 대비 해놓은거
           // for (var item in resBody['comments'].entries) {
@@ -113,13 +119,12 @@ class RecruitPostController extends GetxController {
           // }
 
           // testComment(resBody['comments']['4']['comment']);
-          // print(postBody['comments']);
 
-          isReady(true);
-          isReady.refresh();
           _dataAvailableRecruitPost.value = true;
           break;
         default:
+          _dataAvailableRecruitPost.value = false;
+          break;
       }
     });
   }

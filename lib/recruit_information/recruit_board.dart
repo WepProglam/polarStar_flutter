@@ -10,13 +10,12 @@ import 'package:polarstar_flutter/getXController.dart';
 import 'recruit_controller.dart';
 
 class RecruitBoard extends GetView<RecruitController> {
-  const RecruitBoard({Key key}) : super(key: key);
+  RecruitBoard({Key key}) : super(key: key);
+  final recruitController = Get.put(RecruitController());
+  final searchText = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final recruitController = Get.put(RecruitController());
-    final searchText = TextEditingController();
-
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: recruitController.refreshPage,
@@ -28,6 +27,38 @@ class RecruitBoard extends GetView<RecruitController> {
                   height: 60,
                   width: Get.mediaQuery.size.width,
                 ),
+                Container(
+                  height: 50,
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              recruitController.boardIndex.value = 0;
+                              // print(recruitController.boardIndex.value);
+                            },
+                            child: Text("취업")),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              recruitController.boardIndex.value = 1;
+                            },
+                            child: Text("알바")),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              recruitController.boardIndex.value = 2;
+                            },
+                            child: Text("공모전")),
+                      )
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: Obx(() {
                     if (recruitController.canBuildRecruitBoard.value) {
@@ -36,14 +67,14 @@ class RecruitBoard extends GetView<RecruitController> {
                       //       controller: recruitController.scrollController.value,
                       //       children: recruitController.postPreviewList,
                       //     ));
-                      return Obx(() => ListView.builder(
+                      return ListView.builder(
                           physics: AlwaysScrollableScrollPhysics(),
                           controller: recruitController.scrollController.value,
                           itemCount: recruitController.postBody.length,
                           itemBuilder: (BuildContext context, int index) {
                             return RecruitPostPreview(
                                 body: recruitController.postBody[index]);
-                          }));
+                          });
                     } else {
                       // navigate로 왔는지
                       if (Get.parameters.isEmpty) {
