@@ -28,20 +28,18 @@ class RecruitPost extends GetView<RecruitPostController> {
               physics: AlwaysScrollableScrollPhysics(),
               child: Column(children: [
                 Obx(() {
-                  if (recruitPostController.postBody.isNotEmpty) {
-                    return PostContent(
-                      postController: recruitPostController,
-                    );
+                  if (recruitPostController.dataAvailableRecruitPost) {
+                    return PostContent();
                   } else {
                     recruitPostController.getPostData();
                     return CircularProgressIndicator();
                   }
                 }),
-                Obx(() {
-                  if (recruitPostController.postBody['comments'] != null) {
+                /*Obx(() {
+                  if (recruitPostController.postBody[0]['COMMENTS'] != null) {
                     List<Widget> commentList = [];
-                    for (var item
-                        in recruitPostController.postBody['comments'].entries) {
+                    for (var item in recruitPostController
+                        .postBody[0]['COMMENTS'].entries) {
                       commentList.addNonNull(CommentWidget(
                           comment: item.value['comment'], where: 'outside'));
                     }
@@ -49,7 +47,7 @@ class RecruitPost extends GetView<RecruitPostController> {
                   } else {
                     return Container();
                   }
-                }),
+                }),*/
               ]),
             )),
         bottomSheet: WriteComment());
@@ -155,11 +153,8 @@ class WriteComment extends StatelessWidget {
 
 // 게시글 내용
 class PostContent extends StatelessWidget {
-  const PostContent({
-    Key key,
-    this.postController,
-  }) : super(key: key);
-  final postController;
+  PostContent({Key key}) : super(key: key);
+  final RecruitPostController postController = Get.find();
 
   // 좋아요, 스크랩, 신고 함수
   void totalSend(String url) {
@@ -280,6 +275,8 @@ class PostContent extends StatelessWidget {
     final mailWriteController = TextEditingController();
     final c = Get.put(PostController());
 
+    print(postController.postBody);
+
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,16 +296,16 @@ class PostContent extends StatelessWidget {
                       width: 30,
                       child: CachedNetworkImage(
                           imageUrl:
-                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${postController.postBody['item']['profile_photo']}'),
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${postController.postBody['PROFILE_PHOTO']}'),
                     ),
                   ),
                   //닉네임, 작성 시간
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(postController.postBody['item']['nickname']),
+                      Text(postController.postBody['PROFILE_NICKNAME']),
                       Text(
-                        postController.postBody['item']['time']
+                        postController.postBody['TIME_CREATED']
                             .substring(2, 16)
                             .replaceAll(RegExp(r'-'), '/'),
                         textScaleFactor: 0.6,
@@ -321,13 +318,13 @@ class PostContent extends StatelessWidget {
                     padding: const EdgeInsets.all(0.0),
                     child: InkWell(
                       onTap: () {
-                        if (postController.postBody['myself']) {
+                        if (postController.postBody['MYSELF']) {
                         } else {
                           totalSend(
-                              '/outside/like/bid/${postController.postBody['item']['bid']}');
+                              '/outside/like/bid/${postController.postBody['UNIQUE_ID']}');
                         }
                       },
-                      child: postController.postBody['myself']
+                      child: postController.postBody['MYSELF']
                           ? Container()
                           : Icon(Icons.thumb_up),
                     ),
@@ -337,15 +334,15 @@ class PostContent extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(
                       onTap: () {
-                        if (postController.postBody['myself']) {
+                        if (postController.postBody['MYSELF']) {
                           Get.toNamed('/writePost',
                               arguments: postController.postBody);
                         } else {
                           totalSend(
-                              '/outside/scrap/bid/${postController.postBody['item']['bid']}');
+                              '/outside/scrap/bid/${postController.postBody['BOARD_ID']}');
                         }
                       },
-                      child: postController.postBody['myself']
+                      child: postController.postBody['MYSELF']
                           ? Icon(Icons.edit)
                           : Icon(Icons.bookmark),
                     ),
@@ -356,10 +353,10 @@ class PostContent extends StatelessWidget {
                     child: InkWell(
                       onTap: () {
                         // 게시글 삭제
-                        if (postController.postBody['myself']) {
+                        if (postController.postBody['MYSELF']) {
                           Session()
                               .deleteX(
-                                  '/outside/bid/${postController.postBody['item']['bid']}')
+                                  '/outside/bid/${postController.postBody['BOARD_ID']}')
                               .then((value) {
                             print(value.statusCode);
                             switch (value.statusCode) {
@@ -381,24 +378,24 @@ class PostContent extends StatelessWidget {
                         // 게시글 신고
                         else {
                           totalSend(
-                              '/outside/arrest/bid/${postController.postBody['item']['bid']}');
+                              '/outside/arrest/bid/${postController.postBody['BOARD_ID']}');
                         }
                       },
-                      child: postController.postBody['myself']
+                      child: postController.postBody['MYSELF']
                           ? Icon(Icons.delete)
                           : Icon(Icons.report),
                     ),
                   ),
                   //쪽지
-                  postController.postBody['myself']
+                  postController.postBody['MYSELF']
                       ? Container()
                       : Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: InkWell(
                               onTap: () {
                                 sendMail(
-                                    postController.postBody['item'],
-                                    postController.postBody['item']["bid"],
+                                    postController.postBody,
+                                    postController.postBody["BOARD_ID"],
                                     0,
                                     0,
                                     mailWriteController,
@@ -417,7 +414,7 @@ class PostContent extends StatelessWidget {
             child: Container(
               // decoration: BoxDecoration(border: Border.all()),
               child: Text(
-                postController.postBody['item']['title'],
+                postController.postBody['TITLE'],
                 textScaleFactor: 2,
               ),
             ),
@@ -428,17 +425,18 @@ class PostContent extends StatelessWidget {
             child: Container(
               // decoration: BoxDecoration(border: Border.all()),
               child: Text(
-                postController.postBody['item']['content'],
+                postController.postBody['CONTENT'],
                 textScaleFactor: 1.5,
               ),
             ),
           ),
           //사진
           Container(
-            child: postController.postBody['item']['photo'] != ''
+            child: postController.postBody['PHOTO'] != '' &&
+                    postController.postBody['PHOTO'] != "/uploads/board/"
                 ? CachedNetworkImage(
                     imageUrl:
-                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${postController.postBody['item']['photo']}')
+                        'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${postController.postBody['PHOTO']}')
                 : null,
           ),
           // 좋아요, 댓글, 스크랩 수
@@ -455,18 +453,17 @@ class PostContent extends StatelessWidget {
                         foregroundColor:
                             MaterialStateProperty.all<Color>(Colors.red)),
                     onPressed: () {
-                      if (postController.postBody['myself']) {
+                      if (postController.postBody['MYSELF']) {
                       } else {
                         totalSend(
-                            '/outside/like/bid/${postController.postBody['item']['bid']}');
+                            '/outside/like/bid/${postController.postBody['BOARD_ID']}');
                       }
                     },
                     icon: Icon(
                       Icons.thumb_up,
                       size: 20,
                     ),
-                    label: Text(
-                        postController.postBody['item']['like'].toString()),
+                    label: Text(postController.postBody['LIKES'].toString()),
                   ),
                   // 게시글 댓글 수 버튼
                   TextButton.icon(
@@ -478,7 +475,7 @@ class PostContent extends StatelessWidget {
                       Icons.comment,
                       size: 20,
                     ),
-                    label: Text(postController.postBody['item']['comments']),
+                    label: Text(postController.postBody['COMMENTS'].toString()),
                   ),
                   // 게시글 스크랩 수 버튼
                   TextButton.icon(
@@ -487,13 +484,13 @@ class PostContent extends StatelessWidget {
                             Colors.yellow[700])),
                     onPressed: () {
                       totalSend(
-                          '/outSide/scrap/bid/${postController.postBody['item']['bid']}');
+                          '/outSide/scrap/bid/${postController.postBody['BOARD_ID']}');
                     },
                     icon: Icon(
                       Icons.bookmark,
                       size: 20,
                     ),
-                    label: Text(postController.postBody['item']['scrap']),
+                    label: Text(postController.postBody['SCRAPS'].toString()),
                   ),
                   Spacer(),
                 ],
@@ -615,7 +612,7 @@ class CommentWidget extends StatelessWidget {
     final mailController = Get.put(MailController());
     final recruitPostController = Get.put(RecruitPostController());
 
-    String cidUrl = '/$where/cid/${comment['cid']}';
+    String cidUrl = '/$where/cid/${comment['UNIQUE_ID']}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,13 +633,13 @@ class CommentWidget extends StatelessWidget {
                     width: 20,
                     child: CachedNetworkImage(
                         imageUrl:
-                            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${comment['profile_photo']}'),
+                            'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000${comment['PROFILE_PHOTO']}'),
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(comment['nickname']),
+                    Text(comment['PROFILE_NICKNAME']),
                     // 댓글 작성 시간
                     // Text(
                     //   commentTime,
@@ -664,7 +661,7 @@ class CommentWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        comment['like'].toString(),
+                        comment['LIKES'].toString(),
                         textScaleFactor: 0.8,
                         style: TextStyle(color: Colors.red),
                       ),
@@ -706,7 +703,7 @@ class CommentWidget extends StatelessWidget {
                         recruitPostController.getPostData();
                       } else {
                         Session()
-                            .getX('/$where/like/cid/${comment['cid']}')
+                            .getX('/$where/like/cid/${comment['UNIQUE_ID']}')
                             .then((value) {
                           print(value.statusCode);
                           switch (value.statusCode) {
@@ -728,7 +725,7 @@ class CommentWidget extends StatelessWidget {
                         ? Obx(() => Icon(
                               c.autoFocusTextForm.value &&
                                       c.putUrl.value ==
-                                          '/$where/cid/${comment['cid']}'
+                                          '/$where/cid/${comment['UNIQUE_ID']}'
                                   ? Icons.comment
                                   : Icons.edit,
                               size: 15,
@@ -746,7 +743,7 @@ class CommentWidget extends StatelessWidget {
                     onTap: () {
                       if (comment['myself']) {
                         Session()
-                            .deleteX('/$where/cid/${comment['cid']}')
+                            .deleteX('/$where/cid/${comment['UNIQUE_ID']}')
                             .then((value) {
                           switch (value.statusCode) {
                             case 200:
@@ -761,7 +758,7 @@ class CommentWidget extends StatelessWidget {
                         });
                       } else {
                         Session()
-                            .getX('/$where/arrest/cid/${comment['cid']}')
+                            .getX('/$where/arrest/cid/${comment['UNIQUE_ID']}')
                             .then((value) {
                           switch (value.statusCode) {
                             case 200:
@@ -794,8 +791,14 @@ class CommentWidget extends StatelessWidget {
                         padding: const EdgeInsets.all(2.0),
                         child: InkWell(
                             onTap: () {
-                              sendMail(comment, comment["bid"], comment["cid"],
-                                  0, mailWriteController, mailController, c);
+                              sendMail(
+                                  comment,
+                                  comment["bid"],
+                                  comment["UNIQUE_ID"],
+                                  0,
+                                  mailWriteController,
+                                  mailController,
+                                  c);
                             },
                             child: Icon(Icons.mail)),
                       ),

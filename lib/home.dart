@@ -260,10 +260,6 @@ class MainPageScroll extends StatelessWidget {
 
 // 핫게 위젯
 Widget billboardContent(var data) {
-  print("===================================");
-  print("===================================");
-  print("===================================");
-  print(data);
   return OutlinedButton(
     style: OutlinedButton.styleFrom(
       primary: Colors.black,
@@ -271,8 +267,10 @@ Widget billboardContent(var data) {
     onPressed: () {
       // print('url: ${data['url']}');
       Map argument = {
-        'boardUrl': '/board/${data['COMMUNITY_ID']}/read/${data['UNIQUE_ID']}'
+        'boardUrl': '/board/${data['COMMUNITY_ID']}/read/${data['BOARD_ID']}'
       };
+      print(argument);
+      print(argument);
       Get.toNamed('/post', arguments: argument);
     },
     child: Row(
