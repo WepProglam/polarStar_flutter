@@ -58,7 +58,7 @@ class UserController extends GetxController {
     var responseBody = jsonDecode(response.body);
     var dataResponse = responseBody["PROFILE"];
 
-    var userWriteBid = responseBody["WritePost"];
+    userWriteBid = responseBody["WritePost"];
     //첫 화면에 유저 정보랑 쓴 글 같이 띄워야 되서 같이 유저 정보랑 같이 불러옴
     userProfile = {
       "PROFILE_ID": dataResponse["PROFILE_ID"],
@@ -79,15 +79,20 @@ class UserController extends GetxController {
 
   //유저 좋아요 글
   Future<void> getMineLike() async {
-    print("get mine like");
-    var response = await Session().getX("/info/like");
+    print(
+        "========================================================================================================================================================================");
 
+    var response = await Session().getX("/info/like");
     if (response.statusCode == 404) {
-      userLikeBid = [];
+      userLikeBid.clear();
     } else {
       var responseBody = jsonDecode(response.body);
       userLikeBid = responseBody["LIKE"];
+      print(userLikeBid);
     }
+
+    print(
+        "========================================================================================================================================================================");
 
     _dataAvailableMypageLike.value = true;
   }
@@ -98,7 +103,7 @@ class UserController extends GetxController {
     var response = await Session().getX("/info/scrap");
 
     if (response.statusCode == 404) {
-      userScrapBid = [];
+      userScrapBid.clear();
     } else {
       var responseBody = jsonDecode(response.body);
       userScrapBid = responseBody["SCRAP"];
@@ -131,9 +136,9 @@ class UserController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    getMineWrite();
-    getMineLike();
-    getMineScrap();
+    await getMineWrite();
+    await getMineLike();
+    await getMineScrap();
     profilePostIndex.value = 0;
   }
 
@@ -142,9 +147,9 @@ class UserController extends GetxController {
     // _dataAvailableMypageWrite.value = false;
     // _dataAvailableMypageLike.value = false;
     // _dataAvailableMypageScrap.value = false;
-    getMineWrite();
-    getMineLike();
-    getMineScrap();
+    await getMineWrite();
+    await getMineLike();
+    await getMineScrap();
   }
 
   bool get dataAvailableMypage => _dataAvailableMypage.value;

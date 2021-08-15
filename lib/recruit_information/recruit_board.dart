@@ -61,7 +61,13 @@ class RecruitBoard extends GetView<RecruitController> {
                 ),
                 Expanded(
                   child: Obx(() {
-                    if (recruitController.canBuildRecruitBoard.value) {
+                    List<bool> dataAvailable = [
+                      recruitController.dataAvailableRecruitPreview,
+                      recruitController.dataAvailableRecruitPreview,
+                      recruitController.dataAvailableRecruitPreview,
+                    ];
+
+                    if (dataAvailable[recruitController.boardIndex.value]) {
                       // return Obx(() => ListView(
                       //       physics: AlwaysScrollableScrollPhysics(),
                       //       controller: recruitController.scrollController.value,
@@ -115,10 +121,10 @@ class RecruitPostPreview extends StatelessWidget {
         return '취업';
         break;
       case 2:
-        return '공모전';
+        return '알바';
         break;
       case 3:
-        return '알바';
+        return '공모전';
         break;
       default:
         return '취업';
@@ -232,7 +238,7 @@ class RecruitPostPreview extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(boardName(body['BOARD_ID']) + '게시판'),
+                    Text(boardName(body['COMMUNITY_ID']) + '게시판'),
                     Spacer(),
                     Row(
                       children: [
@@ -317,8 +323,8 @@ class SearchBar extends StatelessWidget {
                 child: Container(
                     child: InkWell(
                   onTap: () {
-                    // Map arg = {'search': searchText.text, 'from': 'home'};
-                    // Get.toNamed('/searchBoard', arguments: arg);
+                    Map arg = {'search': searchText.text, 'from': 'recruit'};
+                    Get.toNamed('/searchBoard', arguments: arg);
                   },
                   child: Icon(Icons.search_outlined),
                 )),

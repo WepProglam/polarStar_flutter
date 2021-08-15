@@ -321,9 +321,11 @@ class Mypage extends StatelessWidget {
 }
 
 Widget getPosts(json, userController) {
+  print(json);
   return InkWell(
     onTap: () {
-      String boardUrl = '/board/${json["type"]}/read/${json["bid"]}';
+      String boardUrl =
+          '/board/${json["COMMUNITY_ID"]}/read/${json["BOARD_ID"]}';
       Map argument = {'boardUrl': boardUrl};
       Get.toNamed('/post', arguments: argument);
     },
@@ -347,7 +349,7 @@ Widget getPosts(json, userController) {
                       flex: 20,
                       child: CachedNetworkImage(
                           imageUrl:
-                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["profile_photo"]}',
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${json["PROFILE_PHOTO"]}',
                           fadeInDuration: Duration(milliseconds: 0),
                           progressIndicatorBuilder:
                               (context, url, downloadProgress) =>
@@ -362,14 +364,14 @@ Widget getPosts(json, userController) {
                   Expanded(
                     flex: 9,
                     child: Text(
-                      "${json["nickname"]}",
+                      "${json["PROFILE_NICKNAME"]}",
                       textScaleFactor: 0.8,
                     ),
                   ),
                   Expanded(
                     flex: 9,
                     child: Text(
-                      "${json["type"]} 게시판",
+                      "${json["COMMUNITY_ID"]} 게시판",
                       textScaleFactor: 0.5,
                     ),
                   ),
@@ -392,7 +394,7 @@ Widget getPosts(json, userController) {
                   Expanded(
                       flex: 18,
                       child: Text(
-                        json["title"],
+                        json["TITLE"].toString(),
                         textScaleFactor: 1.5,
                       )),
                   Spacer(
@@ -401,7 +403,7 @@ Widget getPosts(json, userController) {
                   Expanded(
                       flex: 12,
                       child: Text(
-                        json["content"],
+                        json["CONTENT"].toString(),
                         textScaleFactor: 1.0,
                       )),
                   Spacer(
@@ -409,7 +411,7 @@ Widget getPosts(json, userController) {
                   )
                 ],
               )),
-          json["photo"] == "" //빈 문자열 처리해야함
+          json["PHOTO"] == "" //빈 문자열 처리해야함
               ? Expanded(
                   flex: 80,
                   child: Column(children: [
@@ -418,7 +420,7 @@ Widget getPosts(json, userController) {
                     ),
                     Expanded(
                       child: Text(
-                        "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                        "좋아요${json["LIKES"]} 댓글${json["COMMENTS"]} 스크랩${json["SCRAPS"]}",
                         textScaleFactor: 0.5,
                       ),
                       flex: 9,
@@ -431,7 +433,7 @@ Widget getPosts(json, userController) {
                       flex: 40,
                       child: CachedNetworkImage(
                           imageUrl:
-                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["photo"]}',
+                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/board/${json["PHOTO"]}',
                           fadeInDuration: Duration(milliseconds: 0),
                           progressIndicatorBuilder:
                               (context, url, downloadProgress) =>
@@ -457,7 +459,7 @@ Widget getPosts(json, userController) {
 
                     Expanded(
                       child: Text(
-                        "좋아요${json["like"]} 댓글${json["comments"]} 스크랩${json["scrap"]}",
+                        "좋아요${json["LIKES"]} 댓글${json["COMMENTS"]} 스크랩${json["SCRAPS"]}",
                         textScaleFactor: 0.5,
                       ),
                       flex: 9,
@@ -620,7 +622,7 @@ class Profile extends StatelessWidget {
                                     ),
                                     Expanded(
                                         child: Text(
-                                      "${userController.userProfile["uid"]}",
+                                      "${userController.userProfile["LOGIN_ID"]}",
                                       style: TextStyle(fontSize: 20),
                                       textAlign: TextAlign.center,
                                     ))

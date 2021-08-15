@@ -24,6 +24,8 @@ class _SearchBoardState extends State<SearchBoard> {
 
   int pageIndex = 1;
 
+  bool getData = false;
+
   Future getBoardData(dynamic arg, int page) async {
     String getUrl;
     List<Widget> buttons = [];
@@ -34,6 +36,8 @@ class _SearchBoardState extends State<SearchBoard> {
       } else if (arg['from'] == 'board') {
         getUrl =
             '/board/${arg['COMMUNITY_ID']}/search/page/$page?search=${arg['search']}';
+      } else if (arg["from"] == "recruit") {
+        getUrl = '/outside/searchAll/page/$page?search=${arg["search"]}';
       }
     } else {
       if (arg != '') {
@@ -42,12 +46,16 @@ class _SearchBoardState extends State<SearchBoard> {
     }
 
     var res = await Session().getX(getUrl).then((value) {
+      print(value.statusCode);
       // print(jsonDecode(value.body));
       if (value.statusCode == 404) {
         c.changeIsBoardEmpty(true);
         buttons = [pageButton(1)];
         pageButtons = buttons;
-        setState(() {});
+        if (!getData) {
+          setState(() {});
+        }
+        getData = true;
         return value;
       } else {
         c.changeIsBoardEmpty(false);
@@ -91,7 +99,6 @@ class _SearchBoardState extends State<SearchBoard> {
   }
 
   Widget boardContents(List<dynamic> body) {
-    print('boardContentsboardContentsboardContentsboardContentsboardContents');
     List<Widget> boardContentList = [];
 
     for (var item in body) {
@@ -113,7 +120,6 @@ class _SearchBoardState extends State<SearchBoard> {
             primary: Colors.black,
           ),
           onPressed: () {
-            print("pressed ir!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             // print('url: ${data['url']}');
             String boardUrl =
                 '/board/${data['COMMUNITY_ID']}/read/${data['UNIQUE_ID']}';
@@ -179,6 +185,7 @@ class _SearchBoardState extends State<SearchBoard> {
           future: getBoardData(arg, pageIndex),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             print(snapshot.data);
+            print((response.body));
 
             if (snapshot.hasData == false) {
               return Column(

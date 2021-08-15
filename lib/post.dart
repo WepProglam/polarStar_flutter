@@ -880,11 +880,6 @@ class _PostState extends State<Post> {
 
     int itemLength = itemList.length;
 
-    List<dynamic> tempList = [];
-    for (int i = 0; i < itemLength; i++) {
-      tempList.add(itemList[i]);
-    }
-
     List<dynamic> sortedList = [itemList[0]];
 
     //댓글 대댓글 정렬
@@ -1014,13 +1009,8 @@ class _PostState extends State<Post> {
                   String postUrl;
                   if (c.isCcomment.value) {
                     print(c.ccommentUrl);
-                    print("1");
-
                     postUrl = c.ccommentUrl.value;
                   } else {
-                    print("2");
-                    print(
-                        "-==-=-==-=-===============================================================");
                     postUrl = commentPostUrl(arg['boardUrl']);
                   }
 
