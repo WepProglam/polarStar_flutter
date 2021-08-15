@@ -146,6 +146,58 @@ class _PostState extends State<Post> {
     mailWriteController.clear();
   }
 
+  Future<int> getArrestType() async {
+    var response = await Get.defaultDialog(
+        title: "신고 사유 선택",
+        content: Column(
+          children: [
+            InkWell(
+              child: Text("게시판 성격에 안맞는 글"),
+              onTap: () {
+                Get.back(result: 0);
+              },
+            ),
+            InkWell(
+              child: Text("선정적인 글"),
+              onTap: () {
+                Get.back(result: 1);
+              },
+            ),
+            InkWell(
+              child: Text("거짓 선동"),
+              onTap: () {
+                Get.back(result: 2);
+              },
+            ),
+            InkWell(
+              child: Text("비윤리적인 글"),
+              onTap: () {
+                Get.back(result: 3);
+              },
+            ),
+            InkWell(
+              child: Text("사기"),
+              onTap: () {
+                Get.back(result: 4);
+              },
+            ),
+            InkWell(
+              child: Text("광고"),
+              onTap: () {
+                Get.back(result: 5);
+              },
+            ),
+            InkWell(
+              child: Text("혐오스러운 글"),
+              onTap: () {
+                Get.back(result: 6);
+              },
+            ),
+          ],
+        ));
+    return response;
+  }
+
   List<Widget> returningPost(postItem) {
     return <Widget>[
       // 게시글
@@ -268,54 +320,7 @@ class _PostState extends State<Post> {
                     }
                     // 게시글 신고
                     else {
-                      var ARREST_TYPE = await Get.defaultDialog(
-                          title: "신고 사유 선택",
-                          content: Column(
-                            children: [
-                              InkWell(
-                                child: Text("게시판 성격에 안맞는 글"),
-                                onTap: () {
-                                  Get.back(result: 0);
-                                },
-                              ),
-                              InkWell(
-                                child: Text("선정적인 글"),
-                                onTap: () {
-                                  Get.back(result: 1);
-                                },
-                              ),
-                              InkWell(
-                                child: Text("거짓 선동"),
-                                onTap: () {
-                                  Get.back(result: 2);
-                                },
-                              ),
-                              InkWell(
-                                child: Text("비윤리적인 글"),
-                                onTap: () {
-                                  Get.back(result: 3);
-                                },
-                              ),
-                              InkWell(
-                                child: Text("사기"),
-                                onTap: () {
-                                  Get.back(result: 4);
-                                },
-                              ),
-                              InkWell(
-                                child: Text("광고"),
-                                onTap: () {
-                                  Get.back(result: 5);
-                                },
-                              ),
-                              InkWell(
-                                child: Text("혐오스러운 글"),
-                                onTap: () {
-                                  Get.back(result: 6);
-                                },
-                              ),
-                            ],
-                          ));
+                      var ARREST_TYPE = await getArrestType();
 
                       Session()
                           .getX(
@@ -614,7 +619,7 @@ class _PostState extends State<Post> {
               Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     if (item['MYSELF']) {
                       Session()
                           .deleteX(
@@ -632,9 +637,10 @@ class _PostState extends State<Post> {
                         }
                       });
                     } else {
+                      var ARREST_TYPE = await getArrestType();
                       Session()
                           .getX(
-                              '/board/arrest/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}')
+                              '/board/arrest/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}?ARREST_TYPE=${ARREST_TYPE}')
                           .then((value) {
                         switch (value.statusCode) {
                           case 200:
@@ -745,7 +751,7 @@ class _PostState extends State<Post> {
                 child: InkWell(
                   onTap: () {
                     String putUrl =
-                        '/board/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}';
+                        '/board/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}';
                     if (item['MYSELF']) {
                       if (c.autoFocusTextForm.value &&
                           c.putUrl.value == putUrl) {
@@ -758,7 +764,7 @@ class _PostState extends State<Post> {
                     } else {
                       Session()
                           .getX(
-                              '/board/like/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}')
+                              '/board/like/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}')
                           .then((value) {
                         print(value.statusCode);
                         switch (value.statusCode) {
@@ -797,7 +803,7 @@ class _PostState extends State<Post> {
               Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: InkWell(
-                    onTap: () {
+                    onTap: () async {
                       if (item['MYSELF']) {
                         Session()
                             .deleteX(
@@ -815,9 +821,10 @@ class _PostState extends State<Post> {
                           }
                         });
                       } else {
+                        var ARREST_TYPE = await getArrestType();
                         Session()
                             .getX(
-                                '/board/arrest/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}')
+                                '/board/arrest/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}?ARREST_TYPE=${ARREST_TYPE}')
                             .then((value) {
                           switch (value.statusCode) {
                             case 200:
@@ -880,6 +887,7 @@ class _PostState extends State<Post> {
 
     List<dynamic> sortedList = [itemList[0]];
 
+    //댓글 대댓글 정렬
     for (int i = 1; i < itemLength; i++) {
       var unsortedItem = itemList[i];
 
