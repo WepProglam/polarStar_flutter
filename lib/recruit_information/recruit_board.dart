@@ -135,8 +135,13 @@ class RecruitPostPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.toNamed(
-            '/recruit/${body['COMMUNITY_ID']}/read/${body['BOARD_ID']}');
+        print("ㅁㅇㄹㅇㄴㄻㄴㅇㄹ");
+        print("ㅁㅇㄹㅇㄴㄻㄴㅇㄹ");
+        Get.toNamed('/recruit/${body['COMMUNITY_ID']}/read/${body['BOARD_ID']}',
+            arguments: {
+              "COMMUNITY_ID": body["COMMUNITY_ID"],
+              "BOARD_ID": body["BOARD_ID"]
+            });
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 4),

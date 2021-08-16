@@ -14,30 +14,36 @@ import '../src/post_layout.dart';
 
 class RecruitPost extends GetView<RecruitPostController> {
   RecruitPost({Key key}) : super(key: key);
-  final recruitPostController = Get.put(RecruitPostController());
-
+  // final recruitPostController = Get.put(RecruitPostController());
+  final c = Get.put(PostController(
+      boardOrRecruit: "outside",
+      BOARD_ID: Get.arguments["BOARD_ID"],
+      COMMUNITY_ID: Get.arguments["COMMUNITY_ID"]));
   final mailController = Get.put(MailController());
   // final mailWriteController = TextEditingController();
-  final c = Get.put(PostController());
 
   @override
   Widget build(BuildContext context) {
+    print(Get.parameters);
+
+    c.getPostData();
+
     return Scaffold(
         appBar: AppBar(title: Text('polarStar')),
         body: RefreshIndicator(
-            onRefresh: recruitPostController.refreshPost,
+            onRefresh: c.refreshPost,
             child: SingleChildScrollView(
               physics: AlwaysScrollableScrollPhysics(),
               child: Column(children: [
                 Obx(() {
-                  if (recruitPostController.dataAvailableRecruitPost) {
+                  if (c.dataAvailable) {
                     /**
                      * PostLayout에 controller만 넘겨주면 됨
                      * controller 형식은 RecruitPostController(recruit_controller.dart)와 동일하게
                      * sorted_list에 무조건 정렬해서 넣어야됨
                      */
                     return PostLayout(
-                      controller: recruitPostController,
+                      c: c,
                     );
                   } else {
                     return CircularProgressIndicator();
@@ -56,7 +62,7 @@ class WriteComment extends StatelessWidget {
   }) : super(key: key);
 
   final PostController c = Get.find();
-  final RecruitPostController recruitPostController = Get.find();
+  // final RecruitPostController recruitPostController = Get.find();
   String commentPostUrl(String COMMUNITY_ID, String UNIQUE_ID) {
     String commentWriteUrl = '/outside/$COMMUNITY_ID/bid/$UNIQUE_ID';
 
@@ -127,13 +133,11 @@ class WriteComment extends StatelessWidget {
 
               String postUrl;
               if (c.isCcomment.value) {
-                postUrl = recruitPostController.ccommentUrl.value;
+                postUrl = c.ccommentUrl.value;
               } else {
                 postUrl = commentPostUrl(
-                    recruitPostController.sortedList[0]["COMMUNITY_ID"]
-                        .toString(),
-                    recruitPostController.sortedList[0]["UNIQUE_ID"]
-                        .toString());
+                    c.sortedList[0]["COMMUNITY_ID"].toString(),
+                    c.sortedList[0]["UNIQUE_ID"].toString());
               }
 
               print(postUrl);
@@ -142,11 +146,11 @@ class WriteComment extends StatelessWidget {
               if (c.autoFocusTextForm.value) {
                 Session()
                     .putX(c.putUrl.value, commentData)
-                    .then((value) => recruitPostController.getPostData());
+                    .then((value) => c.getPostData());
               } else {
                 Session()
                     .postX(postUrl, commentData)
-                    .then((value) => recruitPostController.getPostData());
+                    .then((value) => c.getPostData());
               }
             },
             child: Icon(

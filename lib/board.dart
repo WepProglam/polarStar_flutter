@@ -129,9 +129,10 @@ class _BoardState extends State<Board> {
           onPressed: () {
             // print('url: ${data['url']}');
             Map argument = {
-              'boardUrl':
-                  '/board/${data['COMMUNITY_ID']}/read/${data['UNIQUE_ID']}'
+              'COMMUNITY_ID': data['COMMUNITY_ID'],
+              "BOARD_ID": data['UNIQUE_ID']
             };
+
             Get.toNamed('/post', arguments: argument);
           },
           child: Row(
@@ -292,11 +293,11 @@ class _BoardState extends State<Board> {
             primary: Colors.black,
           ),
           onPressed: () {
-            String boardUrl =
-                '/board/${json["COMMUNITY_ID"]}/read/${json["BOARD_ID"]}';
-            Map argument = {'boardUrl': boardUrl};
-            print(
-                "pressd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            Map argument = {
+              'COMMUNITY_ID': json['COMMUNITY_ID'],
+              "BOARD_ID": json['UNIQUE_ID']
+            };
+
             Get.toNamed('/post', arguments: argument);
           },
           child: Row(

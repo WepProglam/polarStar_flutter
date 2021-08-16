@@ -5,26 +5,24 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:http/http.dart';
 
 import 'package:polarstar_flutter/session.dart';
 
-import '../recruit_information/recruit_controller.dart';
 import 'package:polarstar_flutter/getXController.dart';
 
 class PostLayout extends StatelessWidget {
-  PostLayout({this.from, this.controller});
-  final String from;
+  PostLayout({this.c});
 
-  var controller;
+  var c;
 
   MailController mailController = Get.find();
   final mailWriteController = TextEditingController();
-  PostController c = Get.find();
 
   @override
   Widget build(BuildContext context) {
     List<Widget> finalPost = [];
-    controller.sortedList.forEach((item) {
+    c.sortedList.forEach((item) {
       finalPost.addAll(item["DEPTH"] == 0
           ? returningPost(item)
           : item["DEPTH"] == 1
@@ -39,170 +37,6 @@ class PostLayout extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void totalSend(String url) {
-    Session().getX(url).then((value) {
-      switch (value.statusCode) {
-        case 200:
-          Get.snackbar("좋아요 성공", "좋아요 성공", snackPosition: SnackPosition.BOTTOM);
-          controller.getPostData();
-          break;
-        case 403:
-          Get.snackbar('이미 좋아요를 누른 게시글입니다', '이미 좋아요를 누른 게시글입니다',
-              snackPosition: SnackPosition.BOTTOM);
-          break;
-        default:
-      }
-    });
-  }
-
-  void sendMail(item, bid, cid, ccid, mailWriteController, mailController, c) {
-    Get.defaultDialog(
-      title: "쪽지 보내기",
-      barrierDismissible: true,
-      content: Column(
-        children: [
-          TextFormField(
-            controller: mailWriteController,
-            keyboardType: TextInputType.text,
-            maxLines: 1,
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Container(
-                  height: 20,
-                  width: 20,
-                  child: Transform.scale(
-                    scale: 1,
-                    child: Obx(() {
-                      return Checkbox(
-                        value: c.mailAnonymous.value,
-                        onChanged: (value) {
-                          c.mailAnonymous.value = value;
-                        },
-                      );
-                    }),
-                  ),
-                ),
-                Text(' 익명'),
-              ],
-            ),
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                String content = mailWriteController.text;
-                if (content.trim().isEmpty) {
-                  Get.snackbar("텍스트를 작성해주세요", "텍스트를 작성해주세요");
-                  return;
-                }
-
-                Map mailData = {
-                  "target_mem_id": '${item["pid"]}',
-                  "bid": '$bid',
-                  "cid": '$cid',
-                  "ccid": '$ccid',
-                  // "mem_unnamed": c.mailAnonymous.value ? '1' : '0',
-                  "mem_unnamed": '1',
-                  "content": '${content.trim()}',
-                  "title": '${item["title"]}'
-                };
-                //"target_mem_unnamed": '${item["unnamed"]}',
-
-                print(mailData);
-                var response = await Session().postX("/message", mailData);
-                switch (response.statusCode) {
-                  case 200:
-                    Get.back();
-                    Get.snackbar("쪽지 전송 완료", "쪽지 전송 완료",
-                        snackPosition: SnackPosition.TOP);
-                    int targetMessageBoxID =
-                        json.decode(response.body)["message_box_id"];
-                    mailController.message_box_id.value = targetMessageBoxID;
-                    await mailController.getMail();
-                    Get.toNamed("/mailBox/sendMail");
-
-                    break;
-                  case 403:
-                    Get.snackbar("다른 사람의 쪽지함입니다.", "다른 사람의 쪽지함입니다.",
-                        snackPosition: SnackPosition.TOP);
-                    break;
-
-                  default:
-                    Get.snackbar("업데이트 되지 않았습니다.", "업데이트 되지 않았습니다.",
-                        snackPosition: SnackPosition.TOP);
-                }
-
-                // print(c.mailAnonymous.value);
-                /*Get.offAndToNamed("/mailBox",
-                                                arguments: {"unnamed": 1});*/
-              },
-              child: Text("발송"))
-        ],
-      ),
-    );
-    // c.mailAnonymous.value = true;
-    mailWriteController.clear();
-  }
-
-  Future<int> getArrestType() async {
-    var response = await Get.defaultDialog(
-        title: "신고 사유 선택",
-        content: Column(
-          children: [
-            InkWell(
-              child: Text("게시판 성격에 안맞는 글"),
-              onTap: () {
-                Get.back(result: 0);
-              },
-            ),
-            InkWell(
-              child: Text("선정적인 글"),
-              onTap: () {
-                Get.back(result: 1);
-              },
-            ),
-            InkWell(
-              child: Text("거짓 선동"),
-              onTap: () {
-                Get.back(result: 2);
-              },
-            ),
-            InkWell(
-              child: Text("비윤리적인 글"),
-              onTap: () {
-                Get.back(result: 3);
-              },
-            ),
-            InkWell(
-              child: Text("사기"),
-              onTap: () {
-                Get.back(result: 4);
-              },
-            ),
-            InkWell(
-              child: Text("광고"),
-              onTap: () {
-                Get.back(result: 5);
-              },
-            ),
-            InkWell(
-              child: Text("혐오스러운 글"),
-              onTap: () {
-                Get.back(result: 6);
-              },
-            ),
-          ],
-        ));
-    return response;
   }
 
   List<Widget> returningPost(postItem) {
@@ -246,8 +80,8 @@ class PostLayout extends StatelessWidget {
                   onTap: () {
                     if (postItem['MYSELF']) {
                     } else {
-                      totalSend(
-                          '/outside/like/${postItem["COMMUNITY_ID"]}/id/${postItem['UNIQUE_ID']}');
+                      c.totalSend(
+                          '/like/${postItem["COMMUNITY_ID"]}/id/${postItem['UNIQUE_ID']}');
                     }
                   },
                   child:
@@ -262,8 +96,8 @@ class PostLayout extends StatelessWidget {
                     if (postItem['MYSELF']) {
                       Get.toNamed('/writePost', arguments: postItem);
                     } else {
-                      totalSend(
-                          '/outside/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}');
+                      c.totalSend(
+                          '/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}');
                     }
                   },
                   child: postItem['MYSELF']
@@ -279,14 +113,12 @@ class PostLayout extends StatelessWidget {
                     // 게시글 삭제
                     if (postItem['MYSELF']) {
                       Session()
-                          .deleteX('/outside/bid/${postItem['BOARD_ID']}')
+                          .deleteX(
+                              '/${c.boardOrRecruit}/${postItem['COMMUNITY_ID']}/bid/${postItem['BOARD_ID']}')
                           .then((value) {
                         print(value.statusCode);
                         switch (value.statusCode) {
                           case 200:
-                            print("ㅁㄴㅇㄹ");
-                            print("ㅁㄴㅇㄹ");
-                            print("ㅁㄴㅇㄹ");
                             Get.back();
                             Get.snackbar("게시글 삭제 성공", "게시글 삭제 성공",
                                 snackPosition: SnackPosition.BOTTOM);
@@ -300,9 +132,9 @@ class PostLayout extends StatelessWidget {
                     }
                     // 게시글 신고
                     else {
-                      var ARREST_TYPE = await getArrestType();
-                      totalSend(
-                          '/outside/arrest/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}?ARREST_TYPE=$ARREST_TYPE');
+                      var ARREST_TYPE = await c.getArrestType();
+                      c.totalSend(
+                          '/arrest/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}?ARREST_TYPE=$ARREST_TYPE');
                     }
                   },
                   child: postItem['MYSELF']
@@ -317,8 +149,9 @@ class PostLayout extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: InkWell(
                           onTap: () {
-                            sendMail(postItem, postItem["BOARD_ID"], 0, 0,
-                                mailWriteController, mailController, c);
+                            // c.sendMail(postItem, postItem["BOARD_ID"], 0, 0,
+                            //     mailWriteController, mailController);
+                            print("sdfasdf");
                           },
                           child: Icon(Icons.mail)),
                     ),
@@ -350,7 +183,7 @@ class PostLayout extends StatelessWidget {
       ),
       //사진
       Container(
-        child: postItem['PHOTO'] != '' && postItem['PHOTO'] != "/uploads/board/"
+        child: postItem['PHOTO'] != '' && postItem['PHOTO'] != null
             ? CachedNetworkImage(
                 imageUrl:
                     'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${postItem['PHOTO']}')
@@ -372,8 +205,8 @@ class PostLayout extends StatelessWidget {
                 onPressed: () {
                   if (postItem['MYSELF']) {
                   } else {
-                    totalSend(
-                        '/outside/like${postItem["COMMUNITY_ID"]}/id/${postItem['BOARD_ID']}');
+                    c.totalSend(
+                        '/like${postItem["COMMUNITY_ID"]}/id/${postItem['BOARD_ID']}');
                   }
                 },
                 icon: Icon(
@@ -400,8 +233,8 @@ class PostLayout extends StatelessWidget {
                     foregroundColor:
                         MaterialStateProperty.all<Color>(Colors.yellow[700])),
                 onPressed: () {
-                  totalSend(
-                      '/outSide/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}');
+                  c.totalSend(
+                      '/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}');
                 },
                 icon: Icon(
                   Icons.bookmark,
@@ -418,8 +251,8 @@ class PostLayout extends StatelessWidget {
   }
 
   List<Widget> returningComment(comment) {
-    String where = "outside";
-    String cidUrl = '/$where/cid/${comment['UNIQUE_ID']}';
+    // String where = "outside";
+    String cidUrl = '/${c.boardOrRecruit}/cid/${comment['UNIQUE_ID']}';
 
     return [
       Padding(
@@ -480,21 +313,19 @@ class PostLayout extends StatelessWidget {
                 padding: const EdgeInsets.all(2.0),
                 child: InkWell(
                     onTap: () {
-                      c.changeCcomment(cidUrl);
-                      controller.makeCcommentUrl(
-                          where, comment["COMMUNITY_ID"], comment['UNIQUE_ID']);
-                      c.updateAutoFocusTextForm(false);
+                      c.isCcomment.value = !c.isCcomment.value;
+                      c.makeCcommentUrl(
+                          comment["COMMUNITY_ID"], comment['UNIQUE_ID']);
+                      c.autoFocusTextForm.value = false;
                     },
                     child: Obx(
                       () => InkWell(
                         onTap: () {
                           c.changeCcomment(
-                              'outside/${comment["COMMUNITY_ID"]}/cid/${comment["UNIQUE_ID"]}');
-                          controller.makeCcommentUrl(
-                              'board',
-                              comment["COMMUNITY_ID"].toString(),
-                              comment["UNIQUE_ID"].toString());
-                          c.updateAutoFocusTextForm(false);
+                              '${c.boardOrRecruit}/${comment["COMMUNITY_ID"]}/cid/${comment["UNIQUE_ID"]}');
+                          c.makeCcommentUrl(
+                              comment["COMMUNITY_ID"], comment["UNIQUE_ID"]);
+                          c.autoFocusTextForm.value = false;
                         },
                         child: Icon(
                           c.isCcomment.value && c.ccommentUrl.value == cidUrl
@@ -508,41 +339,28 @@ class PostLayout extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     if (comment['MYSELF']) {
                       if (c.autoFocusTextForm.value &&
                           c.putUrl.value == cidUrl) {
-                        c.updatePutUrl(where);
+                        c.putUrl.value = c.boardOrRecruit;
+                        c.updatePutUrl(c.boardOrRecruit);
                       } else {
+                        c.putUrl.value = cidUrl;
                         c.updatePutUrl(cidUrl);
                       }
-                      controller.getPostData();
+                      c.getPostData();
                     } else {
-                      Session()
-                          .getX(
-                              '/$where/like/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}')
-                          .then((value) {
-                        print(value.statusCode);
-                        switch (value.statusCode) {
-                          case 200:
-                            controller.getPostData();
-                            break;
-                          case 403:
-                            Get.snackbar(
-                                '이미 좋아요를 누른 댓글입니다.', '이미 좋아요를 누른 댓글입니다.',
-                                snackPosition: SnackPosition.BOTTOM);
-                            break;
-
-                          default:
-                        }
-                      });
+                      c.isCcomment.value = !c.isCcomment.value;
+                      await c.totalSend(
+                          '/like/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}');
                     }
                   },
                   child: comment['MYSELF']
                       ? Obx(() => Icon(
                             c.autoFocusTextForm.value &&
                                     c.putUrl.value ==
-                                        '/$where/cid/${comment['UNIQUE_ID']}'
+                                        '/${c.boardOrRecruit}/cid/${comment['UNIQUE_ID']}'
                                 ? Icons.comment
                                 : Icons.edit,
                             size: 15,
@@ -560,13 +378,14 @@ class PostLayout extends StatelessWidget {
                   onTap: () async {
                     if (comment['MYSELF']) {
                       Session()
-                          .deleteX('/$where/cid/${comment['UNIQUE_ID']}')
+                          .deleteX(
+                              '/${c.boardOrRecruit}/${comment['COMMUNITY_ID']}/cid/${comment['UNIQUE_ID']}')
                           .then((value) {
                         switch (value.statusCode) {
                           case 200:
                             Get.snackbar("댓글 삭제 성공", "댓글 삭제 성공",
                                 snackPosition: SnackPosition.BOTTOM);
-                            controller.getPostData();
+                            c.getPostData();
                             break;
                           default:
                             Get.snackbar("댓글 삭제 실패", "댓글 삭제 실패",
@@ -574,23 +393,9 @@ class PostLayout extends StatelessWidget {
                         }
                       });
                     } else {
-                      var ARREST_TYPE = await getArrestType();
-                      Session()
-                          .getX(
-                              '/outside/arrest/${comment['COMMUNITY_ID']}/id/${comment['UNIQUE_ID']}?ARREST_TYPE=${ARREST_TYPE}')
-                          .then((value) {
-                        switch (value.statusCode) {
-                          case 200:
-                            Get.snackbar("댓글 신고 성공", "댓글 신고 성공",
-                                snackPosition: SnackPosition.BOTTOM);
-                            controller.getPostData();
-
-                            break;
-                          default:
-                            Get.snackbar("댓글 신고 실패", "댓글 신고 실패",
-                                snackPosition: SnackPosition.BOTTOM);
-                        }
-                      });
+                      var ARREST_TYPE = await c.getArrestType();
+                      await c.totalSend(
+                          '/arrest/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}?ARREST_TYPE=$ARREST_TYPE');
                     }
                   },
                   child: comment['MYSELF']
@@ -610,14 +415,14 @@ class PostLayout extends StatelessWidget {
                       padding: const EdgeInsets.all(2.0),
                       child: InkWell(
                           onTap: () {
-                            sendMail(
-                                comment,
-                                comment["bid"],
-                                comment["UNIQUE_ID"],
-                                0,
-                                mailWriteController,
-                                mailController,
-                                c);
+                            c.sendMail(
+                              comment,
+                              comment["bid"],
+                              comment["UNIQUE_ID"],
+                              0,
+                              mailWriteController,
+                              mailController,
+                            );
                           },
                           child: Icon(Icons.mail)),
                     ),
@@ -690,46 +495,28 @@ class PostLayout extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     String putUrl =
-                        '/board/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}';
+                        '/${c.boardOrRecruit}/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}';
                     if (item['MYSELF']) {
                       if (c.autoFocusTextForm.value &&
                           c.putUrl.value == putUrl) {
-                        c.updateAutoFocusTextForm(false);
-                        c.updatePutUrl('/board');
+                        c.autoFocusTextForm.value = false;
+                        c.putUrl.value = "/${c.boardOrRecruit}";
                       } else {
-                        c.updateAutoFocusTextForm(true);
-                        c.updatePutUrl(putUrl);
+                        c.autoFocusTextForm.value = true;
+                        c.putUrl.value = putUrl;
                       }
                     } else {
-                      Session()
-                          .getX(
-                              '/outside/like/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}')
-                          .then((value) {
-                        print(value.statusCode);
-                        switch (value.statusCode) {
-                          case 200:
-                            Get.snackbar('좋아요 성공', '좋아요 성공',
-                                snackPosition: SnackPosition.BOTTOM);
-                            // setState(() {});
-                            break;
-                          case 403:
-                            Get.snackbar(
-                                '이미 좋아요를 누른 댓글입니다.', '이미 좋아요를 누른 댓글입니다.',
-                                snackPosition: SnackPosition.BOTTOM);
-                            break;
-
-                          default:
-                        }
-                      });
+                      await c.totalSend(
+                          '/like/${item["COMMUNITY_ID"]}/id/${item['UNIQUE_ID']}');
                     }
                   },
                   child: item['MYSELF']
                       ? Obx(() => Icon(
                             c.autoFocusTextForm.value &&
                                     c.putUrl.value ==
-                                        '/board/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}'
+                                        '//${c.boardOrRecruit}/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}'
                                 ? Icons.comment
                                 : Icons.edit,
                             size: 15,
@@ -748,7 +535,7 @@ class PostLayout extends StatelessWidget {
                       if (item['MYSELF']) {
                         Session()
                             .deleteX(
-                                '/board/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}')
+                                '/${c.boardOrRecruit}/${item['COMMUNITY_ID']}/ccid/${item['UNIQUE_ID']}')
                             .then((value) {
                           switch (value.statusCode) {
                             case 200:
@@ -762,22 +549,9 @@ class PostLayout extends StatelessWidget {
                           }
                         });
                       } else {
-                        var ARREST_TYPE = await getArrestType();
-                        Session()
-                            .getX(
-                                '/outside/arrest/${item['COMMUNITY_ID']}/id/${item['UNIQUE_ID']}?ARREST_TYPE=${ARREST_TYPE}')
-                            .then((value) {
-                          switch (value.statusCode) {
-                            case 200:
-                              Get.snackbar("신고 성공", "신고 성공",
-                                  snackPosition: SnackPosition.BOTTOM);
-                              // setState(() {});
-                              break;
-                            default:
-                              Get.snackbar("신고 실패", "신고 실패",
-                                  snackPosition: SnackPosition.BOTTOM);
-                          }
-                        });
+                        var ARREST_TYPE = await c.getArrestType();
+                        await c.totalSend(
+                            '/arrest/${item["COMMUNITY_ID"]}/id/${item['UNIQUE_ID']}?ARREST_TYPE=$ARREST_TYPE');
                       }
                     },
                     child: item['MYSELF']
@@ -795,10 +569,11 @@ class PostLayout extends StatelessWidget {
                   : Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: InkWell(
-                        // onTap: () {
-                        //   sendMail(
-                        //       item, item["COMMUNITY_ID"], item["UNIQUE_ID"], 0);
-                        // },
+                        onTap: () {
+                          // c.sendMail(
+                          //     item, item["COMMUNITY_ID"], item["UNIQUE_ID"], 0);
+                          print("adsfadsf");
+                        },
                         child: Icon(Icons.mail),
                       ),
                     )

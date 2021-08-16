@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -248,27 +250,248 @@ class NotiController extends GetxController {
 }
 
 class PostController extends GetxController {
+  PostController({this.boardOrRecruit, this.COMMUNITY_ID, this.BOARD_ID});
+  Rx<bool> _dataAvailable = false.obs;
+
+  String boardOrRecruit;
+  int COMMUNITY_ID;
+  int BOARD_ID;
+
   // Post
   var anonymousCheck = true.obs;
   Rx<bool> mailAnonymous = true.obs;
+  RxList postContent = [].obs;
+  RxList<Map> sortedList = <Map>[].obs;
+  RxMap postBody = {}.obs;
+
   var isCcomment = false.obs;
-  var ccommentUrl = '/board/cid'.obs;
+  var ccommentUrl = ''.obs;
+  var commentUrl = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    ever(mailAnonymous, (_) {
-      print(mailAnonymous.value);
-    });
+    makeCommentUrl(COMMUNITY_ID, BOARD_ID);
+  }
 
-    ever(ccommentUrl, (_) {
-      print(ccommentUrl.value + " changed!");
+  Future<void> refreshPost() async {
+    await getPostData();
+  }
+
+  Future<void> getPostData() async {
+    var response =
+        await Session().getX("/$boardOrRecruit/$COMMUNITY_ID/read/$BOARD_ID");
+    print(response.statusCode);
+
+    if (response.statusCode == 401) {
+      Session().getX('/logout');
+      Get.offAllNamed('/login');
+      return null;
+    } else {
+      sortPCCC(jsonDecode(response.body));
+
+      print(sortedList[0]);
+      _dataAvailable.value = true;
+      return;
+    }
+  }
+
+  void sortPCCC(List<dynamic> itemList) {
+    sortedList.clear();
+
+    sortedList.add(itemList[0]);
+
+    int itemLength = itemList.length;
+
+    //댓글 대댓글 정렬
+    for (int i = 1; i < itemLength; i++) {
+      var unsortedItem = itemList[i];
+
+      //게시글 - 댓글 - 대댓글 순서대로 정렬되있으므로 대댓글 만나는 순간 끝
+      if (unsortedItem["DEPTH"] == 2) {
+        print("break!");
+        break;
+      }
+
+      //댓글 집어 넣기
+      sortedList.add(itemList[i]);
+
+      for (int k = 1; k < itemList.length; k++) {
+        //itemlist를 돌면서 댓글을 부모로 가지는 대댓글 찾아서
+        if (itemList[k]["PARENT_ID"] == unsortedItem["UNIQUE_ID"]) {
+          //sortedList에 집어넣음(순서대로)
+          sortedList.add(itemList[k]);
+        }
+      }
+    }
+  }
+
+  void totalSend(String urlTemp) {
+    String url = "/$boardOrRecruit" + urlTemp;
+    Session().getX(url).then((value) {
+      switch (value.statusCode) {
+        case 200:
+          Get.snackbar("좋아요 성공", "좋아요 성공", snackPosition: SnackPosition.BOTTOM);
+          getPostData();
+          break;
+        case 403:
+          Get.snackbar('이미 좋아요를 누른 게시글입니다', '이미 좋아요를 누른 게시글입니다',
+              snackPosition: SnackPosition.BOTTOM);
+          break;
+        default:
+      }
     });
+  }
+
+  void sendMail(item, bid, cid, ccid, mailWriteController, mailController) {
+    Get.defaultDialog(
+      title: "쪽지 보내기",
+      barrierDismissible: true,
+      content: Column(
+        children: [
+          TextFormField(
+            controller: mailWriteController,
+            keyboardType: TextInputType.text,
+            maxLines: 1,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Container(
+                  height: 20,
+                  width: 20,
+                  child: Transform.scale(
+                    scale: 1,
+                    child: Obx(() {
+                      return Checkbox(
+                        value: mailAnonymous.value,
+                        onChanged: (value) {
+                          mailAnonymous.value = value;
+                        },
+                      );
+                    }),
+                  ),
+                ),
+                Text(' 익명'),
+              ],
+            ),
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                String content = mailWriteController.text;
+                if (content.trim().isEmpty) {
+                  Get.snackbar("텍스트를 작성해주세요", "텍스트를 작성해주세요");
+                  return;
+                }
+
+                Map mailData = {
+                  "target_mem_id": '${item["pid"]}',
+                  "bid": '$bid',
+                  "cid": '$cid',
+                  "ccid": '$ccid',
+                  // "mem_unnamed": c.mailAnonymous.value ? '1' : '0',
+                  "mem_unnamed": '1',
+                  "content": '${content.trim()}',
+                  "title": '${item["title"]}'
+                };
+                //"target_mem_unnamed": '${item["unnamed"]}',
+
+                print(mailData);
+                var response = await Session().postX("/message", mailData);
+                switch (response.statusCode) {
+                  case 200:
+                    Get.back();
+                    Get.snackbar("쪽지 전송 완료", "쪽지 전송 완료",
+                        snackPosition: SnackPosition.TOP);
+                    int targetMessageBoxID =
+                        json.decode(response.body)["message_box_id"];
+                    mailController.message_box_id.value = targetMessageBoxID;
+                    await mailController.getMail();
+                    Get.toNamed("/mailBox/sendMail");
+
+                    break;
+                  case 403:
+                    Get.snackbar("다른 사람의 쪽지함입니다.", "다른 사람의 쪽지함입니다.",
+                        snackPosition: SnackPosition.TOP);
+                    break;
+
+                  default:
+                    Get.snackbar("업데이트 되지 않았습니다.", "업데이트 되지 않았습니다.",
+                        snackPosition: SnackPosition.TOP);
+                }
+
+                // print(c.mailAnonymous.value);
+                /*Get.offAndToNamed("/mailBox",
+                                                arguments: {"unnamed": 1});*/
+              },
+              child: Text("발송"))
+        ],
+      ),
+    );
+    mailWriteController.clear();
+  }
+
+  Future<int> getArrestType() async {
+    var response = await Get.defaultDialog(
+        title: "신고 사유 선택",
+        content: Column(
+          children: [
+            InkWell(
+              child: Text("게시판 성격에 안맞는 글"),
+              onTap: () {
+                Get.back(result: 0);
+              },
+            ),
+            InkWell(
+              child: Text("선정적인 글"),
+              onTap: () {
+                Get.back(result: 1);
+              },
+            ),
+            InkWell(
+              child: Text("거짓 선동"),
+              onTap: () {
+                Get.back(result: 2);
+              },
+            ),
+            InkWell(
+              child: Text("비윤리적인 글"),
+              onTap: () {
+                Get.back(result: 3);
+              },
+            ),
+            InkWell(
+              child: Text("사기"),
+              onTap: () {
+                Get.back(result: 4);
+              },
+            ),
+            InkWell(
+              child: Text("광고"),
+              onTap: () {
+                Get.back(result: 5);
+              },
+            ),
+            InkWell(
+              child: Text("혐오스러운 글"),
+              onTap: () {
+                Get.back(result: 6);
+              },
+            ),
+          ],
+        ));
+    return response;
   }
 
   changeAnonymous(bool value) {
     anonymousCheck.value = value;
-    update();
   }
 
   changeCcomment(String cidUrl) {
@@ -277,34 +500,31 @@ class PostController extends GetxController {
     } else {
       isCcomment.value = true;
     }
-
-    update();
   }
 
-  makeCcommentUrl(String where, String COMMUNITY_ID, String cid) {
-    print("adfsdfaf");
-    ccommentUrl.value = '/$where/$COMMUNITY_ID/cid/$cid';
-    update();
+  makeCcommentUrl(int COMMUNITY_ID, int cid) {
+    ccommentUrl.value = '/$boardOrRecruit/$COMMUNITY_ID/cid/$cid';
+  }
+
+  makeCommentUrl(int COMMUNITY_ID, int bid) {
+    commentUrl.value = '/$boardOrRecruit/$COMMUNITY_ID/bid/$bid';
   }
 
   // 댓글 수정
   var autoFocusTextForm = false.obs;
-  var putUrl = '/board'.obs;
+  var putUrl = ''.obs;
 
-  updateAutoFocusTextForm(bool b) {
-    autoFocusTextForm.value = b;
-    update();
-  }
+  // updateAutoFocusTextForm(bool b) {
+  //   autoFocusTextForm.value = b;
+  //   update();
+  // }
 
-  updatePutUrl(String url) {
-    putUrl.value = url;
-    update();
-  }
+  // void getPostFromCommentData(Map comment) async {
+  //   var response = await Session().getX(
+  //       "/board/${comment['comment']['type']}/read/${comment['comment']['bid']}");
+  // }
 
-  void getPostFromCommentData(Map comment) async {
-    var response = await Session().getX(
-        "/board/${comment['comment']['type']}/read/${comment['comment']['bid']}");
-  }
+  bool get dataAvailable => _dataAvailable.value;
 }
 
 class LoginController extends GetxController {
