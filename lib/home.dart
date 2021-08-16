@@ -221,7 +221,14 @@ class MainPageScroll extends StatelessWidget {
                     height: 200,
                     margin: EdgeInsets.only(top: 2, bottom: 2),
                     decoration: BoxDecoration(border: Border.all()),
-                    child: null,
+                    child: IconButton(
+                      padding: EdgeInsets.all(0),
+                      onPressed: () {
+                        Get.toNamed('/class');
+                      },
+                      icon: Icon(Icons.search_outlined),
+                      iconSize: 20,
+                    ),
                   ),
                 ],
               ),
