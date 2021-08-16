@@ -15,7 +15,6 @@ import 'class_controller.dart';
 import 'dart:convert';
 
 import '../getXController.dart';
-import '../src/post_layout.dart';
 // 아마 이 밑에 Run 같은거 뜰건데 main.dart 실행하지 말고 이걸로 하면 됨
 // 로그인하면 ㅈ같으니까 그냥 json을 Map으로 만들어서 테스트 ㄱㄱ
 void main() => runApp(ClassMain());
@@ -138,7 +137,7 @@ class ClassView extends GetView<ClassViewController> {
               child: Column(children: [
                 Obx(() {
                   if (classViewController._dataAvailableClassView) {
-                    return PostLayout(
+                    return ClassLayout(
                       controller: classViewController,
                     );
                   } else {
@@ -146,9 +145,290 @@ class ClassView extends GetView<ClassViewController> {
                   }
                 }),
               ]),
-            )),
-  
+            ))
+    )
   }
+}
+
+class ClassLayout extends StatelessWidget {
+  ClassLayout({this.controller});
+  var controller;
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> finalPost = [];
+    controller.sortedList.forEach((item) {
+      finalPost.addAll(item["DEPTH"] == 0
+          ? returningClass(item)
+          : returningClassComment(item)
+      );
+    });
+    return Container(
+      height: MediaQuery.of(context).size.height - 60 - 100,
+      child: SingleChildScrollView(
+        child: Column(
+          children: finalPost,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> returningClass(classItem) {
+    return [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Container(
+          decoration:
+              BoxDecoration(border: BorderDirectional(top: BorderSide())),
+          child: Row(
+            children: [
+      // 제목
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              // decoration: BoxDecoration(border: Border.all()),
+              child: Text(
+                classItem['className'],
+                textScaleFactor: 2,
+              ),
+            ),
+          ),
+          // 내용
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              // decoration: BoxDecoration(border: Border.all()),
+              child: Text(
+                classItem['classNumber'],
+                textScaleFactor: 1.5,
+              ),
+            ),
+          ),
+          ]
+          )
+        )
+      );
+  }
+
+  List<Widget> returningClassComment(comment) {
+    String where = "outside";
+    String cidUrl = '/$where/cid/${comment['UNIQUE_ID']}';
+
+    return [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 2.0),
+        child: Container(
+          // height: 200,
+          decoration:
+              BoxDecoration(border: BorderDirectional(top: BorderSide())),
+          child: Row(
+            children: [
+              // 프사
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  child: CachedNetworkImage(
+                      imageUrl:
+                          'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/${comment['PROFILE_PHOTO']}'),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(comment['PROFILE_NICKNAME']),
+                  // 댓글 작성 시간
+                  // Text(
+                  //   commentTime,
+                  //   textScaleFactor: 0.6,
+                  // ),
+                ],
+              ),
+              // 댓글 좋아요 개수 표시
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.thumb_up,
+                        size: 15,
+                        color: Colors.red,
+                      ),
+                    ),
+                    Text(
+                      comment['LIKES'].toString(),
+                      textScaleFactor: 0.8,
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+
+              Spacer(),
+
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: InkWell(
+                    onTap: () {
+                      c.changeCcomment(cidUrl);
+                      controller.makeCcommentUrl(
+                          where, comment["COMMUNITY_ID"], comment['UNIQUE_ID']);
+                      c.updateAutoFocusTextForm(false);
+                    },
+                    child: Obx(
+                      () => InkWell(
+                        onTap: () {
+                          c.changeCcomment(
+                              'outside/${comment["COMMUNITY_ID"]}/cid/${comment["UNIQUE_ID"]}');
+                          controller.makeCcommentUrl(
+                              'board',
+                              comment["COMMUNITY_ID"].toString(),
+                              comment["UNIQUE_ID"].toString());
+                          c.updateAutoFocusTextForm(false);
+                        },
+                        child: Icon(
+                          c.isCcomment.value && c.ccommentUrl.value == cidUrl
+                              ? Icons.comment
+                              : Icons.add,
+                          size: 15,
+                        ),
+                      ),
+                    )),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: InkWell(
+                  onTap: () {
+                    if (comment['MYSELF']) {
+                      if (c.autoFocusTextForm.value &&
+                          c.putUrl.value == cidUrl) {
+                        c.updatePutUrl(where);
+                      } else {
+                        c.updatePutUrl(cidUrl);
+                      }
+                      controller.getPostData();
+                    } else {
+                      Session()
+                          .getX(
+                              '/$where/like/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}')
+                          .then((value) {
+                        print(value.statusCode);
+                        switch (value.statusCode) {
+                          case 200:
+                            controller.getPostData();
+                            break;
+                          case 403:
+                            Get.snackbar(
+                                '이미 좋아요를 누른 댓글입니다.', '이미 좋아요를 누른 댓글입니다.',
+                                snackPosition: SnackPosition.BOTTOM);
+                            break;
+
+                          default:
+                        }
+                      });
+                    }
+                  },
+                  child: comment['MYSELF']
+                      ? Obx(() => Icon(
+                            c.autoFocusTextForm.value &&
+                                    c.putUrl.value ==
+                                        '/$where/cid/${comment['UNIQUE_ID']}'
+                                ? Icons.comment
+                                : Icons.edit,
+                            size: 15,
+                          ))
+                      : Icon(
+                          Icons.thumb_up,
+                          size: 15,
+                        ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: InkWell(
+                  onTap: () async {
+                    if (comment['MYSELF']) {
+                      Session()
+                          .deleteX('/$where/cid/${comment['UNIQUE_ID']}')
+                          .then((value) {
+                        switch (value.statusCode) {
+                          case 200:
+                            Get.snackbar("댓글 삭제 성공", "댓글 삭제 성공",
+                                snackPosition: SnackPosition.BOTTOM);
+                            controller.getPostData();
+                            break;
+                          default:
+                            Get.snackbar("댓글 삭제 실패", "댓글 삭제 실패",
+                                snackPosition: SnackPosition.BOTTOM);
+                        }
+                      });
+                    } else {
+                      var ARREST_TYPE = await getArrestType();
+                      Session()
+                          .getX(
+                              '/outside/arrest/${comment['COMMUNITY_ID']}/id/${comment['UNIQUE_ID']}?ARREST_TYPE=${ARREST_TYPE}')
+                          .then((value) {
+                        switch (value.statusCode) {
+                          case 200:
+                            Get.snackbar("댓글 신고 성공", "댓글 신고 성공",
+                                snackPosition: SnackPosition.BOTTOM);
+                            controller.getPostData();
+
+                            break;
+                          default:
+                            Get.snackbar("댓글 신고 실패", "댓글 신고 실패",
+                                snackPosition: SnackPosition.BOTTOM);
+                        }
+                      });
+                    }
+                  },
+                  child: comment['MYSELF']
+                      ? Icon(
+                          Icons.delete, // 댓글 삭제
+                          size: 15,
+                        )
+                      : Icon(
+                          Icons.report, // 댓글 신고
+                          size: 15,
+                        ),
+                ),
+              ),
+              comment['MYSELF']
+                  ? Container()
+                  : Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: InkWell(
+                          onTap: () {
+                            sendMail(
+                                comment,
+                                comment["bid"],
+                                comment["UNIQUE_ID"],
+                                0,
+                                mailWriteController,
+                                mailController,
+                                c);
+                          },
+                          child: Icon(Icons.mail)),
+                    ),
+            ],
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(left: 10.0, bottom: 5.0),
+        child: Text(comment['CONTENT']),
+      ),
+      Container(
+        decoration: BoxDecoration(border: Border(bottom: BorderSide())),
+      ),
+    ];
+  }
+
+
 }
 
 
@@ -212,7 +492,7 @@ class _SearchClassState extends State<SearchClass> {
   dynamic arg = Get.arguments;
   bool getData = false;
   TextEditingController searchText = TextEditingController();
-  final Controller c = Get.put(Controller());
+  final Controller c = Get.put(ClassSearchController());
   var response;
 
   Future getClassData(dynamic arg) async {
