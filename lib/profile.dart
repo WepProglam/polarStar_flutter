@@ -273,7 +273,7 @@ class Mypage extends StatelessWidget {
                                     userController.dataAvailableMypageScrap
                                   ];
 
-                                  List<dynamic> userPost = [
+                                  List<RxList> userPost = [
                                     userController.userWriteBid,
                                     userController.userLikeBid,
                                     userController.userScrapBid,
@@ -323,10 +323,12 @@ class Mypage extends StatelessWidget {
 Widget getPosts(json, userController) {
   print(json);
   return InkWell(
-    onTap: () {
-      String boardUrl =
-          '/board/${json["COMMUNITY_ID"]}/read/${json["BOARD_ID"]}';
-      Map argument = {'boardUrl': boardUrl};
+    onTap: () async {
+      Map argument = {
+        "BOARD_ID": json["BOARD_ID"],
+        "COMMUNITY_ID": json["COMMUNITY_ID"],
+      };
+
       Get.toNamed('/post', arguments: argument);
     },
     child: Container(
@@ -411,7 +413,7 @@ Widget getPosts(json, userController) {
                   )
                 ],
               )),
-          json["PHOTO"] == "" //빈 문자열 처리해야함
+          json["PHOTO"] == "" || json["PHOTO"] == null //빈 문자열 처리해야함
               ? Expanded(
                   flex: 80,
                   child: Column(children: [

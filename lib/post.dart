@@ -11,7 +11,6 @@ class Post extends StatelessWidget {
   final mailController = Get.put(MailController());
   final BOTTOM_SHEET_HEIGHT = 60;
   final c = Get.put(PostController(
-      boardOrRecruit: "board",
       BOARD_ID: Get.arguments["BOARD_ID"],
       COMMUNITY_ID: Get.arguments["COMMUNITY_ID"]));
 
@@ -25,7 +24,6 @@ class Post extends StatelessWidget {
         ),
         body: Obx(() {
           if (!c.dataAvailable) {
-            print("시발");
             return CircularProgressIndicator();
           } else {
             return PostLayout(

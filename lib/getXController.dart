@@ -35,9 +35,9 @@ class UserController extends GetxController {
   Rx<Post> postPreview = new Post().obs;
 
   Map<dynamic, dynamic> userProfile = {}.obs; //유저 기본 정보
-  List<dynamic> userWriteBid = [].obs; //유저 작성 글
-  List<dynamic> userLikeBid = [].obs; //유저 좋아요 글
-  List<dynamic> userScrapBid = [].obs; //유저 스크랩 글
+  RxList userWriteBid = [].obs; //유저 작성 글
+  RxList userLikeBid = [].obs; //유저 좋아요 글
+  RxList userScrapBid = [].obs; //유저 스크랩 글
 
   var _dataAvailableMypage = false.obs;
   var _dataAvailableMypageWrite = false.obs;
@@ -60,7 +60,7 @@ class UserController extends GetxController {
     var responseBody = jsonDecode(response.body);
     var dataResponse = responseBody["PROFILE"];
 
-    userWriteBid = responseBody["WritePost"];
+    userWriteBid.value = responseBody["WritePost"];
     //첫 화면에 유저 정보랑 쓴 글 같이 띄워야 되서 같이 유저 정보랑 같이 불러옴
     userProfile = {
       "PROFILE_ID": dataResponse["PROFILE_ID"],
@@ -81,36 +81,26 @@ class UserController extends GetxController {
 
   //유저 좋아요 글
   Future<void> getMineLike() async {
-    print(
-        "========================================================================================================================================================================");
-
     var response = await Session().getX("/info/like");
     if (response.statusCode == 404) {
       userLikeBid.clear();
     } else {
       var responseBody = jsonDecode(response.body);
-      userLikeBid = responseBody["LIKE"];
-      print(userLikeBid);
+      userLikeBid.value = responseBody["LIKE"];
     }
-
-    print(
-        "========================================================================================================================================================================");
-
     _dataAvailableMypageLike.value = true;
   }
 
   //유저 스크랩 글
   Future<void> getMineScrap() async {
-    print("get mine scrap");
     var response = await Session().getX("/info/scrap");
 
     if (response.statusCode == 404) {
       userScrapBid.clear();
     } else {
       var responseBody = jsonDecode(response.body);
-      userScrapBid = responseBody["SCRAP"];
+      userScrapBid.value = responseBody["SCRAP"];
     }
-
     _dataAvailableMypageScrap.value = true;
   }
 
@@ -134,13 +124,12 @@ class UserController extends GetxController {
     image.value = img;
   }
 
-  //따로따로 하니깐 화면이 뚝뚝 끊겨서 일단은 한번에 다 불러옴
   @override
   void onInit() async {
     super.onInit();
     await getMineWrite();
-    await getMineLike();
-    await getMineScrap();
+    // await getMineLike();
+    // await getMineScrap();
     profilePostIndex.value = 0;
   }
 
@@ -150,8 +139,8 @@ class UserController extends GetxController {
     // _dataAvailableMypageLike.value = false;
     // _dataAvailableMypageScrap.value = false;
     await getMineWrite();
-    await getMineLike();
-    await getMineScrap();
+    // await getMineLike();
+    // await getMineScrap();
   }
 
   bool get dataAvailableMypage => _dataAvailableMypage.value;
@@ -272,6 +261,7 @@ class PostController extends GetxController {
   void onInit() {
     super.onInit();
     makeCommentUrl(COMMUNITY_ID, BOARD_ID);
+    boardOrRecruit = COMMUNITY_ID > 3 ? "board" : "outside";
   }
 
   Future<void> refreshPost() async {
@@ -282,17 +272,18 @@ class PostController extends GetxController {
     var response =
         await Session().getX("/$boardOrRecruit/$COMMUNITY_ID/read/$BOARD_ID");
     print(response.statusCode);
-
-    if (response.statusCode == 401) {
-      Session().getX('/logout');
-      Get.offAllNamed('/login');
-      return null;
-    } else {
-      sortPCCC(jsonDecode(response.body));
-
-      print(sortedList[0]);
-      _dataAvailable.value = true;
-      return;
+    switch (response.statusCode) {
+      case 401:
+        Session().getX('/logout');
+        Get.offAllNamed('/login');
+        return null;
+        break;
+      case 400:
+      case 200:
+        sortPCCC(jsonDecode(response.body));
+        _dataAvailable.value = true;
+        return;
+      default:
     }
   }
 
