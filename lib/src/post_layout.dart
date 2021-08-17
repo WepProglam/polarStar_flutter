@@ -33,6 +33,7 @@ class PostLayout extends StatelessWidget {
       height: MediaQuery.of(context).size.height - 60 - 100,
       child: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: finalPost,
         ),
       ),
@@ -81,7 +82,8 @@ class PostLayout extends StatelessWidget {
                     if (postItem['MYSELF']) {
                     } else {
                       c.totalSend(
-                          '/like/${postItem["COMMUNITY_ID"]}/id/${postItem['UNIQUE_ID']}');
+                          '/like/${postItem["COMMUNITY_ID"]}/id/${postItem['UNIQUE_ID']}',
+                          '좋아요');
                     }
                   },
                   child:
@@ -97,7 +99,8 @@ class PostLayout extends StatelessWidget {
                       Get.toNamed('/writePost', arguments: postItem);
                     } else {
                       c.totalSend(
-                          '/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}');
+                          '/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}',
+                          '스크랩');
                     }
                   },
                   child: postItem['MYSELF']
@@ -134,7 +137,8 @@ class PostLayout extends StatelessWidget {
                     else {
                       var ARREST_TYPE = await c.getArrestType();
                       c.totalSend(
-                          '/arrest/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}?ARREST_TYPE=$ARREST_TYPE');
+                          '/arrest/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}?ARREST_TYPE=$ARREST_TYPE',
+                          '신고');
                     }
                   },
                   child: postItem['MYSELF']
@@ -208,7 +212,8 @@ class PostLayout extends StatelessWidget {
                   if (postItem['MYSELF']) {
                   } else {
                     c.totalSend(
-                        '/like${postItem["COMMUNITY_ID"]}/id/${postItem['BOARD_ID']}');
+                        '/like/${postItem["COMMUNITY_ID"]}/id/${postItem['UNIQUE_ID']}',
+                        '좋아요');
                   }
                 },
                 icon: Icon(
@@ -236,7 +241,8 @@ class PostLayout extends StatelessWidget {
                         MaterialStateProperty.all<Color>(Colors.yellow[700])),
                 onPressed: () {
                   c.totalSend(
-                      '/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}');
+                      '/scrap/${postItem['COMMUNITY_ID']}/id/${postItem['BOARD_ID']}',
+                      '스크랩');
                 },
                 icon: Icon(
                   Icons.bookmark,
@@ -254,7 +260,8 @@ class PostLayout extends StatelessWidget {
 
   List<Widget> returningComment(comment) {
     // String where = "outside";
-    String cidUrl = '/${c.boardOrRecruit}/cid/${comment['UNIQUE_ID']}';
+    String cidUrl =
+        '/${c.boardOrRecruit}/${comment['COMMUNITY_ID']}/cid/${comment['UNIQUE_ID']}';
 
     return [
       Padding(
@@ -311,30 +318,22 @@ class PostLayout extends StatelessWidget {
 
               Spacer(),
 
+              // 대댓 작성 버튼
               Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: InkWell(
                     onTap: () {
-                      c.isCcomment.value = !c.isCcomment.value;
+                      c.changeCcomment(cidUrl);
                       c.makeCcommentUrl(
                           comment["COMMUNITY_ID"], comment['UNIQUE_ID']);
                       c.autoFocusTextForm.value = false;
                     },
                     child: Obx(
-                      () => InkWell(
-                        onTap: () {
-                          c.changeCcomment(
-                              '${c.boardOrRecruit}/${comment["COMMUNITY_ID"]}/cid/${comment["UNIQUE_ID"]}');
-                          c.makeCcommentUrl(
-                              comment["COMMUNITY_ID"], comment["UNIQUE_ID"]);
-                          c.autoFocusTextForm.value = false;
-                        },
-                        child: Icon(
-                          c.isCcomment.value && c.ccommentUrl.value == cidUrl
-                              ? Icons.comment
-                              : Icons.add,
-                          size: 15,
-                        ),
+                      () => Icon(
+                        c.isCcomment.value && c.ccommentUrl.value == cidUrl
+                            ? Icons.comment
+                            : Icons.add,
+                        size: 15,
                       ),
                     )),
               ),
@@ -355,7 +354,8 @@ class PostLayout extends StatelessWidget {
                     } else {
                       c.isCcomment.value = !c.isCcomment.value;
                       await c.totalSend(
-                          '/like/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}');
+                          '/like/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}',
+                          '좋아요');
                     }
                   },
                   child: comment['MYSELF']
@@ -397,7 +397,8 @@ class PostLayout extends StatelessWidget {
                     } else {
                       var ARREST_TYPE = await c.getArrestType();
                       await c.totalSend(
-                          '/arrest/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}?ARREST_TYPE=$ARREST_TYPE');
+                          '/arrest/${comment["COMMUNITY_ID"]}/id/${comment['UNIQUE_ID']}?ARREST_TYPE=$ARREST_TYPE',
+                          '신고');
                     }
                   },
                   child: comment['MYSELF']
@@ -508,7 +509,8 @@ class PostLayout extends StatelessWidget {
                       }
                     } else {
                       await c.totalSend(
-                          '/like/${item["COMMUNITY_ID"]}/id/${item['UNIQUE_ID']}');
+                          '/like/${item["COMMUNITY_ID"]}/id/${item['UNIQUE_ID']}',
+                          '좋아요');
                     }
                   },
                   child: item['MYSELF']
@@ -550,7 +552,8 @@ class PostLayout extends StatelessWidget {
                       } else {
                         var ARREST_TYPE = await c.getArrestType();
                         await c.totalSend(
-                            '/arrest/${item["COMMUNITY_ID"]}/id/${item['UNIQUE_ID']}?ARREST_TYPE=$ARREST_TYPE');
+                            '/arrest/${item["COMMUNITY_ID"]}/id/${item['UNIQUE_ID']}?ARREST_TYPE=$ARREST_TYPE',
+                            '신고');
                       }
                     },
                     child: item['MYSELF']

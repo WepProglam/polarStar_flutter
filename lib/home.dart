@@ -267,7 +267,8 @@ Widget billboardContent(var data) {
     onPressed: () {
       // print('url: ${data['url']}');
       Map argument = {
-        'boardUrl': '/board/${data['COMMUNITY_ID']}/read/${data['BOARD_ID']}'
+        "BOARD_ID": data['BOARD_ID'],
+        "COMMUNITY_ID": data['COMMUNITY_ID']
       };
       print(argument);
       print(argument);

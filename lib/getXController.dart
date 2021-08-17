@@ -334,16 +334,17 @@ class PostController extends GetxController {
     }
   }
 
-  void totalSend(String urlTemp) {
+  void totalSend(String urlTemp, String what) {
     String url = "/$boardOrRecruit" + urlTemp;
     Session().getX(url).then((value) {
       switch (value.statusCode) {
         case 200:
-          Get.snackbar("좋아요 성공", "좋아요 성공", snackPosition: SnackPosition.BOTTOM);
+          Get.snackbar("$what 성공", "$what 성공",
+              snackPosition: SnackPosition.BOTTOM);
           getPostData();
           break;
         case 403:
-          Get.snackbar('이미 좋아요를 누른 게시글입니다', '이미 좋아요를 누른 게시글입니다',
+          Get.snackbar('이미 $what 한 게시글입니다', '이미 $what 한 게시글입니다',
               snackPosition: SnackPosition.BOTTOM);
           break;
         default:
@@ -508,9 +509,9 @@ class PostController extends GetxController {
 
   changeCcomment(String cidUrl) {
     if (isCcomment.value && ccommentUrl.value == cidUrl) {
-      isCcomment.value = false;
+      isCcomment(false);
     } else {
-      isCcomment.value = true;
+      isCcomment(true);
     }
   }
 
