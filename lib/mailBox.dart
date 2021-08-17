@@ -27,8 +27,8 @@ class MailBox extends StatelessWidget {
                         for (var item in mailController.mailBox)
                           InkWell(
                             onTap: () async {
-                              mailController.message_box_id.value =
-                                  item['message_box_id'];
+                              mailController.MAIL_BOX_ID.value =
+                                  item['MAIL_BOX_ID'];
                               //처음에 정보(쪽지 주고 받은 내역) 받고 보냄
                               await mailController.getMail();
                               Get.toNamed("/mailBox/sendMail");
@@ -44,7 +44,7 @@ class MailBox extends StatelessWidget {
                                     Expanded(
                                       //상대방 닉네임 or 익명
                                       child: Text(
-                                        "${item["opponent"]}",
+                                        "${item["PROFILE_NICKNAME"]}",
                                         textScaleFactor: 1.2,
                                       ),
                                       flex: 30,
@@ -52,7 +52,7 @@ class MailBox extends StatelessWidget {
                                     Expanded(
                                       //최근 내용
                                       child: Text(
-                                        "${item["content"]}",
+                                        "${item["CONTENT"]}",
                                         textAlign: TextAlign.center,
                                         textScaleFactor: 1.2,
                                       ),
@@ -61,7 +61,7 @@ class MailBox extends StatelessWidget {
                                     Expanded(
                                       //문자 보낸 시각
                                       child: Text(
-                                        "${item["content_creation_date"]}",
+                                        "${item["TIME_CREATED"]}",
                                         textAlign: TextAlign.center,
                                         textScaleFactor: 1,
                                       ),
@@ -122,35 +122,37 @@ class SendMail extends StatelessWidget {
                         shrinkWrap: true,
                         padding: EdgeInsets.only(top: 10, bottom: 10),
                         itemBuilder: (context, index) {
+                          if (index == mailController.mailSendData.length - 1) {
+                            print((mailController.mailSendData[index]
+                                ["FROM_ME"]));
+                          }
                           return Container(
                               padding:
                                   EdgeInsets.only(left: 14, right: 14, top: 10),
                               child: Align(
-                                //sentMessage가 1이면 본인, 아니면 상대방
                                 alignment: (mailController.mailSendData[index]
-                                            ["sentMessage"] ==
+                                            ["FROM_ME"] ==
                                         0
                                     ? Alignment.topLeft
                                     : Alignment.topRight),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20),
-                                    //sentMessage가 1이면 본인, 아니면 상대방
                                     color: (mailController.mailSendData[index]
-                                                ["sentMessage"] ==
+                                                ["FROM_ME"] ==
                                             0
                                         ? Colors.grey.shade400
                                         : Colors.blue[200]),
                                   ),
                                   padding: EdgeInsets.all(16),
                                   child: (mailController.mailSendData[index]
-                                              ["sentMessage"] ==
+                                              ["FROM_ME"] ==
                                           0
                                       ? Text(
-                                          '${mailController.opponentProfile["nickname"]} : ${mailController.mailSendData[index]["content"]}',
+                                          '${mailController.opponentProfile["PROFILE_NICKNAME"]} : ${mailController.mailSendData[index]["CONTENT"]}',
                                           style: TextStyle(fontSize: 15))
                                       : Text(
-                                          '${mailController.mailSendData[index]["content"]}',
+                                          '${mailController.mailSendData[index]["CONTENT"]}',
                                           style: TextStyle(fontSize: 15))),
                                 ),
                               ));
@@ -208,8 +210,8 @@ class SendMail extends StatelessWidget {
     }
 
     Map messageData = {
-      "message_box_id": "${mailController.message_box_id.value}",
-      'content': "${commentWriteController.text}",
+      "MAIL_BOX_ID": "${mailController.MAIL_BOX_ID.value}",
+      'CONTENT': "${commentWriteController.text}",
     };
 
     print(messageData);
@@ -223,9 +225,9 @@ class SendMail extends StatelessWidget {
 
     //mailSendData(Obs)에 추가 =>  돔 자동 수정
     mailController.mailSendData.add({
-      "sentMessage": 1,
-      "content": commentWriteController.text,
-      "creation_date": "2021-08-06T10:11:55.457Z"
+      "FROM_ME": 1,
+      "CONTENT": commentWriteController.text,
+      "TIME_CREATED": "2021-08-06T10:11:55.457Z"
     });
 
     //쪽지 보내면 자동으로 스크롤을 최하단으로 가게 하는 코드

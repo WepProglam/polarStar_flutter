@@ -159,7 +159,7 @@ class UserController extends GetxController {
 
 class MailController extends GetxController {
   RxList mailBox = [].obs; //쪽지함
-  RxInt message_box_id = 0.obs; //쪽지함 id
+  RxInt MAIL_BOX_ID = 0.obs; //쪽지함 id
   RxList mailSendData = [].obs; //쪽지내역
   RxMap opponentProfile = {}.obs; //쪽지 상대방 프로필
 
@@ -176,10 +176,12 @@ class MailController extends GetxController {
     //쪽지함 보기
     var response = await Session().getX("/message");
     var json = jsonDecode(response.body);
+
     if (json.isEmpty) {
       mailBox.value = [];
     } else {
-      mailBox.value = json["messageBox"];
+      print(json);
+      mailBox.value = json;
     }
     _dataAvailableMailPage.value = true;
   }
@@ -194,10 +196,17 @@ class MailController extends GetxController {
 
   Future<void> getMail() async {
     //쪽지 내역 보기
-    var response = await Session().getX("/message/${message_box_id.value}");
+
+    print(MAIL_BOX_ID.value);
+    print(MAIL_BOX_ID.value);
+    print(MAIL_BOX_ID.value);
+
+    print("/message/${MAIL_BOX_ID.value}");
+    var response = await Session().getX("/message/${MAIL_BOX_ID.value}");
+    print(response.body);
     var json = jsonDecode(response.body);
-    mailSendData.value = json["messages"];
-    opponentProfile.value = json["profile"];
+    mailSendData.value = json["MAIL"];
+    opponentProfile.value = json["TARGET_PROFILE"];
     _dataAvailableMailSendPage.value = true;
   }
 
@@ -342,7 +351,8 @@ class PostController extends GetxController {
     });
   }
 
-  void sendMail(item, bid, cid, ccid, mailWriteController, mailController) {
+  void sendMail(
+      int UNIQUE_ID, int COMMUNITY_ID, mailWriteController, mailController) {
     Get.defaultDialog(
       title: "쪽지 보내기",
       barrierDismissible: true,
@@ -391,14 +401,10 @@ class PostController extends GetxController {
                 }
 
                 Map mailData = {
-                  "target_mem_id": '${item["pid"]}',
-                  "bid": '$bid',
-                  "cid": '$cid',
-                  "ccid": '$ccid',
-                  // "mem_unnamed": c.mailAnonymous.value ? '1' : '0',
-                  "mem_unnamed": '1',
-                  "content": '${content.trim()}',
-                  "title": '${item["title"]}'
+                  "UNIQUE_ID": '$UNIQUE_ID',
+                  "PROFILE_UNNAMED": '1',
+                  "CONTENT": '${content.trim()}',
+                  "COMMUNITY_ID": '$COMMUNITY_ID'
                 };
                 //"target_mem_unnamed": '${item["unnamed"]}',
 
@@ -409,9 +415,16 @@ class PostController extends GetxController {
                     Get.back();
                     Get.snackbar("쪽지 전송 완료", "쪽지 전송 완료",
                         snackPosition: SnackPosition.TOP);
+
                     int targetMessageBoxID =
-                        json.decode(response.body)["message_box_id"];
-                    mailController.message_box_id.value = targetMessageBoxID;
+                        jsonDecode(response.body)["MAIL_BOX_ID"];
+
+                    print(jsonDecode(response.body));
+                    print(jsonDecode(response.body));
+
+                    mailController.MAIL_BOX_ID.value = targetMessageBoxID;
+
+                    print(mailController.MAIL_BOX_ID.value);
                     await mailController.getMail();
                     Get.toNamed("/mailBox/sendMail");
 

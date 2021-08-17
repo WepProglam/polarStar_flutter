@@ -149,9 +149,11 @@ class PostLayout extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: InkWell(
                           onTap: () {
-                            // c.sendMail(postItem, postItem["BOARD_ID"], 0, 0,
-                            //     mailWriteController, mailController);
-                            print("sdfasdf");
+                            c.sendMail(
+                                postItem["UNIQUE_ID"],
+                                postItem["COMMUNITY_ID"],
+                                mailWriteController,
+                                mailController);
                           },
                           child: Icon(Icons.mail)),
                     ),
@@ -416,13 +418,10 @@ class PostLayout extends StatelessWidget {
                       child: InkWell(
                           onTap: () {
                             c.sendMail(
-                              comment,
-                              comment["bid"],
-                              comment["UNIQUE_ID"],
-                              0,
-                              mailWriteController,
-                              mailController,
-                            );
+                                comment["UNIQUE_ID"],
+                                comment["COMMUNITY_ID"],
+                                mailWriteController,
+                                mailController);
                           },
                           child: Icon(Icons.mail)),
                     ),
@@ -570,9 +569,8 @@ class PostLayout extends StatelessWidget {
                       padding: const EdgeInsets.all(2.0),
                       child: InkWell(
                         onTap: () {
-                          // c.sendMail(
-                          //     item, item["COMMUNITY_ID"], item["UNIQUE_ID"], 0);
-                          print("adsfadsf");
+                          c.sendMail(item["UNIQUE_ID"], item["COMMUNITY_ID"],
+                              mailWriteController, mailController);
                         },
                         child: Icon(Icons.mail),
                       ),

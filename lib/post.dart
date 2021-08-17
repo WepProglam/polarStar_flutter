@@ -10,9 +10,11 @@ class Post extends StatelessWidget {
   final mailWriteController = TextEditingController();
   final mailController = Get.put(MailController());
   final BOTTOM_SHEET_HEIGHT = 60;
-  final c = Get.put(PostController(
-      BOARD_ID: Get.arguments["BOARD_ID"],
-      COMMUNITY_ID: Get.arguments["COMMUNITY_ID"]));
+  final c = Get.isRegistered<PostController>()
+      ? Get.find<PostController>()
+      : Get.put(PostController(
+          BOARD_ID: Get.arguments["BOARD_ID"],
+          COMMUNITY_ID: Get.arguments["COMMUNITY_ID"]));
 
   @override
   Widget build(BuildContext context) {
