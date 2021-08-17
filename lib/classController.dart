@@ -107,6 +107,7 @@ class ClassSearchController extends GetxController {
         .then((value) {
       switch (value.statusCode) {
         case 200:
+          dataAvailable.value = false;
           resultBody.clear();
 
           for (int i = 0; i < jsonDecode(value.body).length; i++) {

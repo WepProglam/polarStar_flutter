@@ -32,17 +32,23 @@ class Class extends StatelessWidget {
       body: RefreshIndicator(
           onRefresh: classController.refreshPage,
           child: Stack(children: [
-            Obx(() {
-              return ListView.builder(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  controller: classController.scrollController.value,
-                  itemCount: classController.classesBody.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ClassPreview(
-                        body: classController.classesBody[index]);
-                  });
-            }),
-            SearchClassBar(searchText: searchText)
+            Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: Container(
+                // decoration: BoxDecoration(border: Border.all()),
+                child: Obx(() {
+                  return ListView.builder(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      controller: classController.scrollController.value,
+                      itemCount: classController.classesBody.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ClassPreview(
+                            body: classController.classesBody[index]);
+                      });
+                }),
+              ),
+            ),
+            SearchClassBar(searchText: searchText),
           ])), // 여기다 원하는 위젯 만들면 됨
     );
   }
@@ -400,10 +406,10 @@ class ClassLayout extends StatelessWidget {
 }
 
 class SearchClassBar extends StatelessWidget {
-  const SearchClassBar({
-    Key key,
-    @required this.searchText,
-  }) : super(key: key);
+  const SearchClassBar({Key key, @required this.searchText, this.controller})
+      : super(key: key);
+
+  final controller;
 
   final TextEditingController searchText;
 
@@ -434,10 +440,15 @@ class SearchClassBar extends StatelessWidget {
                 child: Container(
                     child: InkWell(
                   onTap: () {
-                    Map arg = {
-                      'search': searchText.text,
-                    };
-                    Get.toNamed('/classSearch', arguments: arg);
+                    if (controller == null) {
+                      Map arg = {
+                        'search': searchText.text,
+                      };
+                      Get.toNamed('/classSearch', arguments: arg);
+                    } else {
+                      Get.arguments['search'] = searchText.text;
+                      controller.getSearchResult();
+                    }
                   },
                   child: Icon(Icons.search_outlined),
                 )),
@@ -465,7 +476,8 @@ class SearchClass extends StatelessWidget {
             child: SingleChildScrollView(
               physics: AlwaysScrollableScrollPhysics(),
               child: Column(children: [
-                SearchClassBar(searchText: searchText),
+                SearchClassBar(
+                    searchText: searchText, controller: classSearchController),
                 Obx(() {
                   if (classSearchController.dataAvailable.value) {
                     return SearchClassLayout(
