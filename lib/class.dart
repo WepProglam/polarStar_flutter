@@ -452,7 +452,7 @@ class SearchClassBar extends StatelessWidget {
 
 class SearchClass extends StatelessWidget {
   SearchClass({Key key}) : super(key: key);
-
+  final searchText = TextEditingController();
   final classSearchController = Get.put(ClassSearchController());
 
   @override
@@ -465,6 +465,7 @@ class SearchClass extends StatelessWidget {
             child: SingleChildScrollView(
               physics: AlwaysScrollableScrollPhysics(),
               child: Column(children: [
+                SearchClassBar(searchText: searchText),
                 Obx(() {
                   if (classSearchController.dataAvailable.value) {
                     return SearchClassLayout(
