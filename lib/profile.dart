@@ -43,28 +43,27 @@ class Mypage extends StatelessWidget {
                               ),
                               Expanded(
                                 flex: 80,
-                                child: InkWell(onTap: () {
-                                  Get.toNamed('/myPage/profile');
-                                }, child: Obx(() {
-                                  return CircleAvatar(
-                                      radius: 100,
-                                      backgroundColor: Colors.white,
-                                      child: CachedNetworkImage(
-                                          imageUrl:
-                                              'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
-                                          fadeInDuration:
-                                              Duration(milliseconds: 0),
-                                          progressIndicatorBuilder: (context,
-                                                  url, downloadProgress) =>
-                                              Image(
-                                                  image: AssetImage(
-                                                      'image/spinner.gif')),
-                                          errorWidget: (context, url, error) {
-                                            print(error);
-                                            return Icon(Icons.error);
-                                          }));
-                                }) //수정해야함
-                                    ),
+                                child: InkWell(
+                                    onTap: () {
+                                      Get.toNamed('/myPage/profile');
+                                    },
+                                    child: CircleAvatar(
+                                        radius: 100,
+                                        backgroundColor: Colors.white,
+                                        child: CachedNetworkImage(
+                                            imageUrl:
+                                                'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/${userController.profileImagePath.value}',
+                                            fadeInDuration:
+                                                Duration(milliseconds: 0),
+                                            progressIndicatorBuilder: (context,
+                                                    url, downloadProgress) =>
+                                                Image(
+                                                    image: AssetImage(
+                                                        'image/spinner.gif')),
+                                            errorWidget: (context, url, error) {
+                                              print(error);
+                                              return Icon(Icons.error);
+                                            }))),
                               ),
                               Spacer(
                                 flex: 20,
@@ -202,12 +201,15 @@ class Mypage extends StatelessWidget {
                                   child: Text(
                                     "내가 쓴 글",
                                     textScaleFactor: 0.8,
+                                    style: TextStyle(
+                                        color: userController
+                                                    .profilePostIndex.value ==
+                                                0
+                                            ? Colors.red[700]
+                                            : Colors.black),
                                   ),
                                   onTap: () {
-                                    userController.dataAvailableMypageWrite
-                                        ? print("already downloaded")
-                                        : userController.getMineWrite();
-                                    userController.setProfilePostIndex(0);
+                                    userController.profilePostIndex.value = 0;
                                   },
                                 ),
                               ),
@@ -217,15 +219,16 @@ class Mypage extends StatelessWidget {
                               Expanded(
                                 flex: 70,
                                 child: InkWell(
-                                  child: Text(
-                                    "좋아요 누른 글",
-                                    textScaleFactor: 0.8,
-                                  ),
+                                  child: Text("좋아요 누른 글",
+                                      textScaleFactor: 0.8,
+                                      style: TextStyle(
+                                          color: userController
+                                                      .profilePostIndex.value ==
+                                                  1
+                                              ? Colors.red[700]
+                                              : Colors.black)),
                                   onTap: () {
-                                    userController.dataAvailableMypageLike
-                                        ? print("already downloaded")
-                                        : userController.getMineLike();
-                                    userController.setProfilePostIndex(1);
+                                    userController.profilePostIndex.value = 1;
                                   },
                                 ),
                               ),
@@ -235,15 +238,16 @@ class Mypage extends StatelessWidget {
                               Expanded(
                                 flex: 54,
                                 child: InkWell(
-                                  child: Text(
-                                    "저장한 글",
-                                    textScaleFactor: 0.8,
-                                  ),
+                                  child: Text("저장한 글",
+                                      textScaleFactor: 0.8,
+                                      style: TextStyle(
+                                          color: userController
+                                                      .profilePostIndex.value ==
+                                                  2
+                                              ? Colors.red[700]
+                                              : Colors.black)),
                                   onTap: () {
-                                    userController.dataAvailableMypageScrap
-                                        ? print("already downloaded")
-                                        : userController.getMineScrap();
-                                    userController.setProfilePostIndex(2);
+                                    userController.profilePostIndex.value = 2;
                                   },
                                 ),
                               ),
@@ -525,8 +529,10 @@ class Profile extends StatelessWidget {
       default:
     }
     print(response.body);
-    userController
-        .setProfileImagePath("uploads/" + jsonDecode(response.body)["src"]);
+    userController.profileImagePath.value =
+        "uploads/" + jsonDecode(response.body)["src"];
+    // userController
+    //     .setProfileImagePath("uploads/" + jsonDecode(response.body)["src"]);
     print(jsonDecode(response.body)["src"]);
     print(userController.profileImagePath.value);
     /*setState(() {
@@ -725,8 +731,9 @@ class Profile extends StatelessWidget {
                                                               .statusCode) {
                                                             case 200:
                                                               userController
-                                                                  .setProfilemsg(
-                                                                      tempProfileMsg);
+                                                                      .profileProfilemsg
+                                                                      .value =
+                                                                  tempProfileMsg;
                                                               Get.back();
                                                               Get.snackbar(
                                                                   "프로필 메세지 변경",
@@ -828,8 +835,9 @@ class Profile extends StatelessWidget {
                                                               .statusCode) {
                                                             case 200:
                                                               userController
-                                                                  .setProfileNickname(
-                                                                      tempNickName);
+                                                                      .profileNickname
+                                                                      .value =
+                                                                  tempNickName;
                                                               Get.back();
                                                               Get.snackbar(
                                                                   "닉네임 변경",

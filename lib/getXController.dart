@@ -104,22 +104,6 @@ class UserController extends GetxController {
     _dataAvailableMypageScrap.value = true;
   }
 
-  void setProfileNickname(nickname) {
-    profileNickname.value = nickname;
-  }
-
-  void setProfilemsg(profilemsg) {
-    profileProfilemsg.value = profilemsg;
-  }
-
-  void setProfileImagePath(path) {
-    profileImagePath.value = path;
-  }
-
-  void setProfilePostIndex(index) {
-    profilePostIndex.value = index;
-  }
-
   void setProfileImage(img) {
     image.value = img;
   }
@@ -128,9 +112,35 @@ class UserController extends GetxController {
   void onInit() async {
     super.onInit();
     await getMineWrite();
-    // await getMineLike();
-    // await getMineScrap();
     profilePostIndex.value = 0;
+
+    //사용자가 인덱스 변경 시 매번 다운 받았는지 체크 후, 안받았으면 http 요청 보냄
+    ever(profilePostIndex, (_) async {
+      switch (profilePostIndex.value) {
+        case 0:
+          if (!dataAvailableMypage) {
+            getMineWrite();
+          }
+          break;
+
+        case 1:
+          if (!dataAvailableMypageLike) {
+            getMineLike();
+          }
+          break;
+
+        case 2:
+          if (!dataAvailableMypageScrap) {
+            getMineScrap();
+          }
+          break;
+        default:
+          if (!dataAvailableMypage) {
+            getMineWrite();
+          }
+          break;
+      }
+    });
   }
 
   //한번에 세트로 다 불러오는 함수
@@ -139,8 +149,6 @@ class UserController extends GetxController {
     // _dataAvailableMypageLike.value = false;
     // _dataAvailableMypageScrap.value = false;
     await getMineWrite();
-    // await getMineLike();
-    // await getMineScrap();
   }
 
   bool get dataAvailableMypage => _dataAvailableMypage.value;
