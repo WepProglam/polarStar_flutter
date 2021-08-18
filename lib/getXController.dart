@@ -275,10 +275,12 @@ class PostController extends GetxController {
   var commentUrl = ''.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     makeCommentUrl(COMMUNITY_ID, BOARD_ID);
     boardOrRecruit = COMMUNITY_ID > 3 ? "board" : "outside";
+    print("init!!!!");
+    await getPostData();
   }
 
   Future<void> refreshPost() async {
