@@ -110,6 +110,7 @@ class _WritePostState extends State<WritePost> {
                       switch (value.statusCode) {
                         case 200:
                           Get.back();
+
                           break;
                         case 401:
                           // Get.snackbar('login error', 'session expired');
@@ -135,6 +136,7 @@ class _WritePostState extends State<WritePost> {
                       switch (value.statusCode) {
                         case 200:
                           Get.back();
+
                           break;
                         case 401:
                           Get.snackbar('login error', 'session expired');

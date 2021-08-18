@@ -32,7 +32,7 @@ class Board extends StatelessWidget {
       ),
       body: BoardLayout(
         from: 'board',
-        type: Get.arguments,
+        type: Get.parameters['COMMUNITY_ID'],
       ),
     );
   }

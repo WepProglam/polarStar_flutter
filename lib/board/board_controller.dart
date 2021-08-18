@@ -45,7 +45,6 @@ class BoardController extends GetxController {
           for (int i = 0; i < jsonDecode(value.body).length; i++) {
             postBody.add(jsonDecode(value.body)[i]);
           }
-          print(jsonDecode(value.body));
 
           dataAvailablePostPreview.value = true;
           return value;

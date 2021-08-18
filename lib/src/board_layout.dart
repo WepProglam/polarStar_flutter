@@ -15,9 +15,6 @@ class BoardLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(BoardController());
-    controller.type(type);
-    controller.where(from);
-    controller.refreshPage(); // 이건 일단 야매로 해놨음
 
     return RefreshIndicator(
       onRefresh: controller.refreshPage,
@@ -69,20 +66,28 @@ class BoardLayout extends StatelessWidget {
               // 게시글 프리뷰 리스트
               Expanded(
                 child: Obx(() {
-                  if (controller.dataAvailablePostPreview.value) {
-                    return ListView.builder(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        controller: controller.scrollController.value,
-                        itemCount: controller.postBody.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return RecruitPostPreview(
-                            body: controller.postBody[index],
-                            from: '/$from',
-                          );
-                        });
+                  if (controller.type.value == type) {
+                    if (controller.dataAvailablePostPreview.value) {
+                      return ListView.builder(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          controller: controller.scrollController.value,
+                          itemCount: controller.postBody.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return RecruitPostPreview(
+                              body: controller.postBody[index],
+                              from: from == 'outside' ? '/outside/' : '/',
+                            );
+                          });
+                    } else {
+                      controller.type(type);
+                      controller.where(from);
+
+                      return Center(child: CircularProgressIndicator());
+                    }
                   } else {
                     controller.type(type);
                     controller.where(from);
+                    controller.refreshPage();
                     return Center(child: CircularProgressIndicator());
                   }
                 }),
@@ -110,6 +115,16 @@ class RecruitPostPreview extends StatelessWidget {
   final Map<dynamic, dynamic> body;
   final from;
 
+  String communityBoardName(int COMMUNITY_ID) {
+    final box = GetStorage();
+    var boardList = box.read('boardInfo');
+    for (var item in boardList) {
+      if (item['COMMUNITY_ID'] == COMMUNITY_ID) {
+        return item['COMMUNITY_NAME'];
+      }
+    }
+  }
+
   String boardName(int COMMUNITY_ID) {
     switch (COMMUNITY_ID) {
       case 1:
@@ -126,27 +141,25 @@ class RecruitPostPreview extends StatelessWidget {
     }
   }
 
-  String communityBoardName(int COMMUNITY_ID) {
-    final box = GetStorage();
-    var boardList = box.read('boardInfo');
-    for (var item in boardList) {
-      if (item['COMMUNITY_ID'] == COMMUNITY_ID) {
-        return item['COMMUNITY_NAME'];
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
         print("ㅁㅇㄹㅇㄴㄻㄴㅇㄹ");
         print("ㅁㅇㄹㅇㄴㄻㄴㅇㄹ");
-        Get.toNamed('/recruit/${body['COMMUNITY_ID']}/read/${body['BOARD_ID']}',
-            arguments: {
-              "COMMUNITY_ID": body["COMMUNITY_ID"],
-              "BOARD_ID": body["BOARD_ID"]
-            });
+        if (from == '/outside/') {
+          Get.toNamed(
+              '/recruit/${body['COMMUNITY_ID']}/read/${body['BOARD_ID']}',
+              arguments: {
+                "COMMUNITY_ID": body["COMMUNITY_ID"],
+                "BOARD_ID": body["BOARD_ID"]
+              });
+        } else {
+          Get.toNamed('/post', arguments: {
+            "COMMUNITY_ID": body["COMMUNITY_ID"],
+            "BOARD_ID": body["BOARD_ID"]
+          });
+        }
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 4),
@@ -225,7 +238,7 @@ class RecruitPostPreview extends StatelessWidget {
                           ? Container()
                           : CachedNetworkImage(
                               imageUrl:
-                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads$from/${body['PHOTO']}',
+                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads$from${body['PHOTO']}',
                               fit: BoxFit.fill,
                               fadeInDuration: Duration(milliseconds: 0),
                               progressIndicatorBuilder: (context, url,

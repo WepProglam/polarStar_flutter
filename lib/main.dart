@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/mainPage', page: () => MainPage()),
         GetPage(name: '/myPage', page: () => Mypage()),
         GetPage(name: '/myPage/profile', page: () => Profile()),
-        GetPage(name: '/board', page: () => Board()),
+        GetPage(name: '/board/:COMMUNITY_ID/page/:page', page: () => Board()),
         GetPage(name: '/searchBoard', page: () => SearchBoard()),
         GetPage(name: '/post', page: () => Post()),
         GetPage(name: '/writePost', page: () => WritePost()),
