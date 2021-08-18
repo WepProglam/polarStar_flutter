@@ -19,7 +19,7 @@ class Post extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var commentWriteController = TextEditingController();
-    c.getPostData();
+    // c.getPostData();
     return Scaffold(
         appBar: AppBar(
           title: Text('polarStar'),

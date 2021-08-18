@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'crypt.dart';
 import 'package:get/get.dart';
-
+import './src/custom_text_form_field.dart';
+import './src/form_validator.dart';
 // void main() {
 //   runApp(SignUp());
 // }
@@ -33,6 +34,7 @@ class _SignUpInputState extends State<SignUpInput> {
   final pwController = TextEditingController();
   final nicknameController = TextEditingController();
   final studentIDController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   Future userSignUp() async {
     var url =
@@ -67,76 +69,44 @@ class _SignUpInputState extends State<SignUpInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Form(
+      key: _formKey,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Container(
-              child: Column(
-            children: [
-              Text('아이디를 입력하세요'),
-              Container(
-                height: 10,
-              ),
-              TextFormField(
-                controller: idController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'ID'),
-              ),
-            ],
-          )),
-          Container(
-              child: Column(
-            children: [
-              Text('비밀번호를 입력하세요'),
-              Container(
-                height: 10,
-              ),
-              TextFormField(
-                controller: pwController,
-                obscureText: true,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'PW'),
-              ),
-            ],
-          )),
-          Container(
-              child: Column(
-            children: [
-              Text('닉네임을 입력하세요'),
-              Container(
-                height: 10,
-              ),
-              TextFormField(
-                controller: nicknameController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'Nickname'),
-              ),
-            ],
-          )),
-          Container(
-              child: Column(
-            children: [
-              Text('학생번호를 입력하세요'),
-              Container(
-                height: 10,
-              ),
-              TextFormField(
-                controller: studentIDController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'Student ID'),
-              ),
-            ],
-          )),
+          SizedBox(height: 20),
+          CustomTextFormField(
+            hint: "ID",
+            textController: idController,
+            funcValidator: (value) {
+              return checkEmpty(value);
+            },
+          ),
+          CustomTextFormField(
+            hint: "PASSWORD",
+            textController: pwController,
+            funcValidator: (value) {
+              return checkEmpty(value);
+            },
+          ),
+          CustomTextFormField(
+            hint: "NICKNAME",
+            textController: nicknameController,
+            funcValidator: (value) {
+              return checkEmpty(value);
+            },
+          ),
+          CustomTextFormField(
+            hint: "SCHOOL",
+            textController: studentIDController,
+            funcValidator: (value) {
+              return checkEmpty(value);
+            },
+          ),
           OutlinedButton(
               onPressed: () {
-                userSignUp();
+                if (_formKey.currentState.validate()) userSignUp();
               },
-              child: Text('sign up'))
+              child: Text('회원가입'))
         ],
       ),
     );

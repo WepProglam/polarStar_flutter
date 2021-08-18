@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:polarstar_flutter/src/form_validator.dart';
 import 'dart:convert';
 import 'session.dart';
 import 'crypt.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'getXController.dart';
+import './src/custom_text_form_field.dart';
 
 // void main() {
 //   runApp(Login());
@@ -14,6 +16,7 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('polarStar'),
       ),
@@ -27,6 +30,7 @@ class LoginInputs extends StatelessWidget {
 
   final loginIdContoller = TextEditingController();
   final loginPwContoller = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   final box = GetStorage();
 
@@ -90,44 +94,26 @@ class LoginInputs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notiController = Get.put(NotiController());
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Container(
-            child: Column(
-          children: [
-            Text('아이디를 입력하세요'),
-            Container(
-              height: 10,
-            ),
-            TextFormField(
-              controller: loginIdContoller,
-              textAlign: TextAlign.center,
-              decoration:
-                  InputDecoration(border: OutlineInputBorder(), hintText: 'ID'),
-            ),
-          ],
-        )),
-        Container(
-          child: Column(
-            children: [
-              Text('비밀번호를 입력하세요'),
-              Container(
-                height: 10,
-              ),
-              TextFormField(
-                obscureText: true,
-                controller: loginPwContoller,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'PW'),
-              ),
-            ],
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          SizedBox(height: 20),
+          CustomTextFormField(
+            hint: "ID",
+            textController: loginIdContoller,
+            funcValidator: (value) {
+              return checkEmpty(value);
+            },
           ),
-        ),
-        Row(
-          children: [
+          CustomTextFormField(
+            hint: "PASSWORD",
+            textController: loginPwContoller,
+            funcValidator: (value) {
+              return checkEmpty(value);
+            },
+          ),
+          Row(children: [
             Obx(
               () => Checkbox(
                   value: loginController.isAutoLogin.value,
@@ -136,29 +122,24 @@ class LoginInputs extends StatelessWidget {
                     loginController.updateAutoLogin(value);
                   }),
             ),
-            Text('자동 로그인'),
-          ],
-        ),
-        Container(
-          child: Row(
+            Text('자동 로그인')
+          ]),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              OutlinedButton(
+              ElevatedButton(
                   onPressed: () {
-                    print(notiController.tokenFCM.value);
-                    userLogin(notiController.tokenFCM.value);
+                    if (_formKey.currentState.validate()) {
+                      userLogin(notiController.tokenFCM.value);
+                    }
                   },
-                  child: Text('LOGIN')),
-              OutlinedButton(
-                  onPressed: () {
-                    // Navigator.pushNamed(context, '/signUp');
-                    Get.toNamed('/signUp');
-                  },
-                  child: Text('SIGN UP'))
+                  child: Text("로그인")),
+              ElevatedButton(
+                  onPressed: () => Get.toNamed('/signUp'), child: Text("회원가입"))
             ],
-          ),
-        )
-      ],
-    ));
+          )
+        ],
+      ),
+    );
   }
 }

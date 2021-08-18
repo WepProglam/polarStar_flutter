@@ -19,11 +19,12 @@ class RecruitPost extends GetView<PostController> {
   final c = Get.put(PostController(
       BOARD_ID: Get.arguments["BOARD_ID"],
       COMMUNITY_ID: Get.arguments["COMMUNITY_ID"]));
+
   final mailController = Get.put(MailController());
 
   @override
   Widget build(BuildContext context) {
-    c.getPostData();
+    // c.getPostData();
 
     return Scaffold(
         appBar: AppBar(title: Text('polarStar')),
