@@ -11,12 +11,13 @@ import 'package:polarstar_flutter/mainPage.dart';
 import 'package:polarstar_flutter/session.dart';
 import 'package:polarstar_flutter/sign_up.dart';
 import 'package:polarstar_flutter/profile.dart';
-import 'package:polarstar_flutter/board.dart';
+// import 'package:polarstar_flutter/board.dart';
 import 'package:polarstar_flutter/post.dart';
 import 'package:polarstar_flutter/writePost.dart';
 import 'package:polarstar_flutter/searchBoard.dart';
 import 'package:polarstar_flutter/mailBox.dart';
-import 'package:polarstar_flutter/recruit_information/recruit_board.dart';
+import 'package:polarstar_flutter/board/recruit_board.dart';
+import 'package:polarstar_flutter/board/board.dart';
 import 'package:polarstar_flutter/recruit_information/recruit_post.dart';
 
 import 'package:firebase_core/firebase_core.dart';

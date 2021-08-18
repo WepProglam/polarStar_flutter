@@ -6,7 +6,7 @@ import 'home.dart';
 import 'session.dart';
 import 'getXController.dart';
 
-import 'recruit_information/recruit_board.dart';
+import 'board/recruit_board.dart';
 
 class MainPage extends StatefulWidget {
   @override
