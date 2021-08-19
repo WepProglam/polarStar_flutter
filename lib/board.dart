@@ -6,6 +6,12 @@ import 'session.dart';
 import 'dart:convert';
 import 'getXController.dart';
 
+/* 
+######################################
+!!!!!!!!!!!!!!안쓸거임!!!!!!!!!!!!!!!!!
+#####################################3
+*/
+
 class Board extends StatefulWidget {
   const Board({Key key}) : super(key: key);
 

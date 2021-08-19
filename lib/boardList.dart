@@ -142,7 +142,7 @@ Widget board(String boardtype, dynamic boardName) {
           primary: Colors.black,
         ),
         onPressed: () {
-          Get.toNamed('/board', arguments: boardtype);
+          Get.toNamed('/board/$boardtype/page/1');
         },
         child: Text(
           boardName.toString(),

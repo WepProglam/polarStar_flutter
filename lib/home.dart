@@ -5,10 +5,8 @@ import 'dart:convert';
 import 'session.dart';
 import 'getXController.dart';
 
-import 'recruit_information/recruit_board.dart';
-
 class MainPageScroll extends StatelessWidget {
-  // final box = GetStorage();
+  final box = GetStorage();
   @override
   Widget build(BuildContext context) {
     var deviceWidth = MediaQuery.of(context).size.width;
@@ -17,7 +15,7 @@ class MainPageScroll extends StatelessWidget {
     Future<Map> getBoardInfo() async {
       var getResponse = await Session().getX('/');
       var body = jsonDecode(getResponse.body);
-      // box.write("boardInfo", body["board"]);
+      box.write("boardInfo", body["board"]);
       return body;
     }
 
@@ -270,8 +268,7 @@ Widget billboardContent(var data) {
         "BOARD_ID": data['BOARD_ID'],
         "COMMUNITY_ID": data['COMMUNITY_ID']
       };
-      print(argument);
-      print(argument);
+      // print(argument);
       Get.toNamed('/post', arguments: argument);
     },
     child: Row(
@@ -338,7 +335,7 @@ Widget board(String boardtype, dynamic boardName) {
           primary: Colors.black,
         ),
         onPressed: () {
-          Get.toNamed('/board', arguments: boardtype);
+          Get.toNamed('/board/$boardtype/page/1');
         },
         child: Text(
           boardName.toString(),

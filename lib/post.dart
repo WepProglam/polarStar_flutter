@@ -13,6 +13,7 @@ class Post extends StatelessWidget {
   final c = Get.isRegistered<PostController>()
       ? Get.find<PostController>()
       : Get.put(PostController(
+          boardOrRecruit: 'board',
           BOARD_ID: Get.arguments["BOARD_ID"],
           COMMUNITY_ID: Get.arguments["COMMUNITY_ID"]));
 
@@ -94,19 +95,27 @@ class Post extends StatelessWidget {
                   };
 
                   String postUrl;
+
                   if (c.isCcomment.value) {
+                    // 대댓 작성인경우
                     print(c.ccommentUrl);
                     postUrl = c.ccommentUrl.value;
                   } else {
+                    // 댓글 작성인경우
+                    print(c.commentUrl);
                     postUrl = c.commentUrl.value;
                   }
 
                   print(postUrl);
 
                   if (c.autoFocusTextForm.value) {
-                    Session().putX(c.putUrl.value, commentData);
+                    Session()
+                        .putX(c.putUrl.value, commentData)
+                        .then((value) => c.refreshPost());
                   } else {
-                    Session().postX(postUrl, commentData);
+                    Session()
+                        .postX(postUrl, commentData)
+                        .then((value) => c.refreshPost());
                   }
                 },
                 child: Icon(

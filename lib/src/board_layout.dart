@@ -3,108 +3,107 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'package:polarstar_flutter/session.dart';
-import 'package:polarstar_flutter/getXController.dart';
+import 'package:polarstar_flutter/board/board_controller.dart';
 
-import 'recruit_controller.dart';
-
-class RecruitBoard extends GetView<RecruitController> {
-  RecruitBoard({Key key}) : super(key: key);
-  final recruitController = Get.put(RecruitController());
-  final searchText = TextEditingController();
+class BoardLayout extends StatelessWidget {
+  const BoardLayout({Key key, this.from, this.type}) : super(key: key);
+  final from, type;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: recruitController.refreshPage,
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Container(
-                  height: 60,
-                  width: Get.mediaQuery.size.width,
-                ),
-                Container(
-                  height: 50,
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: ElevatedButton(
-                            onPressed: () {
-                              recruitController.boardIndex.value = 0;
-                              // print(recruitController.boardIndex.value);
-                            },
-                            child: Text("취업")),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: ElevatedButton(
-                            onPressed: () {
-                              recruitController.boardIndex.value = 1;
-                            },
-                            child: Text("알바")),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: ElevatedButton(
-                            onPressed: () {
-                              recruitController.boardIndex.value = 2;
-                            },
-                            child: Text("공모전")),
-                      )
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Obx(() {
-                    List<bool> dataAvailable = [
-                      recruitController.dataAvailableRecruitPreview,
-                      recruitController.dataAvailableRecruitPreview,
-                      recruitController.dataAvailableRecruitPreview,
-                    ];
+    final controller = Get.put(BoardController());
 
-                    if (dataAvailable[recruitController.boardIndex.value]) {
-                      // return Obx(() => ListView(
-                      //       physics: AlwaysScrollableScrollPhysics(),
-                      //       controller: recruitController.scrollController.value,
-                      //       children: recruitController.postPreviewList,
-                      //     ));
-                      return ListView.builder(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          controller: recruitController.scrollController.value,
-                          itemCount: recruitController.postBody.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return RecruitPostPreview(
-                                body: recruitController.postBody[index]);
-                          });
-                    } else {
-                      // navigate로 왔는지
-                      if (Get.parameters.isEmpty) {
-                        recruitController.type('1');
-                        recruitController.page('1');
-                      } else {
-                        recruitController.type(Get.parameters['COMMUNITY_ID']);
-                        recruitController.page(Get.parameters['page']);
-                      }
-                      // recruitController.getRecruitBoard();
-                      return CircularProgressIndicator();
-                    }
-                  }),
-                ),
-              ],
-            ),
-            // recruitController.postPreviewList.length < 8
-            //     ? ListView(
-            //         // controller: recruitController.subScrollController.value,
-            //         )
-            //     : Container(child: null),
-            SearchBar(searchText: searchText),
-          ],
-        ),
+    return RefreshIndicator(
+      onRefresh: controller.refreshPage,
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              Container(
+                height: 60,
+                width: Get.mediaQuery.size.width,
+              ),
+              from == 'outside'
+                  ? Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                controller.type('1');
+                                controller.type.refresh();
+                                controller.getBoard();
+                                // print(controller.boardIndex.value);
+                              },
+                              child: Text("취업")),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                controller.type('2');
+                                controller.type.refresh();
+                                controller.getBoard();
+                              },
+                              child: Text("알바")),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                controller.type('3');
+                                controller.type.refresh();
+                                controller.getBoard();
+                              },
+                              child: Text("공모전")),
+                        )
+                      ],
+                    )
+                  : Container(),
+              // 게시글 프리뷰 리스트
+              Expanded(
+                child: Obx(() {
+                  // if (controller.type.value == type) {
+                  if (controller.dataAvailablePostPreview.value) {
+                    return ListView.builder(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        controller: controller.scrollController.value,
+                        itemCount: controller.postBody.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return RecruitPostPreview(
+                            body: controller.postBody[index],
+                            from: from == 'outside' ? '/outside/' : '/',
+                          );
+                        });
+                  } else {
+                    controller.type(type);
+                    controller.where(from);
+                    controller.refreshPage();
+
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  // } else {
+                  //   controller.type(type);
+                  //   controller.where(from);
+                  //   controller.refreshPage();
+                  //   return Center(child: CircularProgressIndicator());
+                  // }
+                }),
+              ),
+            ],
+          ),
+          // controller.postPreviewList.length < 8
+          //     ? ListView(
+          //         // controller: controller.subScrollController.value,
+          //         )
+          //     : Container(child: null),
+          SearchBar(
+            controller: controller,
+          ),
+        ],
       ),
     );
   }
@@ -112,8 +111,20 @@ class RecruitBoard extends GetView<RecruitController> {
 
 // 게시글 프리뷰 위젯
 class RecruitPostPreview extends StatelessWidget {
-  const RecruitPostPreview({Key key, @required this.body}) : super(key: key);
+  const RecruitPostPreview({Key key, @required this.body, this.from})
+      : super(key: key);
   final Map<dynamic, dynamic> body;
+  final from;
+
+  String communityBoardName(int COMMUNITY_ID) {
+    final box = GetStorage();
+    var boardList = box.read('boardInfo');
+    for (var item in boardList) {
+      if (item['COMMUNITY_ID'] == COMMUNITY_ID) {
+        return item['COMMUNITY_NAME'];
+      }
+    }
+  }
 
   String boardName(int COMMUNITY_ID) {
     switch (COMMUNITY_ID) {
@@ -127,7 +138,7 @@ class RecruitPostPreview extends StatelessWidget {
         return '공모전';
         break;
       default:
-        return '취업';
+        return communityBoardName(COMMUNITY_ID);
     }
   }
 
@@ -137,11 +148,19 @@ class RecruitPostPreview extends StatelessWidget {
       onTap: () {
         print("ㅁㅇㄹㅇㄴㄻㄴㅇㄹ");
         print("ㅁㅇㄹㅇㄴㄻㄴㅇㄹ");
-        Get.toNamed('/recruit/${body['COMMUNITY_ID']}/read/${body['BOARD_ID']}',
-            arguments: {
-              "COMMUNITY_ID": body["COMMUNITY_ID"],
-              "BOARD_ID": body["BOARD_ID"]
-            });
+        if (from == '/outside/') {
+          Get.toNamed(
+              '/recruit/${body['COMMUNITY_ID']}/read/${body['BOARD_ID']}',
+              arguments: {
+                "COMMUNITY_ID": body["COMMUNITY_ID"],
+                "BOARD_ID": body["BOARD_ID"]
+              });
+        } else {
+          Get.toNamed('/post', arguments: {
+            "COMMUNITY_ID": body["COMMUNITY_ID"],
+            "BOARD_ID": body["BOARD_ID"]
+          });
+        }
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 4),
@@ -216,11 +235,11 @@ class RecruitPostPreview extends StatelessWidget {
                       // decoration: BoxDecoration(border: Border.all()),
                       height: 50,
                       width: 50,
-                      child: body['PHOTO'] == ''
+                      child: body['PHOTO'] == '' || body['PHOTO'] == null
                           ? Container()
                           : CachedNetworkImage(
                               imageUrl:
-                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads/outside/${body['PHOTO']}',
+                                  'http://ec2-3-37-156-121.ap-northeast-2.compute.amazonaws.com:3000/uploads$from${body['PHOTO']}',
                               fit: BoxFit.fill,
                               fadeInDuration: Duration(milliseconds: 0),
                               progressIndicatorBuilder: (context, url,
@@ -294,15 +313,12 @@ class RecruitPostPreview extends StatelessWidget {
 
 // 검색창
 class SearchBar extends StatelessWidget {
-  const SearchBar({
-    Key key,
-    @required this.searchText,
-  }) : super(key: key);
-
-  final TextEditingController searchText;
+  const SearchBar({Key key, @required this.controller}) : super(key: key);
+  final controller;
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController searchText = TextEditingController();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Stack(
@@ -328,8 +344,7 @@ class SearchBar extends StatelessWidget {
                 child: Container(
                     child: InkWell(
                   onTap: () {
-                    Map arg = {'search': searchText.text, 'from': 'recruit'};
-                    Get.toNamed('/searchBoard', arguments: arg);
+                    // controller.getSearchBoard(searchText.text);
                   },
                   child: Icon(Icons.search_outlined),
                 )),

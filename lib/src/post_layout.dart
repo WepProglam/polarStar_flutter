@@ -126,6 +126,8 @@ class PostLayout extends StatelessWidget {
                             Get.snackbar("게시글 삭제 성공", "게시글 삭제 성공",
                                 snackPosition: SnackPosition.BOTTOM);
 
+                            c.getPostData();
+
                             break;
                           default:
                             Get.snackbar("게시글 삭제 실패", "게시글 삭제 실패",
@@ -387,7 +389,9 @@ class PostLayout extends StatelessWidget {
                           case 200:
                             Get.snackbar("댓글 삭제 성공", "댓글 삭제 성공",
                                 snackPosition: SnackPosition.BOTTOM);
+
                             c.getPostData();
+
                             break;
                           default:
                             Get.snackbar("댓글 삭제 실패", "댓글 삭제 실패",
@@ -542,7 +546,8 @@ class PostLayout extends StatelessWidget {
                             case 200:
                               Get.snackbar("댓글 삭제 성공", "댓글 삭제 성공",
                                   snackPosition: SnackPosition.BOTTOM);
-                              // setState(() {});
+
+                              c.getPostData();
                               break;
                             default:
                               Get.snackbar("댓글 삭제 실패", "댓글 삭제 실패",
