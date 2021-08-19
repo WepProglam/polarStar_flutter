@@ -277,6 +277,7 @@ class PostController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+    isCcomment(false);
     makeCommentUrl(COMMUNITY_ID, BOARD_ID);
     boardOrRecruit = COMMUNITY_ID > 3 ? "board" : "outside";
     print("init!!!!");
@@ -288,6 +289,7 @@ class PostController extends GetxController {
   }
 
   Future<void> getPostData() async {
+    _dataAvailable.value = false;
     var response =
         await Session().getX("/$boardOrRecruit/$COMMUNITY_ID/read/$BOARD_ID");
     print(response.statusCode);

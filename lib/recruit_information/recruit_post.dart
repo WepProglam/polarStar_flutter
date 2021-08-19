@@ -145,11 +145,11 @@ class WriteComment extends StatelessWidget {
               if (c.autoFocusTextForm.value) {
                 Session()
                     .putX(c.putUrl.value, commentData)
-                    .then((value) => c.getPostData());
+                    .then((value) => c.refreshPost());
               } else {
                 Session()
                     .postX(postUrl, commentData)
-                    .then((value) => c.getPostData());
+                    .then((value) => c.refreshPost());
               }
             },
             child: Icon(
