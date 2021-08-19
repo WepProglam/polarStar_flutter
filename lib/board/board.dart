@@ -9,11 +9,13 @@ import 'package:polarstar_flutter/src/board_layout.dart';
 import 'board_controller.dart';
 
 class Board extends StatelessWidget {
-  const Board({Key key}) : super(key: key);
+  Board({Key key}) : super(key: key);
+  final controller = Get.put(BoardController());
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BoardController());
+    controller.type(Get.parameters['COMMUNITY_ID']);
+    controller.refreshPage();
     return Scaffold(
       appBar: AppBar(
         title: Text('polarStar'),

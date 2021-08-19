@@ -28,11 +28,13 @@ class BoardController extends GetxController {
 
   Future<void> refreshPage() async {
     postBody.clear();
+    dataAvailablePostPreview.value = false;
     // postBody.refresh();
     getBoard().then((value) => postBody.refresh());
   }
 
   Future<void> getBoard() async {
+    dataAvailablePostPreview.value = false;
     var res = await Session()
         .getX('/${where.value}/${type.value}/page/${page.value}')
         .then((value) {

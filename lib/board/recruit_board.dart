@@ -17,6 +17,8 @@ class RecruitBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    controller.type('1');
+    controller.refreshPage();
     return Scaffold(
         body: BoardLayout(
       from: 'outside',

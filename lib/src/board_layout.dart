@@ -66,30 +66,31 @@ class BoardLayout extends StatelessWidget {
               // 게시글 프리뷰 리스트
               Expanded(
                 child: Obx(() {
-                  if (controller.type.value == type) {
-                    if (controller.dataAvailablePostPreview.value) {
-                      return ListView.builder(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          controller: controller.scrollController.value,
-                          itemCount: controller.postBody.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return RecruitPostPreview(
-                              body: controller.postBody[index],
-                              from: from == 'outside' ? '/outside/' : '/',
-                            );
-                          });
-                    } else {
-                      controller.type(type);
-                      controller.where(from);
-
-                      return Center(child: CircularProgressIndicator());
-                    }
+                  // if (controller.type.value == type) {
+                  if (controller.dataAvailablePostPreview.value) {
+                    return ListView.builder(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        controller: controller.scrollController.value,
+                        itemCount: controller.postBody.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return RecruitPostPreview(
+                            body: controller.postBody[index],
+                            from: from == 'outside' ? '/outside/' : '/',
+                          );
+                        });
                   } else {
                     controller.type(type);
                     controller.where(from);
                     controller.refreshPage();
+
                     return Center(child: CircularProgressIndicator());
                   }
+                  // } else {
+                  //   controller.type(type);
+                  //   controller.where(from);
+                  //   controller.refreshPage();
+                  //   return Center(child: CircularProgressIndicator());
+                  // }
                 }),
               ),
             ],
