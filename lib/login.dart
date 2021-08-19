@@ -128,9 +128,11 @@ class LoginInputs extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    print("??");
+                    print(_formKey.currentState.validate());
                     if (_formKey.currentState.validate()) {
-                      userLogin(notiController.tokenFCM.value);
+                      await userLogin(notiController.tokenFCM.value);
                     }
                   },
                   child: Text("로그인")),

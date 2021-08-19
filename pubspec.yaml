@@ -48,7 +48,7 @@ dependencies:
 
   path_provider: ^2.0.2
 
-  validators: ^2.2.0
+  # validators: ^2.2.0
   
 
   
