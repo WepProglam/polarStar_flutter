@@ -31,14 +31,15 @@ class Controller extends GetxController {
 
 class Test {
   int id = 1;
-  Test({this.id});
+  String name = "asas";
+  Test({this.id, this.name});
 }
 
 class UserController extends GetxController {
   Rx<User> userPage = new User().obs;
   Rx<int> profilePostIndex = 0.obs;
   Rx<Post> postPreview = new Post().obs;
-  Rx<Test> testClass = new Test(id: 1).obs;
+  Rx<Test> testClass = new Test(id: 1, name: "sibal").obs;
 
   Map<dynamic, dynamic> userProfile = {}.obs; //유저 기본 정보
   RxList userWriteBid = [].obs; //유저 작성 글

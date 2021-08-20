@@ -22,10 +22,14 @@ class Mypage extends StatelessWidget {
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
         ),
         floatingActionButton: FloatingActionButton(child: Obx(() {
-          return Text("${userController.testClass.value.id}");
+          return Text(
+              "${userController.testClass.value.id} | ${userController.testClass.value.name}");
         }), onPressed: () {
-          userController
-              .testClass(Test(id: userController.testClass.value.id + 1));
+          userController.testClass.update((val) {
+            val.id += 1;
+          });
+          // userController
+          //     .testClass(Test(id: userController.testClass.value.id + 1));
         }),
         body: RefreshIndicator(
           onRefresh: userController.fetchAll,
