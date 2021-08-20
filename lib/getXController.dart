@@ -29,10 +29,16 @@ class Controller extends GetxController {
   }
 }
 
+class Test {
+  int id = 1;
+  Test({this.id});
+}
+
 class UserController extends GetxController {
   Rx<User> userPage = new User().obs;
   Rx<int> profilePostIndex = 0.obs;
   Rx<Post> postPreview = new Post().obs;
+  Rx<Test> testClass = new Test(id: 1).obs;
 
   Map<dynamic, dynamic> userProfile = {}.obs; //유저 기본 정보
   RxList userWriteBid = [].obs; //유저 작성 글
@@ -113,6 +119,10 @@ class UserController extends GetxController {
     super.onInit();
     await getMineWrite();
     profilePostIndex.value = 0;
+
+    ever(testClass, (_) {
+      print("변경");
+    });
 
     //사용자가 인덱스 변경 시 매번 다운 받았는지 체크 후, 안받았으면 http 요청 보냄
     ever(profilePostIndex, (_) async {

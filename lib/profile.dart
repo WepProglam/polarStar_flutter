@@ -21,6 +21,12 @@ class Mypage extends StatelessWidget {
           title: Text('polarStar'),
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
         ),
+        floatingActionButton: FloatingActionButton(child: Obx(() {
+          return Text("${userController.testClass.value.id}");
+        }), onPressed: () {
+          userController
+              .testClass(Test(id: userController.testClass.value.id + 1));
+        }),
         body: RefreshIndicator(
           onRefresh: userController.fetchAll,
           child: Stack(
